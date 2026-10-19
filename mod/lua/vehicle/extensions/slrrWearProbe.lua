@@ -1,0 +1,228 @@
+-- slrrWearProbe: the vehicle-side probe for part wear (step 1 and 2 of docs/PART_WEAR_RESEARCH.md section 8). A dev tool for the tester, not the
+-- final wear extension: it finds the parts on any car, applies ONE part's worn effect from the shared rules (slrrWearRules), steps it in by at most
+-- 10 % of the jbeam value per frame, reapplies it a frame after a vehicle reset, and puts every jbeam value back on clear().
+--   extensions.load('slrrWearProbe')            (vehicle Lua of the car under test)
+--   slrrWearProbe.detect()                      list what it found (log lines 'slrrWearProbe: ...')
+--   slrrWearProbe.damper('FL', 0.3)             condition 0.3 on the front-left damper ('F', 'R', 'all' also)
+--   slrrWearProbe.spring('FL', 0.3)             sag and a softer rate on that corner's spring
+--   slrrWearProbe.pads('F', 0.05)               brake pads of the front axle at 5 %
+--   slrrWearProbe.engine(0.2, 0.5)              internals at 20 %, air filter at 50 % (power cap, friction, misfire)
+--   slrrWearProbe.preset('Realistic')           the strength of the effects (Realistic, Light, Off)
+--   slrrWearProbe.clear()                       every jbeam value back
+--   slrrWearProbe.status()                      what is applied now
+local M = {}
+local rules = require('slrrWearRules')
+
+local settings = rules.settings('Realistic')
+local beams = {}       -- cid -> {kind, corner, part, base = {..}, cur = {..}, target = {..}, rest0}
+local applied = {}     -- the effects asked for: {kind, corner, c}, in order, for the reapply after a reset
+local brakes = {}      -- wheel index -> {base = {...}, target = {...}}
+local engineTarget
+local pending = 0      -- frames until the reapply after a reset
+local moving = false
+
+local function say(msg) log('I', 'slrrWearProbe', msg) end
+
+local function cornerOf(node)
+  -- the wheel nearest to a node gives its corner: front or rear by y (jbeam y grows backward), left or right by x (jbeam +x is the car's left)
+  local best, bestD
+  for i, w in pairs(wheels.wheels) do
+    local n = v.data.nodes[w.node1]
+    if n and n.pos then
+      local d = (n.pos.x - node.pos.x) ^ 2 + (n.pos.y - node.pos.y) ^ 2
+      if not bestD or d < bestD then best, bestD = n, d end
+    end
+  end
+  if not best then return '?' end
+  local ymid, n, sum = 0, 0, 0
+  for _, w in pairs(wheels.wheels) do local nd = v.data.nodes[w.node1] if nd and nd.pos then sum, n = sum + nd.pos.y, n + 1 end end
+  ymid = n > 0 and sum / n or 0
+  return (best.pos.y < ymid and 'F' or 'R') .. (best.pos.x > 0 and 'L' or 'R')
+end
+
+-- every spring and damper of the car, by the game's own tests (partCondition.lua:161 for the damper)
+local function scan()
+  beams = {}
+  local springs, dampers, stops = 0, 0, 0
+  for cid, b in pairs(v.data.beams) do
+    if b.beamType == 2 then   -- BOUNDED
+      local node = v.data.nodes[b.id1]
+      if (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
+        springs = springs + 1
+        beams[cid] = {kind = 'spring', corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
+      elseif (b.beamSpring or 0) == 0 and (b.beamDamp or 0) > 0 and b.beamDampRebound and (b.beamDampVelocitySplit or math.huge) < math.huge then
+        if (b.beamDampRebound or 0) == 0 then   -- (a bump stop: no rebound damping, a split of about 2)
+          stops = stops + 1   -- a bump stop, not a damper
+        else
+          dampers = dampers + 1
+          beams[cid] = {kind = 'damper', corner = node and cornerOf(node) or '?', part = b.partPath,
+                        base = {b.beamDamp, b.beamDampRebound, b.beamDampFast or b.beamDamp, b.beamDampReboundFast or b.beamDampRebound, b.beamDampVelocitySplit, b.beamDampVelocitySplitRebound or b.beamDampVelocitySplit}}
+        end
+      end
+    end
+  end
+  return springs, dampers, stops
+end
+
+function M.detect()
+  local springs, dampers, stops = scan()
+  say(string.format('springs %d, dampers %d, bump stops skipped %d', springs, dampers, stops))
+  for cid, r in pairs(beams) do say(string.format('  %s %s beam %d in %s', r.kind, r.corner, cid, tostring(r.part))) end
+  local nw = 0
+  for i, w in pairs(wheels.wheelRotators or wheels.wheels) do
+    nw = nw + 1
+    say(string.format('  wheel %s: brakeTorque %.0f, initial %.0f, glazing %s', tostring(w.name or i), w.brakeTorque or -1, w.initialBrakeTorque or -1, tostring(w.padGlazingFactor)))
+  end
+  local eng = powertrain.getDevice('mainEngine')
+  say(string.format('engine %s, torque state %s, clutch %s, tbars %d', tostring(eng and eng.name), tostring(eng and eng.outputTorqueState),
+    tostring(powertrain.getDevice('clutch') ~= nil), v.data.torsionbars and #v.data.torsionbars or 0))
+  return springs, dampers, nw
+end
+
+local function match(corner, c) return corner == 'all' or c == corner or (#corner == 1 and c:sub(1, 1) == corner) end
+
+local function want(kind, corner, cond)
+  if not next(beams) then scan() end
+  for cid, r in pairs(beams) do
+    if r.kind == kind and match(corner, r.corner) then
+      r.cur = r.cur or {}
+      local state = r.state or {rear = r.corner:sub(1, 1) == 'R'}
+      local e = rules.effects(kind, cond, settings, state)
+      if e then
+        if kind == 'damper' then
+          local b = r.base
+          r.target = {b[1] * e.comp, b[2] * e.rebound, b[3] * e.fast, b[4] * e.fast, b[5], b[6]}
+        else
+          r.rest0 = r.rest0 or obj:getBeamRestLength(cid)
+          r.target = {r.base[1] * e.rate, r.base[2], r.rest0 - e.sagMm / 1000}   -- motion ratio taken as 1 (a coilover strut stands nearly upright)
+        end
+        if not r.curv then
+          local src = kind == 'damper' and r.base or {r.base[1], r.base[2], r.rest0 or obj:getBeamRestLength(cid)}
+          r.curv = {}
+          for i = 1, #src do r.curv[i] = src[i] end
+        end
+        moving = true
+      end
+    end
+  end
+end
+
+local function remember(kind, corner, cond)
+  for i = #applied, 1, -1 do
+    if applied[i].kind == kind and applied[i].corner == corner then table.remove(applied, i) end
+  end
+  applied[#applied + 1] = {kind = kind, corner = corner, c = cond}
+end
+
+function M.preset(name) settings = rules.settings(name) for _, a in ipairs(applied) do M.reapply(a) end say('preset ' .. tostring(name)) end
+function M.damper(corner, cond) want('damper', corner, cond) remember('damper', corner, cond) say(string.format('damper %s condition %.2f', corner, cond)) end
+function M.spring(corner, cond) want('spring', corner, cond) remember('spring', corner, cond) say(string.format('spring %s condition %.2f', corner, cond)) end
+
+function M.pads(axle, cond)
+  local e = rules.effects(axle == 'R' and 'padR' or 'padF', cond, settings)
+  if not e then return end
+  for i, w in pairs(wheels.wheelRotators or wheels.wheels) do
+    local node = v.data.nodes[w.node1]
+    local c = node and cornerOf(node) or '?'
+    if axle == 'all' or c:sub(1, 1) == axle or c == axle then
+      brakes[i] = brakes[i] or {base = {w.initialBrakeTorque or w.brakeTorque, w.padGlazingFactor or 0, w.squealCoefLowSpeed or 0, w.frictionTorque or 0}}
+      brakes[i].target = {brakes[i].base[1] * e.torque, math.max(brakes[i].base[2], e.glazing), brakes[i].base[3] + e.squealLow, brakes[i].base[4]}
+    end
+  end
+  remember('pads', axle, cond)
+  moving = true
+  say(string.format('pads %s condition %.2f: torque x%.2f, squeal +%.2f, grind %s', axle, cond, e.torque, e.squealLow, tostring(e.grind)))
+end
+
+function M.engine(cInternals, cFilter)
+  local a, b = rules.effects('engine', cInternals, settings), rules.effects('filter', cFilter or 1, settings)
+  if not a then return end
+  engineTarget = {cap = rules.torqueCap(1, a.cap, b and b.cap or 1), dyn = a.dynFriction, misfire = a.misfire}
+  remember('engine', 'all', cInternals)
+  say(string.format('engine: power cap %.3f, dynamic friction x%.2f, misfire %.3f', engineTarget.cap, engineTarget.dyn, engineTarget.misfire))
+end
+
+function M.reapply(a)
+  if a.kind == 'pads' then M.pads(a.corner, a.c) elseif a.kind == 'engine' then M.engine(a.c) else want(a.kind, a.corner, a.c) end
+end
+
+function M.clear()
+  for cid, r in pairs(beams) do
+    if r.kind == 'damper' then
+      local b = r.base
+      obj:setBoundedBeamDamp(cid, b[1], b[2], b[3], b[4], b[5], b[6])
+    else
+      obj:setBeamSpringDamp(cid, r.base[1], r.base[2], -1, -1)
+      if r.rest0 then obj:setBeamLength(cid, r.rest0) end
+    end
+    r.target, r.curv, r.rest0 = nil, nil, nil
+  end
+  for i, br in pairs(brakes) do
+    local w = (wheels.wheelRotators or wheels.wheels)[i]
+    if w then w.brakeTorque, w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.base[1], br.base[2], br.base[3], br.base[4] end
+  end
+  brakes, applied, engineTarget, moving = {}, {}, nil, false
+  local eng = powertrain.getDevice('mainEngine')
+  if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
+  say('cleared: every jbeam value back')
+end
+
+function M.status()
+  for _, a in ipairs(applied) do say(string.format('applied %s %s %.2f', a.kind, a.corner, a.c)) end
+  for cid, r in pairs(beams) do
+    if r.curv then say(string.format('  beam %d %s %s now %s', cid, r.kind, r.corner, table.concat((function() local t = {} for i, x in ipairs(r.curv) do t[i] = string.format('%.4g', x) end return t end)(), ' '))) end
+  end
+end
+
+-- one step toward the targets, at most 10 % of a value per frame
+local function step()
+  local still = false
+  for cid, r in pairs(beams) do
+    if r.target and r.curv then
+      local changed = false
+      for i = 1, #r.target do
+        local nv = rules.limitStep(r.curv[i], r.target[i], i == 3 and r.kind == 'spring' and 0.05 or r.base[i] or 1, 0.10)
+        if nv ~= r.curv[i] then r.curv[i], changed = nv, true end
+      end
+      if changed then
+        still = true
+        if r.kind == 'damper' then obj:setBoundedBeamDamp(cid, r.curv[1], r.curv[2], r.curv[3], r.curv[4], r.curv[5], r.curv[6])
+        else obj:setBeamSpringDamp(cid, r.curv[1], r.curv[2], -1, -1) obj:setBeamLength(cid, r.curv[3]) end
+      end
+    end
+  end
+  for i, br in pairs(brakes) do
+    local w = (wheels.wheelRotators or wheels.wheels)[i]
+    if w and br.target then
+      w.brakeTorque = rules.limitStep(w.brakeTorque, br.target[1], br.base[1], 0.10)
+      w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.target[2], br.target[3], br.target[4]
+      if math.abs(w.brakeTorque - br.target[1]) > 1e-6 then still = true end
+    end
+  end
+  moving = still
+end
+
+function M.onReset() pending = 2 end   -- the resets that follow overwrite what is set here: reapply two frames later
+
+function M.updateGFX(dt)
+  if pending > 0 then
+    pending = pending - 1
+    if pending == 0 then
+      for _, r in pairs(beams) do r.curv = nil end   -- back at the jbeam values after the reset: start the steps from there
+      for _, a in ipairs(applied) do M.reapply(a) end
+      say('reapplied after a reset: ' .. #applied .. ' effects')
+    end
+  end
+  if moving then step() end
+  if engineTarget then
+    local eng = powertrain.getDevice('mainEngine')
+    if eng then
+      eng.outputTorqueState = math.min(eng.outputTorqueState or 1, engineTarget.cap)
+      eng.wearDynamicFrictionCoef = engineTarget.dyn
+      eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, engineTarget.misfire)
+    end
+  end
+end
+
+M.onExtensionLoaded = function() say('loaded: detect(), damper(corner, c), spring(corner, c), pads(axle, c), engine(c, filter), preset(name), clear(), status()') end
+return M
