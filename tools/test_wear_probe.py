@@ -38,7 +38,8 @@ def main():
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
       dev = {name = 'mainEngine', outputTorqueState = 1}
-      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or nil end}
+      clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
+      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or (n == 'clutch' and clutchDev or nil) end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
     """.replace("@ROOT@", ROOT.replace("\\", "/")))
     P = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearProbe.lua"), encoding="utf8").read())
@@ -83,9 +84,22 @@ def main():
     P.engine(0.2, 0.5)
     P.updateGFX(1 / 60)
     assert 0.8 < lua.eval("dev.outputTorqueState") < 1 and lua.eval("dev.wearDynamicFrictionCoef") > 1
+    # settings table, clutch, rotor and the extra fade of a worn pad when the brake is hot
+    P.setSettings(lua.eval("require('slrrWearRules').settings('Realistic')"))
+    P.clutch(0.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("clutchDev.wearLockTorqueCoef") < 1 and lua.eval("clutchDev.wearClutchFreePlayCoef") > 1, "clutch wear coefficients"
+    lua.execute("wheels.wheels[1].brakeSurfaceTemperature = 20")
+    for _ in range(60): P.updateGFX(1 / 60)
+    cold = lua.eval("wheels.wheels[1].brakeTorque")
+    P.rotor("F", 0.0)
+    lua.execute("wheels.wheels[1].brakeSurfaceTemperature = 500")
+    for _ in range(60): P.updateGFX(1 / 60)
+    assert lua.eval("wheels.wheels[1].brakeTorque") < cold, "worn pad and rotor fade more when hot"
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()
+    assert lua.eval("clutchDev.wearLockTorqueCoef") == 1
     assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1
     back = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "damp" and abs(c[4] - 5000) < 1e-9 for c in back), "the damper is back at its jbeam value"
