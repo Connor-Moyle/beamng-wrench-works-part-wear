@@ -67,7 +67,7 @@ def main():
       dev.thermals = {setPartConditionRadiator = function(odo, integrity, vis) radCalls[#radCalls + 1] = {odo, integrity, vis} end}
       dctTyped = {type = 'dctGearbox', wearFrictionCoef = 1, wearLockTorqueCoef = 1}      -- a dual-clutch box: its clutch wear and its gearbox wear both act on the lock torque
       dctDev = {wearLockTorqueCoef = 1}      -- a dual-clutch box with no type field here: only the clutch wear reaches it
-      tcDev = {wearLockupClutchTorqueCoef = 1}
+      tcDev = {wearLockupClutchTorqueCoef = 0.8}      -- (the game's own mileage wear: clear() puts it back, not a plain 1)
       powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or (n == 'clutch' and clutchDev or nil) end,
                     getOrderedDevices = function() return {gbox, auto, diffF, diffR, shaftF, shaftR, shaftC, dev, clutchDev, dctDev, tcDev, dctTyped} end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
@@ -225,7 +225,7 @@ def main():
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()
-    assert lua.eval("clutchDev.wearLockTorqueCoef") == 1 and lua.eval("dctDev.wearLockTorqueCoef") == 1 and lua.eval("tcDev.wearLockupClutchTorqueCoef") == 1
+    assert lua.eval("clutchDev.wearLockTorqueCoef") == 1 and lua.eval("dctDev.wearLockTorqueCoef") == 1 and lua.eval("tcDev.wearLockupClutchTorqueCoef") == 0.8
     assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1
     back = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "damp" and abs(c[4] - 5000) < 1e-9 for c in back), "the damper is back at its jbeam value"

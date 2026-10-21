@@ -403,11 +403,6 @@ function M.clear()
   if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
   if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end
   turboBase, turboTarget, radiatorTarget = nil, nil, nil
-  for _, d in ipairs(clutchDevices()) do
-    if d.wearLockTorqueCoef then d.wearLockTorqueCoef = 1 end
-    if d.wearClutchFreePlayCoef then d.wearClutchFreePlayCoef = 1 end
-    if d.wearLockupClutchTorqueCoef then d.wearLockupClutchTorqueCoef = 1 end
-  end
   local eng = powertrain.getDevice('mainEngine')
   if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
   say('cleared: every jbeam value back')
@@ -483,9 +478,9 @@ function M.updateGFX(dt)
   end
   if clutchTarget then
     for _, d in ipairs(clutchDevices()) do
-      if d.wearLockTorqueCoef and not (d.type == 'dctGearbox' and gearboxTarget) then d.wearLockTorqueCoef = clutchTarget.lock end     -- (a dual-clutch box with a worn gearbox gets both factors below)
-      if d.wearClutchFreePlayCoef then d.wearClutchFreePlayCoef = clutchTarget.freePlay end
-      if d.wearLockupClutchTorqueCoef then d.wearLockupClutchTorqueCoef = clutchTarget.lock end
+      if not (d.type == 'dctGearbox' and gearboxTarget) then setField(d, 'wearLockTorqueCoef', clutchTarget.lock) end     -- (a dual-clutch box with a worn gearbox gets both factors below)
+      setField(d, 'wearClutchFreePlayCoef', clutchTarget.freePlay)
+      setField(d, 'wearLockupClutchTorqueCoef', clutchTarget.lock)      -- (setField keeps the game's own value for clear(): its mileage wear is not lost)
     end
   end
   if engineTarget or ignitionTarget or oilTarget then
