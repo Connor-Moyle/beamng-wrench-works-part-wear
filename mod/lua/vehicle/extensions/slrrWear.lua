@@ -190,7 +190,7 @@ function M.status()
   return string.format('wear %s, %d parts below new: %s', active and 'on' or 'off', #t, table.concat(t, ', '))
 end
 
-function M.onReset() lastV, braking, pending = 0, false, 3 end
+function M.onReset() lastV, braking, pending, lastVz, acc, landCool = 0, false, 3, nil, {}, 0 end      -- no false landing from the speed before the reset, and no events carried over
 function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end end
 
 return M

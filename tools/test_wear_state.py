@@ -104,6 +104,10 @@ def main():
     W.setCondition("clutch", "all", 0.1)
     lua.execute("run(20, 0)")
     assert W.getCondition("clutch", "all") == 0.1, "no failure when the roll does not hit"
+    # a reset or a teleport is not a landing: the vertical speed from before it is forgotten
+    before = W.getCondition("damper", "FL")
+    lua.execute("vz = -9 W_.updateGFX(0.016) W_.onReset() vz = 3 W_.updateGFX(0.016) vz = 0 run(2, 0, 0.5)")
+    assert W.getCondition("damper", "FL") == before or W.getCondition("damper", "FL") > before - 1e-9, "no landing after a reset"
     # one error in the tick switches part wear off for the car, once, and clears the apply layer
     lua.execute("calls = {} obj.queueGameEngineLua = function() error('boom') end W_.setCondition('spring', 'RR', 0.5)")
     lua.execute("run(30, 0)")
