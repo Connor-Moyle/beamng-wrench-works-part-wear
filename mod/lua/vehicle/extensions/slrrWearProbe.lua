@@ -157,8 +157,10 @@ local function remember(kind, corner, cond)
   applied[#applied + 1] = {kind = kind, corner = corner, c = cond}
 end
 
-function M.setSettings(tbl) settings = tbl for _, a in ipairs(applied) do M.reapply(a) end say('settings set') end   -- the full table of rules.settings(..), from the Mods page
-function M.preset(name) settings = rules.settings(name) for _, a in ipairs(applied) do M.reapply(a) end say('preset ' .. tostring(name)) end
+-- every reapply removes its own entry from `applied` and appends it again, so the loop walks a copy (walking the list itself skipped entries and left some effects off after a reset)
+local reapplyAll
+function M.setSettings(tbl) settings = tbl reapplyAll() say('settings set') end   -- the full table of rules.settings(..), from the Mods page
+function M.preset(name) settings = rules.settings(name) reapplyAll() say('preset ' .. tostring(name)) end
 function M.damper(corner, cond) want('damper', corner, cond) remember('damper', corner, cond) say(string.format('damper %s condition %.2f', corner, cond)) end
 function M.spring(corner, cond) want('spring', corner, cond) remember('spring', corner, cond) say(string.format('spring %s condition %.2f', corner, cond)) end
 
@@ -201,6 +203,12 @@ function M.engine(cInternals, cFilter)
   engineTarget = {cap = rules.torqueCap(1, a.cap, b and b.cap or 1), dyn = a.dynFriction, misfire = a.misfire}
   remember('engine', 'all', cInternals)
   say(string.format('engine: power cap %.3f, dynamic friction x%.2f, misfire %.3f', engineTarget.cap, engineTarget.dyn, engineTarget.misfire))
+end
+
+reapplyAll = function()
+  local copy = {}
+  for i, a in ipairs(applied) do copy[i] = a end
+  for _, a in ipairs(copy) do M.reapply(a) end
 end
 
 function M.reapply(a)
@@ -278,7 +286,7 @@ function M.updateGFX(dt)
     pending = pending - 1
     if pending == 0 then
       for _, r in pairs(beams) do r.curv = nil end   -- back at the jbeam values after the reset: start the steps from there
-      for _, a in ipairs(applied) do M.reapply(a) end
+      reapplyAll()
       say('reapplied after a reset: ' .. #applied .. ' effects')
     end
   end
