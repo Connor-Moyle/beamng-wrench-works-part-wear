@@ -23,6 +23,15 @@ local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade 
 local pending = 0      -- frames until the reapply after a reset
 local moving = false
 
+-- every device with a wear coefficient of its own for the clutch: a friction clutch (manual cars) and a dual-clutch gearbox take lock torque (and free play), a torque converter its lockup clutch
+local function clutchDevices()
+  local out = {}
+  for _, d in ipairs(powertrain.getOrderedDevices and powertrain.getOrderedDevices() or {}) do
+    if d.wearLockTorqueCoef or d.wearLockupClutchTorqueCoef then out[#out + 1] = d end
+  end
+  return out
+end
+
 local function say(msg) log('I', 'slrrWearProbe', msg) end
 
 local function cornerOf(node)
@@ -53,10 +62,10 @@ local function linkPart(path)
   return false
 end
 local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
--- a NORMAL beam (the vivace's springs) must also be in a part that says spring or coilover: the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1
+-- a NORMAL beam (the vivace's springs) must also be in a part that says spring, coilover or strut (the vivace's front springs are in vivace_strut_F): the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1
 local function springPart(path)
   local p = tostring(path or ''):lower()
-  return p:find('spring', 1, true) ~= nil or p:find('coilover', 1, true) ~= nil
+  return p:find('spring', 1, true) ~= nil or p:find('coilover', 1, true) ~= nil or p:find('strut', 1, true) ~= nil
 end
 local function suspensionPart(path, normal)
   if normal and linkPart(path) then return false end
@@ -72,9 +81,13 @@ local function scan()
   beams = {}
   local springs, dampers, stops = 0, 0, 0
   for cid, b in pairs(v.data.beams) do
-    if (b.beamType == 2 or (b.beamType == 0 and springPart(b.partPath))) and suspensionPart(b.partPath, b.beamType == 0) then   -- BOUNDED, or NORMAL in a spring part (the vivace's springs)
+    local leaf = b.beamType == 4 and springPart(b.partPath) and suspensionPart(b.partPath, true) and (b.beamSpring or 0) > 0   -- LBEAM: the pickup's leaf springs
+    if leaf or ((b.beamType == 2 or (b.beamType == 0 and springPart(b.partPath))) and suspensionPart(b.partPath, b.beamType == 0)) then   -- BOUNDED, or NORMAL in a spring part (the vivace's springs)
       local node = v.data.nodes[b.id1]
-      if (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
+      if leaf then
+        springs = springs + 1
+        beams[cid] = {kind = 'spring', leaf = true, corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
+      elseif (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
         springs = springs + 1
         beams[cid] = {kind = 'spring', corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
       elseif b.beamType == 2 and (b.beamSpring or 0) == 0 and (b.beamDamp or 0) > 0 and b.beamDampRebound and (b.beamDampVelocitySplit or math.huge) < math.huge then
@@ -101,8 +114,8 @@ function M.detect()
     say(string.format('  wheel %s: brakeTorque %.0f, initial %.0f, glazing %s', tostring(w.name or i), w.brakeTorque or -1, w.initialBrakeTorque or -1, tostring(w.padGlazingFactor)))
   end
   local eng = powertrain.getDevice('mainEngine')
-  say(string.format('engine %s, torque state %s, clutch %s, tbars %d', tostring(eng and eng.name), tostring(eng and eng.outputTorqueState),
-    tostring(powertrain.getDevice('clutch') ~= nil), v.data.torsionbars and #v.data.torsionbars or 0))
+  say(string.format('engine %s, torque state %s, clutch devices %s, tbars %d', tostring(eng and eng.name), tostring(eng and eng.outputTorqueState),
+    tostring(#clutchDevices()), v.data.torsionbars and #v.data.torsionbars or 0))
   return springs, dampers, nw
 end
 
@@ -119,12 +132,14 @@ local function want(kind, corner, cond)
         if kind == 'damper' then
           local b = r.base
           r.target = {b[1] * e.comp, b[2] * e.rebound, b[3] * e.fast, b[4] * e.fast, b[5], b[6]}
+        elseif r.leaf then
+          r.target = {r.base[1] * e.rate, r.base[2]}   -- a leaf spring is an L-beam: no rest length to shorten, only the rate softens
         else
           r.rest0 = r.rest0 or obj:getBeamRestLength(cid)
           r.target = {r.base[1] * e.rate, r.base[2], r.rest0 - e.sagMm / 1000}   -- motion ratio taken as 1 (a coilover strut stands nearly upright)
         end
         if not r.curv then
-          local src = kind == 'damper' and r.base or {r.base[1], r.base[2], r.rest0 or obj:getBeamRestLength(cid)}
+          local src = (kind == 'damper' or r.leaf) and r.base or {r.base[1], r.base[2], r.rest0 or obj:getBeamRestLength(cid)}
           r.curv = {}
           for i = 1, #src do r.curv[i] = src[i] end
         end
@@ -207,8 +222,11 @@ function M.clear()
     if w then w.brakeTorque, w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.base[1], br.base[2], br.base[3], br.base[4] end
   end
   brakes, applied, engineTarget, clutchTarget, rotorCond, moving = {}, {}, nil, nil, {}, false
-  local cl = powertrain.getDevice('clutch')
-  if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = 1, 1 end
+  for _, d in ipairs(clutchDevices()) do
+    if d.wearLockTorqueCoef then d.wearLockTorqueCoef = 1 end
+    if d.wearClutchFreePlayCoef then d.wearClutchFreePlayCoef = 1 end
+    if d.wearLockupClutchTorqueCoef then d.wearLockupClutchTorqueCoef = 1 end
+  end
   local eng = powertrain.getDevice('mainEngine')
   if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
   say('cleared: every jbeam value back')
@@ -234,7 +252,7 @@ local function step()
       if changed then
         still = true
         if r.kind == 'damper' then obj:setBoundedBeamDamp(cid, r.curv[1], r.curv[2], r.curv[3], r.curv[4], r.curv[5], r.curv[6])
-        else obj:setBeamSpringDamp(cid, r.curv[1], r.curv[2], -1, -1) obj:setBeamLength(cid, r.curv[3]) end
+        else obj:setBeamSpringDamp(cid, r.curv[1], r.curv[2], -1, -1) if not r.leaf then obj:setBeamLength(cid, r.curv[3]) end end
       end
     end
   end
@@ -265,8 +283,11 @@ function M.updateGFX(dt)
   end
   if moving then step() end
   if clutchTarget then
-    local cl = powertrain.getDevice('clutch')
-    if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = clutchTarget.lock, clutchTarget.freePlay end
+    for _, d in ipairs(clutchDevices()) do
+      if d.wearLockTorqueCoef then d.wearLockTorqueCoef = clutchTarget.lock end
+      if d.wearClutchFreePlayCoef then d.wearClutchFreePlayCoef = clutchTarget.freePlay end
+      if d.wearLockupClutchTorqueCoef then d.wearLockupClutchTorqueCoef = clutchTarget.lock end
+    end
   end
   if engineTarget then
     local eng = powertrain.getDevice('mainEngine')

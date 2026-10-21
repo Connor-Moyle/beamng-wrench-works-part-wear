@@ -38,6 +38,9 @@ def main():
       -- the alignment (toe) link of the vivace's rear suspension: a NORMAL beam with a spring and a precompression near 1, in a part that says suspension but not spring
       v.data.beams[212] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, beamPrecompression = 1.003, partPath = '/vivace_body/ardente_suspension_R/vivace_suspension_R_wide'}
       v.data.beams[213] = {beamType = 0, id1 = 3, beamSpring = 90000, beamDamp = 100, beamPrecompression = 1.05, partPath = '/vivace_body/ardente_suspension_R/vivace_camber_link_spring'}
+      v.data.beams[214] = {beamType = 0, id1 = 1, beamSpring = 20000, beamDamp = 0, beamPrecompression = 1.15, partPath = '/vivace_body/ardente_suspension_F/vivace_strut_F'}      -- the vivace's front spring, in the strut part
+      v.data.beams[215] = {beamType = 4, id1 = 4, beamSpring = 265140, beamDamp = 1880, beamPrecompression = 0.957, partPath = '/pickup_body/pickup_axle_R/pickup_spring_R_base'}   -- a leaf spring (L-beam)
+      v.data.beams[216] = {beamType = 4, id1 = 4, beamSpring = 900000, beamDamp = 10, partPath = '/pickup_body/wheel_RL/pickup_tire_RL'}   -- a tyre L-beam: not a spring
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
       obj = {getBeamRestLength = function(_, c) return 0.4 end,
@@ -46,12 +49,14 @@ def main():
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
       dev = {name = 'mainEngine', outputTorqueState = 1}
       clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
-      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or (n == 'clutch' and clutchDev or nil) end}
+      dctDev = {wearLockTorqueCoef = 1}
+      tcDev = {wearLockupClutchTorqueCoef = 1}
+      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or nil end, getOrderedDevices = function() return {dev, clutchDev, dctDev, tcDev} end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
     """.replace("@ROOT@", ROOT.replace("\\", "/")))
     P = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearProbe.lua"), encoding="utf8").read())
     springs, dampers, nw = P.detect()
-    assert (springs, dampers, nw) == (4, 4, 4), ("found", springs, dampers, nw)
+    assert (springs, dampers, nw) == (6, 4, 4), ("found", springs, dampers, nw)
     assert not [m for m in lua.eval("logs") .values() if "bumpstop" in m], "the bump stop is not listed"
     # the part words are whole words, and for NORMAL beams only: stock suspensions that say 4link, multilink or sit under an arm/alarm ancestor are still found; the alignment and anti-roll links are not
     for path, normal, want in (
@@ -90,6 +95,16 @@ def main():
     ks = [c for c in sp if c[1] == "spring"]
     ls = [c for c in sp if c[1] == "len"]
     assert ks and all(c[3] <= 80000 + 1e-9 for c in ks) and ls and ls[-1][3] < 0.4, ("sag and a softer spring", ls[-1:] if ls else None)
+    # the strut-front spring (NORMAL, in the strut part) sags; the leaf spring (L-beam) only softens, its length is never set, a tyre L-beam is not touched
+    lua.execute("calls = {}")
+    P.spring("all", 0.3)
+    for _ in range(80):
+        P.updateGFX(1 / 60)
+    al = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
+    assert any(c[1] == "spring" and c[2] == 214 for c in al) and any(c[1] == "len" and c[2] == 214 for c in al), "the strut spring sags"
+    assert any(c[1] == "spring" and c[2] == 215 and c[3] < 265140 for c in al) and not any(c[2] == 215 and c[1] == "len" for c in al), "the leaf softens, no length"
+    assert not any(c[2] == 216 for c in al), "a tyre L-beam is no spring"
+    P.clear()
     # a NORMAL rear spring (the vivace's) sags too, and the door hinge and steering beams are never touched
     lua.execute("calls = {}")
     P.spring("RL", 0.3)
@@ -115,6 +130,7 @@ def main():
     P.clutch(0.0)
     P.updateGFX(1 / 60)
     assert lua.eval("clutchDev.wearLockTorqueCoef") < 1 and lua.eval("clutchDev.wearClutchFreePlayCoef") > 1, "clutch wear coefficients"
+    assert lua.eval("dctDev.wearLockTorqueCoef") < 1 and lua.eval("tcDev.wearLockupClutchTorqueCoef") < 1, "dual-clutch and torque converter lock wear"
     lua.execute("wheels.wheels[1].brakeSurfaceTemperature = 20")
     for _ in range(60): P.updateGFX(1 / 60)
     cold = lua.eval("wheels.wheels[1].brakeTorque")
@@ -125,7 +141,7 @@ def main():
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()
-    assert lua.eval("clutchDev.wearLockTorqueCoef") == 1
+    assert lua.eval("clutchDev.wearLockTorqueCoef") == 1 and lua.eval("dctDev.wearLockTorqueCoef") == 1 and lua.eval("tcDev.wearLockupClutchTorqueCoef") == 1
     assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1
     back = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "damp" and abs(c[4] - 5000) < 1e-9 for c in back), "the damper is back at its jbeam value"
