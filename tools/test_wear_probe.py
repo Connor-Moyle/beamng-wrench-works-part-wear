@@ -149,7 +149,7 @@ def main():
     assert abs(lua.eval("shaftF.wearFrictionCoef") - 1.5) < 1e-9 and lua.eval("shaftR.wearFrictionCoef") == 1 and abs(lua.eval("shaftC.wearFrictionCoef") - 1.5) < 1e-9, "front shafts; a single driveshaft takes the worse axle; rear shafts untouched"
     last = lua.eval("turboCalls[#turboCalls]")
     assert last[1] == 0 and abs(last[2] - 4) < 1e-9 and abs(last[3] - 0.6) < 1e-9 and last[4] == 1, "the turbo through its own call with a table, never a number"
-    assert lua.eval("radCalls[#radCalls][1]") == 0 and abs(lua.eval("radCalls[#radCalls][2]") - 0.5) < 1e-9, "the radiator integrity through the module's call"
+    assert lua.eval("radCalls[#radCalls][1]") == 0 and abs(lua.eval("radCalls[#radCalls][2]") - 0.86) < 1e-9, "the radiator integrity through the module's call"
     assert lua.eval("dev.slowIgnitionErrorChance") > 0.07, "the ignition misfire"
     assert abs(lua.eval("dev.wearDynamicFrictionCoef") - 1.4 * 1.15) < 1e-9, "engine and oil friction multiply"
     lua.execute("turboCalls, radCalls = {}, {}")

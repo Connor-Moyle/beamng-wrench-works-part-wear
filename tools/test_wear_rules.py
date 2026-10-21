@@ -140,7 +140,7 @@ def main():
     assert W.KINDS["turbo"].group == "engine" and W.KINDS["oil"].group == "engine" and W.KINDS["oil"].life == 15000
     assert eff("engine", 0.0, real)["misfire"] == 0 and eff("ignition", 0.0, real)["misfire"] > 0, "the engine's misfire moved to the ignition"
     assert eff("gearbox", 0.0, real)["friction"] <= 2.0001 and eff("cv", 0.0, real)["friction"] <= 1.5001, "gearbox and shaft friction stay inside the game's own wear range"
-    assert eff("turbo", 0.0, real)["power"] >= 0.6 and eff("turbo", 0.0, real)["friction"] <= 4.0001 and eff("radiator", 0.0, real)["integrity"] >= 0.5
+    assert eff("turbo", 0.0, real)["power"] >= 0.6 and eff("turbo", 0.0, real)["friction"] <= 4.0001 and 0.1 * (1 - eff("radiator", 0.0, real)["integrity"]) < 0.015, "the game leaks coolant above a radiator damage of 0.015: never reached"
     assert eff("oil", 0.0, real)["dynFriction"] <= 1.1501 and eff("oil", 1.0, real)["dynFriction"] == 1
     for k in ("gearbox", "cv", "turbo", "radiator", "ignition"):
         assert W.failureStep(k, 0.12, 1, real, lambda: 0.0) is not None and W.failureStep(k, 0.12, 1, real, lambda: 0.0)[0] == W.FAILURE[k]["level"], ("a failure", k)

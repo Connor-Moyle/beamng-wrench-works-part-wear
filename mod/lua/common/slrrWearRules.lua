@@ -231,8 +231,10 @@ function E.gearbox(c, s) local w = eff(c, s) return {friction = 1 + w, shiftRate
 function E.diff(c, s) return {friction = 1 + eff(c, s)} end
 function E.cv(c, s) return {friction = 1 + 0.5 * eff(c, s)} end
 function E.turbo(c, s) local w = eff(c, s) return {power = clamp(1 - 0.4 * w, 0.6, 1), friction = 1 + 3 * w} end
--- `integrity` is the game's own 0..1 scale for the radiator (1 new): at 0 it gives the game's radiator damage 0.1 and the coolant mass down to 10 %; half of that is the worst here
-function E.radiator(c, s) return {integrity = clamp(1 - 0.5 * eff(c, s), 0.5, 1)} end
+-- `integrity` is the game's own 0..1 scale for the radiator (1 new): radiator damage 0.1 * (1 - integrity) and the coolant mass down to 10 % at 0. The game turns any radiator damage above 0.015 into a coolant
+-- LEAK that drains the engine dry, so the worst here is 0.86 (damage 0.014, no leak; 87 % of the coolant): the effect is a little less cooling reserve, never a leak
+M.RADIATOR_WORST = 0.86
+function E.radiator(c, s) return {integrity = clamp(1 - (1 - M.RADIATOR_WORST) * eff(c, s), M.RADIATOR_WORST, 1)} end
 function E.oil(c, s) return {dynFriction = 1 + 0.15 * eff(c, s)} end
 -- the paint wear look: four layers 0..1 for the paint canvas of Car Surface FX (carSurfaceFx.setPaintWear); they follow the visualWear setting, not effectStrength.
 -- fade grows with wear, grime with it more slowly, scuffs a little later, rust only from 40 % worn (MODELLED shapes: no source gives these curves)
