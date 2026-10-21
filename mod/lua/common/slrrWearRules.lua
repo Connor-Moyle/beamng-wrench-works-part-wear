@@ -159,12 +159,16 @@ function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end 
 -- Brake fade (0f, handling side). Pad friction holds to an onset temperature, then falls linearly to 40 % less over FADE_SPAN degrees C.
 -- Numbers: OEM pads fade from about 350 C; measured pads lost 0.41-0.48 -> 0.25-0.28 mu at 510-573 C (about 40 %). The span and the lower onset of a worn pad are MODELLED, not sourced.
 -- Returns a factor on brake torque, 0.6..1; strength 0 or wear off = 1.
+-- The game already fades brakes with heat (wheels.lua calculateThermalEfficiency on brakeSurfaceTemperature), so the car must apply wornFade (the EXTRA
+-- loss of a worn pad), not this absolute curve, or fade counts twice.
 M.FADE_ONSET, M.FADE_SPAN, M.FADE_LOSS = 350, 200, 0.4
 function M.brakeFade(tempC, padC, s)
   if not s.wearEnabled or s.effectStrength <= 0 then return 1 end
   local onset = M.FADE_ONSET - 50 * eff(padC or 1, s)   -- (worn pads and rotors carry less heat away: fade starts earlier)
   return 1 - M.FADE_LOSS * clamp(((tempC or 0) - onset) / M.FADE_SPAN, 0, 1)
 end
+
+function M.wornFade(tempC, padC, s) return M.brakeFade(tempC, padC, s) / M.brakeFade(tempC, 1, s) end   -- (<= 1; 1 on a new pad)
 
 function M.effects(kind, c, s, st)
   local f = E[kind]

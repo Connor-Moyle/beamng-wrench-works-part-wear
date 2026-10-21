@@ -118,6 +118,8 @@ def main():
     # steps limited to 10 % of the base value
     assert W.brakeFade(200, 1.0, real) == 1 and abs(W.brakeFade(550, 1.0, real) - 0.6) < 1e-9 and W.brakeFade(900, 0.0, real) >= 0.6
     assert W.brakeFade(340, 0.0, real) < W.brakeFade(340, 1.0, real) and W.brakeFade(900, 1.0, off) == 1, 'worn pads fade earlier; Off never fades'
+    assert W.wornFade(500, 1.0, real) == 1 and W.wornFade(200, 0.0, real) == 1 and 0.8 < W.wornFade(340, 0.0, real) < 1, 'only the extra loss of a worn pad'
+    assert abs(W.wornFade(500, 0.0, real) - W.brakeFade(500, 0.0, real) / W.brakeFade(500, 1.0, real)) < 1e-12
     assert abs(W.limitStep(1.0, 0.0, 1.0) - 0.9) < 1e-9 and abs(W.limitStep(0.0, 5.0, 2.0) - 0.2) < 1e-9 and W.limitStep(0.5, 0.52, 1.0) == 0.52
     print("wear rules ok: %d kinds, %d with factors that fall and %d with amounts that rise, all within bounds" % (len(KINDS), len(DOWN), len(UP)))
 

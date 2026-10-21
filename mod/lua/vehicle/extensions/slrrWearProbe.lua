@@ -18,6 +18,8 @@ local beams = {}       -- cid -> {kind, corner, part, base = {..}, cur = {..}, t
 local applied = {}     -- the effects asked for: {kind, corner, c}, in order, for the reapply after a reset
 local brakes = {}      -- wheel index -> {base = {...}, target = {...}}
 local engineTarget
+local clutchTarget   -- {lock, freePlay} factors from the clutch condition
+local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
 local pending = 0      -- frames until the reapply after a reset
 local moving = false
 
@@ -114,6 +116,7 @@ local function remember(kind, corner, cond)
   applied[#applied + 1] = {kind = kind, corner = corner, c = cond}
 end
 
+function M.setSettings(tbl) settings = tbl for _, a in ipairs(applied) do M.reapply(a) end say('settings set') end   -- the full table of rules.settings(..), from the Mods page
 function M.preset(name) settings = rules.settings(name) for _, a in ipairs(applied) do M.reapply(a) end say('preset ' .. tostring(name)) end
 function M.damper(corner, cond) want('damper', corner, cond) remember('damper', corner, cond) say(string.format('damper %s condition %.2f', corner, cond)) end
 function M.spring(corner, cond) want('spring', corner, cond) remember('spring', corner, cond) say(string.format('spring %s condition %.2f', corner, cond)) end
@@ -126,12 +129,29 @@ function M.pads(axle, cond)
     local c = node and cornerOf(node) or '?'
     if axle == 'all' or c:sub(1, 1) == axle or c == axle then
       brakes[i] = brakes[i] or {base = {w.initialBrakeTorque or w.brakeTorque, w.padGlazingFactor or 0, w.squealCoefLowSpeed or 0, w.frictionTorque or 0}}
+      brakes[i].padC, brakes[i].corner = cond, c
       brakes[i].target = {brakes[i].base[1] * e.torque, math.max(brakes[i].base[2], e.glazing), brakes[i].base[3] + e.squealLow, brakes[i].base[4]}
     end
   end
   remember('pads', axle, cond)
   moving = true
   say(string.format('pads %s condition %.2f: torque x%.2f, squeal +%.2f, grind %s', axle, cond, e.torque, e.squealLow, tostring(e.grind)))
+end
+
+-- a worn rotor carries less heat, so the pad's fade starts earlier; the effect itself is applied in step() with the pads
+function M.rotor(corner, cond)
+  rotorCond[corner] = cond
+  remember('rotor', corner, cond)
+  say(string.format('rotor %s condition %.2f', corner, cond))
+end
+
+-- the clutch device's own wear coefficients (the game sets them from the odometer at spawn; a reset reapplies ours)
+function M.clutch(cond)
+  local e = rules.effects('clutch', cond, settings)
+  if not e then return end
+  clutchTarget = {lock = e.lockTorque, freePlay = e.freePlay}
+  remember('clutch', 'all', cond)
+  say(string.format('clutch condition %.2f: lock torque x%.2f, free play x%.1f', cond, e.lockTorque, e.freePlay))
 end
 
 function M.engine(cInternals, cFilter)
@@ -143,7 +163,7 @@ function M.engine(cInternals, cFilter)
 end
 
 function M.reapply(a)
-  if a.kind == 'pads' then M.pads(a.corner, a.c) elseif a.kind == 'engine' then M.engine(a.c) else want(a.kind, a.corner, a.c) end
+  if a.kind == 'pads' then M.pads(a.corner, a.c) elseif a.kind == 'engine' then M.engine(a.c) elseif a.kind == 'rotor' then M.rotor(a.corner, a.c) elseif a.kind == 'clutch' then M.clutch(a.c) else want(a.kind, a.corner, a.c) end
 end
 
 function M.clear()
@@ -161,7 +181,9 @@ function M.clear()
     local w = (wheels.wheelRotators or wheels.wheels)[i]
     if w then w.brakeTorque, w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.base[1], br.base[2], br.base[3], br.base[4] end
   end
-  brakes, applied, engineTarget, moving = {}, {}, nil, false
+  brakes, applied, engineTarget, clutchTarget, rotorCond, moving = {}, {}, nil, nil, {}, false
+  local cl = powertrain.getDevice('clutch')
+  if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = 1, 1 end
   local eng = powertrain.getDevice('mainEngine')
   if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
   say('cleared: every jbeam value back')
@@ -194,9 +216,12 @@ local function step()
   for i, br in pairs(brakes) do
     local w = (wheels.wheelRotators or wheels.wheels)[i]
     if w and br.target then
-      w.brakeTorque = rules.limitStep(w.brakeTorque, br.target[1], br.base[1], 0.10)
+      local cn = br.corner or ''
+      local worst = rotorCond[cn] or rotorCond[cn:sub(1, 1)] or rotorCond.all or 1
+      local extra = rules.wornFade(w.brakeSurfaceTemperature or 0, math.min(br.padC or 1, worst), settings)   -- on top of the game's own heat fade
+      w.brakeTorque = rules.limitStep(w.brakeTorque, br.target[1] * extra, br.base[1], 0.10)
       w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.target[2], br.target[3], br.target[4]
-      if math.abs(w.brakeTorque - br.target[1]) > 1e-6 then still = true end
+      if math.abs(w.brakeTorque - br.target[1] * extra) > 1e-6 or math.min(br.padC or 1, worst) < 1 then still = true end   -- (heat changes the fade every frame)
     end
   end
   moving = still
@@ -214,6 +239,10 @@ function M.updateGFX(dt)
     end
   end
   if moving then step() end
+  if clutchTarget then
+    local cl = powertrain.getDevice('clutch')
+    if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = clutchTarget.lock, clutchTarget.freePlay end
+  end
   if engineTarget then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
