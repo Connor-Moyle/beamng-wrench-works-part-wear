@@ -107,6 +107,11 @@ def main():
     assert gm["disc_brake_FL"]["off"] == "slrr_disc_brake_rusty" and gm["disc_brake_FR"]["off"] == "slrr_disc_brake_worn", "worn discs: their off material is the worn look"
     assert gm["disc_brake_FL"]["on"] == "disc_brake_glow" and gm["disc_brake_RL"]["off"] == "disc_brake" and gm["headlight"]["off"] == "a", "the glow stays, a good disc and other entries are untouched"
     assert gm["disc_brake"]["on"] == "slrr_disc_brake_worn", "calipers and hubs: the runtime switch entry"
+    # a respawn keeps the car's id but its config may not be readable while the jbeam loads: the key the id was given before is used
+    lua.execute("car.partConfig = nil")
+    veh = lua.eval("{glowMap = {disc_brake_FL = {off = 'disc_brake', on = 'disc_brake_glow'}}}")
+    G2.onJbeamLoadingPhase2(None, 7, veh)
+    assert veh["glowMap"]["disc_brake_FL"]["off"] == "slrr_disc_brake_rusty", "found under the key of the car's id"
     lua.execute("files['/settings/slrrPartWear_state.json'] = {}")
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', visualWear = 0}")
     G.reload()

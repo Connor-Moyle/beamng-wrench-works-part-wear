@@ -64,6 +64,22 @@ function M.restore()                  -- every disc back to the car's own: only 
   for wi, stage in pairs(stageOf) do if stage ~= 0 then send(wi, 0) end end
   stageOf = {}
 end
+-- what this car's look found: per wheel its corner, axle, disc meshes and stage; the meshes that carry the disc_brake material; the switches the engine made from our glowMap entry (none: the car
+-- was spawned before part wear and its worn look were on)
+function M.info()
+  if not sw or not next(sw) then build() end
+  local parts = {}
+  for wi, list in pairs(sw) do
+    local names = {}
+    for _, s in ipairs(list) do names[#names + 1] = s.mesh end
+    parts[#parts + 1] = string.format('%s:%s/%s[%s]=%s', tostring(wi), tostring(corner[wi]), tostring(axle[wi]), table.concat(names, ','), tostring(stageOf[wi] or 0))
+  end
+  table.sort(parts)
+  local glow, ex = 0, {}
+  local tr = v.data._materials and v.data._materials.triggers or {}
+  for _, t in pairs(tr) do if t.on and tostring(t.on):find('^slrr_') then glow = glow + 1 if #ex < 4 then ex[#ex + 1] = tostring(t.orgMat) .. '@' .. tostring(t.mesh) end end end
+  return table.concat(parts, ' ') .. ' | disc_brake meshes: ' .. tostring(obj:getMeshesContainingMaterial(MATERIAL)) .. ' | glow=' .. glow .. ' [' .. table.concat(ex, ' ') .. ']'
+end
 function M.stages() local t = {} for wi, s in pairs(stageOf) do t[#t + 1] = wi .. '=' .. s end table.sort(t) return table.concat(t, ' ') end
 function M.onReset() stageOf = {} end      -- the game puts every material switch back on a reset: the worn ones go out again on the next update
 function M.drop() stageOf = {} end                -- state only: at a level end or when the car is destroyed nothing is written to the engine's materials
