@@ -2,11 +2,13 @@
 
 ## 0.1.0 (not released)
 
-This list is only filled in as 80 proves each item with screenshots and logs; until then nothing is published.
+This list is only filled in as each item is proven in the game with screenshots and logs.
 
 Proven in the game:
 
 - Worn suspension, frame and exhaust metal look (the Worn look switch): on the Covet, the Vivace and the pickup the floor pan, suspension arms, axles, driveshaft, fuel tank and muffler take dark grime with rust patches when the car's springs and shock absorbers are worn, set at spawn for the whole car; a second spawn of the same car shows it too, and a car set back to new comes up clean. The exhaust pipes and the engine bay stay as they are (the pickup's exhaust is patchwork, as expected). Seen on the three cars on their sides (2026-10-21).
+
+- Worn brake disc look at spawn: on the Vivace a car spawned with a worn record shows heavy rust on the worn disc and a light tint on the lightly worn one, plain steel at baseline; the stored wear is found at the first spawn of a session.
 
 Built and tested offline only (all off by default; switch on in ESC > Mods > Part wear):
 
@@ -16,5 +18,5 @@ Built and tested offline only (all off by default; switch on in ESC > Mods > Par
 - Worn paint look through Car Surface FX (needs its "Worn paint (test)" switch).
 - Wrench Works garage: worn parts are listed under Services with their condition and a price, and a click pays and sets the part back to new.
 - Worn brake disc look (switch: Worn look in the Mods page): brake discs show a surface bloom of rust and then heavy rust as the disc and pad condition falls, set when the car is spawned (it changes at the next spawn or garage visit; the red-hot brake glow is untouched); calipers and hubs change while driving. Only on cars spawned after part wear is switched on.
-- The metal look's rust strength after 80's frames: on the Vivace's black floor pan the full-strength patches read as glowing embers, so both stages are toned down (not yet seen).
+- The metal look's rust strength: on the Vivace's black floor pan the full-strength patches read as glowing embers, so both stages are toned down (not yet seen).
 - Wear is kept per car and per career slot, so careers never share wear.

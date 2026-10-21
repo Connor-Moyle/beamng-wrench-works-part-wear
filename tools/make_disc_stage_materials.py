@@ -1,7 +1,7 @@
 """Worn stage materials of the part wear look: python tools/make_disc_stage_materials.py <path to BeamNG content/vehicles/common.zip>
 Every material in MATERIALS gets two variants, slrr_<name>_worn and slrr_<name>_rusty: the game's own layers with a tiled detail (colour, normal, roughness) laid over them from the
 named texture set (disc_rust: tools/make_disc_rust_textures.py; mech_rust: tools/make_mech_rust_textures.py). The brake disc material `disc_brake` is shared by the disc, caliper and hub
-meshes of every car; the mechanical materials carry a model's suspension, frame and exhaust (82's survey). One file under vehicles/common, which the game loads with the first car (a
+meshes of every car; the mechanical materials carry a model's suspension, frame and exhaust (read from the game's vehicle files). One file under vehicles/common, which the game loads with the first car (a
 switch target that is not in the car's spawn set renders flat black); the engine only accepts a switch to a variant that the car carries from spawn, so the game side puts them in the
 glowMap (slr/partwear.lua, onJbeamLoadingPhase2): the discs on = worn, on_intense = rusty; the mechanical materials off = the stage. The textures are referenced by path. The source
 materials are read from the zips next to common.zip (ZIPS).

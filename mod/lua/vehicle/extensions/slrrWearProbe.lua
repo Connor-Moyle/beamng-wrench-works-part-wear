@@ -1,4 +1,4 @@
--- slrrWearProbe: the vehicle-side probe for part wear (step 1 and 2 of docs/PART_WEAR_RESEARCH.md section 8). A dev tool for the tester, not the
+-- slrrWearProbe: the vehicle-side probe for part wear (see docs/PROBE_STEPS.md). A dev tool, not the
 -- final wear extension: it finds the parts on any car, applies ONE part's worn effect from the shared rules (slrrWearRules), steps it in by at most
 -- 10 % of the jbeam value per frame, reapplies it a frame after a vehicle reset, and puts every jbeam value back on clear().
 --   extensions.load('slrrWearProbe')            (vehicle Lua of the car under test)
@@ -46,7 +46,7 @@ end
 -- (bounded beams with damping), found on the vivace (80, 2026-10-21). Its springs are NORMAL beams with a precompression, named spring_RL in their part path, not bounded beams.
 local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror', 'link', 'toe', 'camber', 'arm', 'swaybar', 'arb'}
 local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
--- a NORMAL beam (the vivace's springs) must also be in a part that says spring or coilover: the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1 (0f)
+-- a NORMAL beam (the vivace's springs) must also be in a part that says spring or coilover: the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1
 local function springPart(path)
   local p = tostring(path or ''):lower()
   return p:find('spring', 1, true) ~= nil or p:find('coilover', 1, true) ~= nil

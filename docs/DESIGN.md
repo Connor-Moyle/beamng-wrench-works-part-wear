@@ -1,6 +1,6 @@
 # Part wear: design (v1)
 
-Source of the numbers: `docs/PART_WEAR_RESEARCH.md` (Graph repo). Rules already written: `mod/lua/common/slrrWearRules.lua` (kinds, lives, abuse, presets, stages, effects as factors on the jbeam value). Probe already written: `mod/lua/vehicle/extensions/slrrWearProbe.lua` (finds springs, dampers, brake wheels, engine; applies one part's effect; reapplies two frames after a reset). Nothing has run in the game.
+Source of the numbers: published service and inspection figures for each part (modelled numbers are labelled in the rules file). Rules already written: `mod/lua/common/slrrWearRules.lua` (kinds, lives, abuse, presets, stages, effects as factors on the jbeam value). Probe already written: `mod/lua/vehicle/extensions/slrrWearProbe.lua` (finds springs, dampers, brake wheels, engine; applies one part's effect; reapplies two frames after a reset). Nothing has run in the game.
 
 ## What v1 covers
 

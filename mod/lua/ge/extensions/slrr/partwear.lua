@@ -106,7 +106,7 @@ end
 -- The worn look at spawn. The brake discs: the car must carry the worn and rusty variants of disc_brake from spawn, so they go in its glowMap while part wear and its worn look are on
 -- (the variants are in vehicles/common/slrrPartWear/stages.materials.json, loaded with the first car; made by tools/make_disc_stage_materials.py). Cars spawned earlier keep their own discs.
 local DISC = 'disc_brake'
--- JBeam name -> the material of the model's suspension, frame and exhaust metal (82's survey of the game files and 80's probe, 2026-10-21); the worn and rusty variants are in the same stages file
+-- JBeam name -> the material of the model's suspension, frame and exhaust metal (read from the game's vehicle files and a probe of a spawned pickup); the worn and rusty variants are in the same stages file
 local MECH = { covet = 'covet_mechanical', vivace = 'vivace_mechanical', pickup = 'trucks_mechanical' }
 function M.onJbeamLoadingPhase2(_, objID, vehicle)
   if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end

@@ -3,7 +3,7 @@
 -- A part has a condition c, 0..1 (1 = new; the player sees it as a percentage) and a wear w = 1 - c. Condition never rises except by repair.
 -- Effects are FACTORS on the car's own jbeam value (never above 1.0: raising a spring or damper above its jbeam value can blow up light nodes) or
 -- small absolute amounts (sag in mm, drag in Nm); the vehicle side applies them from the jbeam base value, never to the current value.
--- Source of the numbers: docs/PART_WEAR_RESEARCH.md (the Graph repo), sections 4.2, 4.3 and 6.
+-- Source of the numbers: published service and inspection figures for each part; a number with no source is labelled MODELLED in a comment.
 local M = {}
 
 local function clamp(x, a, b) return x < a and a or (x > b and b or x) end
@@ -225,7 +225,7 @@ end
 function E.battery(c, s) return {crank = clamp(1 - 0.4 * eff(c, s), 0.6, 1)} end
 function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end   -- (a dead alternator still charges a little: no stranding)
 
--- Brake fade (0f, handling side). Pad friction holds to an onset temperature, then falls linearly to 40 % less over FADE_SPAN degrees C.
+-- Brake fade. Pad friction holds to an onset temperature, then falls linearly to 40 % less over FADE_SPAN degrees C.
 -- Numbers: OEM pads fade from about 350 C; measured pads lost 0.41-0.48 -> 0.25-0.28 mu at 510-573 C (about 40 %). The span and the lower onset of a worn pad are MODELLED, not sourced.
 -- Returns a factor on brake torque, 0.6..1; strength 0 or wear off = 1.
 -- The game already fades brakes with heat (wheels.lua calculateThermalEfficiency on brakeSurfaceTemperature), so the car must apply wornFade (the EXTRA
