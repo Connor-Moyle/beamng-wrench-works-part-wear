@@ -257,7 +257,7 @@ def main():
         P.updateGFX(1 / 60)
         seen.add(round(lua.eval("electrics.values.lowhighBrake_filament"), 3))
     assert seen <= {0.6, 0.198} and 0.6 in seen and 0.198 in seen, ("dim, and flickering from 70 % worn", seen)
-    assert lua.eval("electrics.values.signal_L") < 1.0, "every bulb value is dimmed, the indicators too"
+    assert lua.eval("electrics.values.signal_L") == 1.0, "only the filament values of bulbs are dimmed, not other electrics"
     P.clear()
     lua.execute("electrics.values.lowhighBrake_filament = 1.0")
     P.updateGFX(1 / 60)
