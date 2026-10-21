@@ -40,6 +40,15 @@ local function carKey(id)
 end
 function M.setCarKey(id, key) keyOf[id] = key end
 
+-- the paint wear look of a car: the layers of the stored paint condition go to Car Surface FX (nothing happens without it, or without its setPaintWear)
+local function paint(id, off)
+  local C = rawget(_G, 'carSurfaceFx')
+  if not (C and C.setPaintWear) then return end
+  local blob = loadStore()[carKey(id)]
+  local c = blob and blob.paint and blob.paint.all or 1
+  local e = (not off) and rules.effects('paint', c, settings) or nil
+  pcall(C.setPaintWear, id, e or { fade = 0, rust = 0, scuffs = 0, grime = 0 })
+end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
@@ -47,6 +56,7 @@ local function give(id)       -- the extensions, the settings, then the car's sa
   send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
   local blob = loadStore()[carKey(id)]
   if blob then send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')') end
+  paint(id)
 end
 
 function M.attach(id)
@@ -63,6 +73,7 @@ function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and new
 function M.onReport(id, blob)
   if not watched[id] or type(blob) ~= 'table' then return end
   loadStore()[carKey(id)] = next(blob) and blob or nil
+  paint(id)
   dirtyAt = dirtyAt or clock
 end
 
@@ -88,7 +99,7 @@ function M.reload()
       if p and p >= 0 then M.attach(p) end
     end
   elseif was then
-    for id in pairs(watched) do send(id, 'if slrrWear then slrrWear.setSettings({wearEnabled=false}) end') end
+    for id in pairs(watched) do send(id, 'if slrrWear then slrrWear.setSettings({wearEnabled=false}) end') paint(id, true) end
     saveStore()
   end
   return settings

@@ -18,7 +18,7 @@ DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
         "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"]}
 UP = {"spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
-      "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "exhaust": ["gainDb"]}
+      "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
 
 
@@ -81,6 +81,12 @@ def main():
     assert eff("padF", 0.09, real)["grind"] and eff("padF", 0.09, real)["torque"] == 0.6 and not eff("padF", 0.2, real)["grind"]
     # bearings drag only when failing
     assert eff("bearing", 0.5, real)["dragNm"] == 0 and eff("bearing", 0.1, real)["dragNm"] > 5
+    # paint: the four layers of the paint wear look follow the visualWear setting and the wear
+    p0, p1, pm = eff("paint", 1.0, real), eff("paint", 0.0, real), eff("paint", 0.7, real)
+    assert all(abs(p0[k]) < 1e-9 for k in p0) and all(0 < p1[k] <= 1 for k in p1), "new paint shows nothing, worn paint shows every layer"
+    assert pm["rust"] == 0 and 0 < pm["fade"] < 0.5 and p1["rust"] > 0.99, "rust only from 40 % worn"
+    assert all(abs(eff("paint", 0.0, W.settings("Realistic", lua.table_from({"visualWear": 0})))[k]) < 1e-9 for k in p1), "visualWear 0: no worn look"
+    assert eff("paint", 0.0, off) is None
     # brake fluid
     assert eff("fluid", 1.0, real)["curveShiftC"] == 0 and eff("fluid", 0.0, real, {"water": 0.03})["curveShiftC"] == -80
 

@@ -21,6 +21,7 @@ M.KINDS = {
   mounts = {life = 150000, group = 'drive'}, clutch = {life = 150000, group = 'drive'}, gearbox = {life = 250000, group = 'drive'},
   cv = {life = 200000, group = 'drive'}, diff = {life = 300000, group = 'drive'},
   battery = {days = 1460, group = 'electrics'}, alternator = {life = 200000, group = 'electrics'},
+  paint = {life = 300000, days = 4380, group = 'body'},        -- the car's paint as a whole (clearcoat 8-15 years in the research; the split between km and age is MODELLED)
 }
 
 -- extra kilometres of wear one event costs, per kind (Street Legal's abuse counters feed these)
@@ -153,6 +154,12 @@ function E.mounts(c, s) local w = eff(c, s) return {k = clamp(1 - 0.5 * w, 0.5, 
 function E.clutch(c, s) local w = eff(c, s) return {lockTorque = clamp(1 - 0.55 * w, 0.45, 1), freePlay = 1 + 6 * w} end
 function E.gearbox(c, s) return {friction = 1 + eff(c, s)} end
 function E.diff(c, s) return {friction = 1 + eff(c, s)} end
+-- the paint wear look: four layers 0..1 for the paint canvas of Car Surface FX (carSurfaceFx.setPaintWear); they follow the visualWear setting, not effectStrength.
+-- fade grows with wear, grime with it more slowly, scuffs a little later, rust only from 40 % worn (MODELLED shapes: no source gives these curves)
+function E.paint(c, s)
+  local w, v = 1 - clamp(c, 0, 1), clamp(s.visualWear or 0, 0, 1)
+  return {fade = clamp(w * v, 0, 1), grime = clamp(0.6 * w * v, 0, 1), scuffs = clamp(0.8 * w ^ 1.2 * v, 0, 1), rust = clamp(math.max(0, (w - 0.4) / 0.6) ^ 1.5 * v, 0, 1)}
+end
 function E.battery(c, s) return {crank = clamp(1 - 0.4 * eff(c, s), 0.6, 1)} end
 function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end   -- (a dead alternator still charges a little: no stranding)
 

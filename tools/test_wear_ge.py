@@ -23,6 +23,8 @@ def main():
       jsonWriteFile = function(f, t) files[f] = t end
       local car = {JBeam = 'covet', partConfig = 'vehicles/covet/base.pc', queueLuaCommand = function(_, c) cmds[#cmds + 1] = c end}
       be = {getObjectByID = function(_, id) return id == 7 and car or nil end, getPlayerVehicleID = function() return 7 end}
+      paintCalls = {}
+      carSurfaceFx = {setPaintWear = function(id, t) paintCalls[#paintCalls + 1] = {id = id, fade = t.fade, rust = t.rust} end}
       slrr_settings = {register = function(s) registered = s end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
       package.preload['slrr/partwearSchema'] = function() return assert(loadfile('@ROOT@/ge/extensions/slrr/partwearSchema.lua'))() end
@@ -48,6 +50,10 @@ def main():
     G.onUpdate(11)
     st = lua.eval("files['/settings/slrrPartWear_state.json']['covet|vehicles/covet/base.pc']")
     assert st["spring"]["RR"] == 0.7, "the report is saved"
+    # paint wear goes to Car Surface FX as the four layers of the stored paint condition
+    G.onReport(7, lua.eval("{paint = {all = 0.1}}"))
+    pc = lua.eval("paintCalls[#paintCalls]")
+    assert pc["id"] == 7 and pc["fade"] > 0.8 and pc["rust"] > 0.5, "worn paint: fade and rust layers"
     # repair: one part back to new, in the store and in the car
     lua.execute("cmds = {}")
     G.repair(7, "spring", "RR")
@@ -56,6 +62,8 @@ def main():
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} cmds = {}")
     G.reload()
     assert "wearEnabled=false" in cmds(lua)[0] and "off" in G.status()
+    pc = lua.eval("paintCalls[#paintCalls]")
+    assert pc["fade"] == 0 and pc["rust"] == 0, "off: the paint look is cleared"
     print("wear game side ok: off by default, page registered, cars get extensions + settings + saved state, reports stored, repair, off")
 
 

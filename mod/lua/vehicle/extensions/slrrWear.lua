@@ -10,7 +10,7 @@ local rules = require('slrrWearRules')
 -- the parts of the store and the corners each has ('F' / 'R' = an axle, 'all' = one for the car)
 local CORNERS = {
   damper = {'FL', 'FR', 'RL', 'RR'}, spring = {'FL', 'FR', 'RL', 'RR'}, rotor = {'FL', 'FR', 'RL', 'RR'},
-  padF = {'F'}, padR = {'R'}, engine = {'all'}, filter = {'all'}, clutch = {'all'},
+  padF = {'F'}, padR = {'R'}, engine = {'all'}, filter = {'all'}, clutch = {'all'}, paint = {'all'},   -- paint: no apply here, the game side draws it
 }
 local TICK, REPORT, CHANGE, HARD_STOP, HARD_FROM = 0.5, 5, 0.01, 7, 15   -- s, s, smallest change handed on, m/s^2, m/s
 
