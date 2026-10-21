@@ -16,6 +16,7 @@ local watched, keyOf, givenKey, store = {}, {}, {}, nil
 local dirtyAt, clock = nil, 0
 local storeScope = 'free'
 
+local function say(m) log('I', 'slrr_partwear', m) end
 local function veh(id) return be and be:getObjectByID(id) end
 local function lit(v)      -- a Lua literal of a JSON-safe table (numbers, strings, booleans, tables)
   if type(v) == 'table' then
@@ -127,9 +128,60 @@ function M.repair(id, kind, corner)
     if corner then snap[kind][corner] = nil else snap[kind] = nil end
     if snap[kind] and not next(snap[kind]) then snap[kind] = nil end
     dirtyAt = dirtyAt or clock
+    paint(id)
   end
   if corner then send(id, string.format('slrrWear.setCondition(%q, %q, 1)', kind, corner))
   else send(id, string.format('for _, c in ipairs({"FL","FR","RL","RR","F","R","all"}) do slrrWear.setCondition(%q, c, 1) end', kind)) end
+end
+
+-- ---- Wrench Works garage: worn parts are listed under Services, with their condition and a price; a click pays through the garage's own wallet and sets the part back to new.
+-- The money goes through changeMoney (paid at once, not part of the visit, so undoing a visit cannot refund it). Only while part wear is on (otherwise the garage is exactly as it was). Nothing here needs Wrench Works to be installed: without it the two hooks are never called.
+local CORNER_NAME = { FL = 'front left', FR = 'front right', RL = 'rear left', RR = 'rear right', F = '', R = '', all = '' }
+local WORN_BELOW = 0.9           -- a part above this is not offered
+local function garageParts() local ok, p = pcall(require, 'slrr/garageParts') return ok and p or nil end
+local function priceMult()
+  local ok, S = pcall(require, 'slrr/garageSettings')
+  local m = ok and S and S.get and select(2, pcall(S.get, 'priceMultiplier'))
+  return type(m) == 'number' and m or 1
+end
+local function worn(vehId)       -- { {kind, corner, c}, ... } of the car's parts that are worn enough to offer, worst first
+  local key = settings.wearEnabled and carKey(vehId)
+  local rec = key and loadStore()[key]
+  local out = {}
+  for kind, t in pairs(rec or {}) do
+    if rules.PRICE[kind] then for corner, c in pairs(t) do if c < WORN_BELOW then out[#out + 1] = { kind = kind, corner = corner, c = c } end end end
+  end
+  table.sort(out, function(a, b) if a.c ~= b.c then return a.c < b.c end if a.kind ~= b.kind then return a.kind < b.kind end return a.corner < b.corner end)
+  return out
+end
+local function label(w) return (rules.NAME[w.kind] or w.kind) .. ((CORNER_NAME[w.corner] or '') ~= '' and (' ' .. CORNER_NAME[w.corner]) or '') end
+
+function M.onWrenchWorksServices(list, vehId)
+  if not settings.wearEnabled then return end
+  local P = garageParts()
+  local money = P and P.getMoney and P.getMoney()
+  local mult = priceMult()
+  for _, w in ipairs(worn(vehId)) do
+    local price = rules.repairPrice(w.kind, w.c, mult)
+    local name = (w.kind == 'paint') and 'Restore the paint' or ('Replace ' .. label(w))
+    list[#list + 1] = { id = 'pw:' .. w.kind .. ':' .. w.corner, tab = 'services', group = 'Part wear', label = name,
+      desc = string.format('%s, %d %% left', rules.stage(w.c), math.floor(w.c * 100 + 0.5)), price = price,
+      disabled = not P or (type(money) == 'number' and money < price) }
+  end
+end
+
+function M.onWrenchWorksService(id, vehId)
+  local kind, corner = tostring(id):match('^pw:([%w_]+):([%w_]+)$')
+  if not kind or not settings.wearEnabled then return end
+  local P = garageParts()
+  if not (P and P.changeMoney) then return end        -- changeMoney, not pay: pay counts towards the visit and is refunded when the visit is undone, but the part would stay new
+  for _, w in ipairs(worn(vehId)) do
+    if w.kind == kind and w.corner == corner then
+      local price = rules.repairPrice(kind, w.c, priceMult())
+      if P.changeMoney(-price, 'Part wear: ' .. label(w)) then M.repair(vehId, kind, corner) say('repaired ' .. label(w) .. ' for ' .. tostring(price)) end
+      return
+    end
+  end
 end
 
 -- the Mods page changed (or the game started): read the settings, switch the cars on or off

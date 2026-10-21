@@ -58,6 +58,17 @@ function M.settings(preset, over)
   return s
 end
 
+-- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
+-- fully worn. mult is the garage's price multiplier.
+M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900}
+M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
+          clutch = 'clutch', paint = 'paint'}
+function M.repairPrice(kind, c, mult)
+  local base = M.PRICE[kind]
+  if not base then return nil end
+  return math.floor(base * (0.3 + 0.7 * (1 - clamp(c, 0, 1))) * (mult or 1) + 0.5)
+end
+
 -- 'Good' >= 75 %, 'Worn' 50-75, 'Bad' 25-50, 'Failing' < 25
 function M.stage(c)
   return c >= 0.75 and 'Good' or (c >= 0.5 and 'Worn' or (c >= 0.25 and 'Bad' or 'Failing'))

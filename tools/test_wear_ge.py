@@ -112,6 +112,34 @@ def main():
     G.onUpdate(11)
     assert lua.eval("files['/settings/slrrPartWear_state_stock.json'].inv41.spring.RR") == 0.5
     lua.execute("career_career = nil career_modules_inventory = nil sl_fleet = nil")
+    # Wrench Works garage: worn parts are listed with their condition and a price, a click pays and sets the part back to new; nothing while part wear is off
+    G.setCarKey(7, key)
+    lua.execute("paid = {} garageParts = {getMoney = function() return money end, changeMoney = function(a, l) if money + a < 0 then return false end money = money + a paid[#paid + 1] = -a return true end} money = 1000 "
+                "package.preload['slrr/garageParts'] = function() return garageParts end sl_career = nil career_career = nil")
+    G.reload()
+    G.onReport(7, lua.eval("{damper = {FL = 0.2}, padF = {F = 0.5}, spring = {RR = 0.95}}"))
+    lua.execute("list = {}")
+    G.onWrenchWorksServices(lua.eval("list"), 7)
+    n = lua.eval("#list")
+    assert n == 2, ("two worn parts are offered, the nearly new spring is not", n)
+    e1, e2 = lua.eval("list[1]"), lua.eval("list[2]")
+    assert e1["id"] == "pw:damper:FL" and e1["label"] == "Replace shock absorber front left" and e1["price"] == 129 and "Failing" in e1["desc"], dict(e1)
+    assert e2["id"] == "pw:padF:F" and e2["label"] == "Replace front brake pads" and e2["price"] == 58, dict(e2)
+    G.onWrenchWorksService("pw:damper:FL", 7)
+    assert lua.eval("money") == 871 and lua.eval("#paid") == 1, "the price is paid through the garage"
+    lua.execute("list = {}")
+    G.onWrenchWorksService("pw:damper:FL", 7)
+    G.onWrenchWorksServices(lua.eval("list"), 7)
+    assert lua.eval("#list") == 1 and lua.eval("#paid") == 1, "repaired: not offered again, not charged twice"
+    lua.execute("money = 10 list = {}")
+    G.onWrenchWorksServices(lua.eval("list"), 7)
+    assert lua.eval("list[1].disabled") is True, "too little money: disabled"
+    G.onWrenchWorksService("pw:padF:F", 7)
+    assert lua.eval("#paid") == 1, "not paid, not repaired"
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} list = {}")
+    G.reload()
+    G.onWrenchWorksServices(lua.eval("list"), 7)
+    assert lua.eval("#list") == 0, "part wear off: the garage is as it was"
     # a NaN or inf condition never reaches the car's command
     G.onReport(7, lua.eval("{damper = {FL = 0/0, FR = 1/0}}"))
     G.repair(7, "spring", None)
