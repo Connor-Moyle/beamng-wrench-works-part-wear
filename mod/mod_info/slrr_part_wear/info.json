@@ -4,7 +4,7 @@
   "tagline": "Parts of your car wear out: shocks, springs, brakes, engine, clutch and paint",
   "description": "Every part of the car has a condition that goes down as you drive, brake hard, land jumps and run hot, and a worn part changes how the car drives: shocks bounce more, springs sit lower, brakes fade, the engine loses power, the clutch slips, paint fades and rusts. Parts can break when you let them. Worn parts are repaired or replaced in the Wrench Works garage for money. Everything is off until you switch it on in ESC > Mods > Part wear. Works with or without Wrench Works (the garage repair needs it), and the paint look needs Car Surface FX.",
   "author": "Connor Moyle",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "game_version": "0.40",
   "category": "mods_of_mods"
 }

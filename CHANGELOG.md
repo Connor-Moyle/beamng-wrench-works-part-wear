@@ -1,12 +1,13 @@
 # Changelog
 
-## 0.1.1 (unreleased)
+## 0.1.1 (2026-10-22)
 
 Proven in the game since 0.1.0:
 
 - Breakdowns (with "Parts can break" on): a shock absorber at 10 % blew within two seconds of a roll and dropped to 5 % with the message "A shock absorber has blown" on screen; the engine at 14 % gave "The engine is running rough" and dropped to 12 %. Only a part between its failure level and 15 % can break.
 - Worn paint through Car Surface FX (its "Worn paint (test)" switch on): a white Covet at 20 % paint condition showed faded, dull paint, a grimy film on the roof and bonnet, scuff lines on the door and orange rust spots along the sill and arches; at 100 % only light dirt.
 - Worn clutch: at a hard launch on the Covet with the clutch at 10 %, the rpm stays pinned at the top while the wheels lag (2.4 m/s after one second against 5.8 to 6.7 with a new clutch, 7 against 8.5 m/s after three seconds); in steady driving it holds. Cars with an automatic or double-clutch gearbox, like the Vivace, have no clutch device: it does nothing there.
+- A part swap in freeroam sets back to new only the parts of the slot that changed, by the slot's name across the stock cars; the rest of the car keeps its wear. On the Covet with the dampers at 30 %, the front-left spring at 40 %, the front pads at 20 % and the engine at 40 %, swapping the front coilover set the four front damper and spring conditions back to 100 % and left the rear dampers, pads and engine as they were; a second swap kept them too; swapping the front brake pads reset the pads only. The parts are read a few seconds after a spawn (the game's list is still the replaced car's right after it), so a swap in the first seconds resets nothing. A slot with no front or rear in its name resets nothing. No change in frame time was seen with the 5 s refresh.
 
 Seen with no effect yet:
 
@@ -14,8 +15,12 @@ Seen with no effect yet:
 
 Built and tested offline only (0.1.1):
 
-- Found by a survey of the stock part names: the pickup, van, Nine and the traffic cars with a 4-link front axle had their front springs and shock absorbers skipped by the part finder ("4link" was read as an alignment link), so wear did not reach their front suspension. The finder now reads whole words, and only for the beams that can be links. Not yet checked in the game.
-- A part swap in freeroam sets back to new only the parts of the slot that changed (a new front coilover resets the front shock absorbers and springs, new pads the pads, a new engine or flywheel the engine or clutch), by the slot's name across the stock cars; the rest of the car keeps its wear. A slot with no front or rear in its name resets nothing. Not yet tried in the game.
+- The part finder now reads whole words and only for the beams that can be links, so the 4-link front axles of the stock Pickup variants, the van, the Nine and the traffic cars ("4link" was read as an alignment link) are no longer skipped. The pickup of the test build has independent front coilovers, so this was not seen in the game.
+
+Known limits:
+
+- No spring wear on the front of strut cars like the Vivace (the front spring is not a beam the finder recognises), and none on the rear of leaf-spring pickups. Their dampers are worn as usual.
+- A newly fitted part of a slot no table row covers keeps the old part's wear; repair it in the Wrench Works garage.
 
 Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).
 
