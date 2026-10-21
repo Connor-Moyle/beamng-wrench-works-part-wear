@@ -155,6 +155,16 @@
 ]
 ]
 ],
+"bolide_hub_F": [
+[
+"bearing",
+[
+"FL",
+"FR"
+]
+]
+],
+"bolide_hub_RF": [],
 "bolide_race_brake_F": [
 [
 "rotor",
@@ -202,6 +212,23 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"bolide_race_hub_R": [
+[
+"bearing",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_swaybar_RR": [
+[
+"swaybar",
+[
+"R"
 ]
 ]
 ],
@@ -270,6 +297,7 @@
 ]
 ]
 ],
+"covet_3wheel_hub_gears": [],
 "covet_boxutility_brakes_R": [
 [
 "rotor",
@@ -504,7 +532,33 @@
 ],
 "covet_handbrake_padding": [],
 "covet_handbrake_race": [],
-"covet_hub_R_midengine": [],
+"covet_hub_F": [
+[
+"bearing",
+[
+"FL",
+"FR"
+]
+]
+],
+"covet_hub_R": [
+[
+"bearing",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_hub_R_midengine": [
+[
+"bearing",
+[
+"RL",
+"RR"
+]
+]
+],
 "covet_intake_midengine": [],
 "covet_interior_midengine": [],
 "covet_licenseplate_R_midengine": [],
@@ -534,7 +588,30 @@
 "covet_spoiler_midengine": [],
 "covet_strut_bar_F": [],
 "covet_strut_bar_R": [],
-"covet_swaybar_R_midengine": [],
+"covet_swaybar_F": [
+[
+"swaybar",
+[
+"F"
+]
+]
+],
+"covet_swaybar_R": [
+[
+"swaybar",
+[
+"R"
+]
+]
+],
+"covet_swaybar_R_midengine": [
+[
+"swaybar",
+[
+"R"
+]
+]
+],
 "covet_towhitch_midengine": [],
 "covet_transmission": [
 [
@@ -547,6 +624,7 @@
 "covet_trim_midengine": [],
 "covet_turbo_airbox": [],
 "covet_turbo_downpipe": [],
+"covet_wheeldata_F": [],
 "covet_wheeldata_R_midengine": [],
 "etk800_brake_F": [
 [
@@ -785,6 +863,30 @@
 [
 "FL",
 "FR"
+]
+]
+],
+"pickup_desert_swaybar_IFS": [
+[
+"swaybar",
+[
+"F"
+]
+]
+],
+"pickup_desert_swaybar_R": [
+[
+"swaybar",
+[
+"R"
+]
+]
+],
+"pickup_desert_swaybar_SFA": [
+[
+"swaybar",
+[
+"F"
 ]
 ]
 ],
@@ -1186,6 +1288,14 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"vivace_rally_swaybar_F": [
+[
+"swaybar",
+[
+"F"
 ]
 ]
 ],

@@ -17,7 +17,7 @@ T = lambda d: {k: v for k, v in d.items()}  # noqa: E731
 DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["k"], "bushing": ["k", "d"], "balljoint": ["strength"], "steering": ["k", "powerCoef"],
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
         "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"],
-        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"]}
+        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"]}
 UP = {"spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
       "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "cv": ["friction"], "turbo": ["friction"], "oil": ["dynFriction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
@@ -150,6 +150,14 @@ def main():
     assert dict(W.eventsFor("oil", "all", ev)) == {"overheat_s": 5, "limiter_s": 6} and dict(W.eventsFor("turbo", "all", ev)) == {"overheat_s": 5, "limiter_s": 6}
     assert W.wearStep("oil", 1.0, inp(km=300), s) < W.wearStep("gearbox", 1.0, inp(km=300), s), "oil wears much faster than a gearbox"
     assert W.wearStep("radiator", 1.0, inp(km=1000), s) == 1.0 and W.wearStep("radiator", 1.0, inp(days=365), s) < 1, "a radiator ages by days"
+    # the chassis kinds
+    for k in ("swaybar", "bushing", "bearing", "fluid", "master"):
+        assert W.PRICE[k] > 0 and W.NAME[k] and W.failureStep(k, 0.12 if k not in ("swaybar",) else 0.1, 1, real, lambda: 0.0) is not None, ("a chassis kind has a price, a name and a failure", k)
+    assert eff("bushing", 0.0, real)["k"] >= 0.85 and eff("bushing", 0.0, real)["d"] >= 0.9, "arms and links stay at 85 % of their rate at worst: the car's shape is not changed"
+    assert eff("master", 0.0, real)["torque"] == 0.8 and eff("master", 1.0, real)["torque"] == 1
+    assert eff("swaybar", 0.0, real, {"linkBroken": True})["k"] == 0.2 and eff("swaybar", 0.5, real)["k"] > 0.8, "a broken bar link keeps a fifth of the rate, never zero"
+    assert W.wornFade(300, 1.0, real, -80) < 1 and W.wornFade(300, 1.0, real) == 1 and abs(W.wornFade(900, 1.0, real, -80) - 1) < 1e-9, "old fluid fades the brakes earlier, only the extra loss"
+    assert W.wornFade(500, 1.0, off, -80) == 1, "Off: no extra fade"
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99
@@ -173,6 +181,8 @@ def main():
     assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
     assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
     assert sw("covet_flywheel") == [("clutch", "all")]
+    assert sw("covet_swaybar_F") == [("swaybar", "F")] and sw("pickup_desert_swaybar_SFA") == [("swaybar", "F")] and sw("bolide_swaybar_RR") == [("swaybar", "R")]
+    assert sw("covet_hub_F") == [("bearing", "FL,FR")] and sw("covet_hub_R") == [("bearing", "RL,RR")] and sw("covet_3wheel_hub_gears") == [] and sw("bolide_hub_RF") == []
     assert sw("covet_transmission") == [("gearbox", "all")] and sw("covet_differential_F") == [("diff", "F")] and sw("bolide_v6_differential_M") == [("diff", "all")]
     assert sw("covet_halfshafts_R") == [("cv", "R")] and sw("vivace_driveshaft") == [("cv", "F,R")] and sw("covet_radiator") == [("radiator", "all")] and sw("vivace_turbo_i4_1.5_diesel") == [("turbo", "all")]
     for none in ("covet_turbo_airbox", "covet_turbo_downpipe", "sunburst2_exhaust_turbo_race", "covet_oilpan", "covet_camshaft_race"):

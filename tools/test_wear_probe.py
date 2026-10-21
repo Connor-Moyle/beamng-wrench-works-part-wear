@@ -38,14 +38,18 @@ def main():
       -- the alignment (toe) link of the vivace's rear suspension: a NORMAL beam with a spring and a precompression near 1, in a part that says suspension but not spring
       v.data.beams[212] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, beamPrecompression = 1.003, partPath = '/vivace_body/ardente_suspension_R/vivace_suspension_R_wide'}
       v.data.beams[213] = {beamType = 0, id1 = 3, beamSpring = 90000, beamDamp = 100, beamPrecompression = 1.05, partPath = '/vivace_body/ardente_suspension_R/vivace_camber_link_spring'}
-      v.data.beams[214] = {beamType = 0, id1 = 1, beamSpring = 20000, beamDamp = 0, beamPrecompression = 1.15, partPath = '/vivace_body/ardente_suspension_F/vivace_strut_F'}      -- the vivace's front spring, in the strut part
-      v.data.beams[215] = {beamType = 4, id1 = 4, beamSpring = 265140, beamDamp = 1880, beamPrecompression = 0.957, partPath = '/pickup_body/pickup_axle_R/pickup_spring_R_base'}   -- a leaf spring (L-beam)
-      v.data.beams[216] = {beamType = 4, id1 = 4, beamSpring = 900000, beamDamp = 10, partPath = '/pickup_body/wheel_RL/pickup_tire_RL'}   -- a tyre L-beam: not a spring
-      v.data.beams[217] = {beamType = 0, id1 = 2, beamSpring = 100, beamDamp = 10, beamPrecompression = 1.2, partPath = '/lansdale_body/lansdale_suspension_R/lansdale_strut_R'}   -- the "beam for sound" of a rear strut
-      v.data.beams[218] = {beamType = 0, id1 = 2, beamSpring = 7200, beamDamp = 10, beamPrecompression = 1.6, partPath = '/wigeon_body/wigeon_canopy_strut'}   -- a canopy gas strut
+      v.data.beams[314] = {beamType = 0, id1 = 1, beamSpring = 20000, beamDamp = 0, beamPrecompression = 1.15, partPath = '/vivace_body/ardente_suspension_F/vivace_strut_F'}      -- the vivace's front spring, in the strut part
+      v.data.beams[315] = {beamType = 4, id1 = 4, beamSpring = 265140, beamDamp = 1880, beamPrecompression = 0.957, partPath = '/pickup_body/pickup_axle_R/pickup_spring_R_base'}   -- a leaf spring (L-beam)
+      v.data.beams[316] = {beamType = 4, id1 = 4, beamSpring = 900000, beamDamp = 10, partPath = '/pickup_body/wheel_RL/pickup_tire_RL'}   -- a tyre L-beam: not a spring
+      v.data.beams[317] = {beamType = 0, id1 = 2, beamSpring = 100, beamDamp = 10, beamPrecompression = 1.2, partPath = '/lansdale_body/lansdale_suspension_R/lansdale_strut_R'}   -- the "beam for sound" of a rear strut
+      v.data.beams[318] = {beamType = 0, id1 = 2, beamSpring = 7200, beamDamp = 10, beamPrecompression = 1.6, partPath = '/wigeon_body/wigeon_canopy_strut'}   -- a canopy gas strut
+      -- a camber link beam of its own part, and an anti-roll bar and two other torsionbars
+      v.data.beams[214] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, beamPrecompression = 1.004, partPath = '/vivace_body/ardente_suspension_R/vivace_toe_link'}
+      v.data.beams[215] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, partPath = '/vivace_body/rear_arm_suspension/vivace_subframe_R'}   -- an ancestor says arm, the part itself does not
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
-      obj = {getBeamRestLength = function(_, c) return 0.4 end,
+      tors = {}
+      obj = {setTorsionbarSpringDamp = function(_, cid, k, d) tors[#tors + 1] = {cid, k, d} end, getBeamRestLength = function(_, c) return 0.4 end,
              setBoundedBeamDamp = function(_, c, ...) calls[#calls + 1] = {'damp', c, ...} end,
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
@@ -116,9 +120,9 @@ def main():
     for _ in range(80):
         P.updateGFX(1 / 60)
     al = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
-    assert any(c[1] == "spring" and c[2] == 214 for c in al) and any(c[1] == "len" and c[2] == 214 for c in al), "the strut spring sags"
-    assert any(c[1] == "spring" and c[2] == 215 and c[3] < 265140 for c in al) and not any(c[2] == 215 and c[1] == "len" for c in al), "the leaf softens, no length"
-    assert not any(c[2] in (216, 217, 218) for c in al), "a tyre L-beam, a sound beam and a canopy strut are no springs"
+    assert any(c[1] == "spring" and c[2] == 314 for c in al) and any(c[1] == "len" and c[2] == 314 for c in al), "the strut spring sags"
+    assert any(c[1] == "spring" and c[2] == 315 and c[3] < 265140 for c in al) and not any(c[2] == 315 and c[1] == "len" for c in al), "the leaf softens, no length"
+    assert not any(c[2] in (316, 317, 318) for c in al), "a tyre L-beam, a sound beam and a canopy strut are no springs"
     P.clear()
     # a NORMAL rear spring (the vivace's) sags too, and the door hinge and steering beams are never touched
     lua.execute("calls = {}")
@@ -186,6 +190,38 @@ def main():
     assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1
     P.clutch(0.0)
     P.updateGFX(1 / 60)
+    # the chassis: arms and links (rate only, length stays), anti-roll bars (torsionbars), wheel bearings (drag next to the pads'), brake fluid and master cylinder (through the pads' torque)
+    lua.execute("v.data.torsionbars = {[1] = {cid = 7, id1 = 1, spring = 900, damp = 5, vkTag = 'arb_F'}, [2] = {cid = 8, id1 = 3, spring = 700, damp = 5, vkTag = 'arb_R'}, [3] = {cid = 9, id1 = 1, spring = 150000, damp = 0, vkTag = 'rigidify'}}")
+    P.clear()
+    lua.execute("calls, tors = {}, {}")
+    assert P.armPart("/a/b/vivace_toe_link") and P.armPart("/x/camber_link_R") and not P.armPart("/a/rear_arm_suspension/vivace_subframe_R") and not P.armPart("/a/vivace_swaybar_link_F") and not P.armPart("/a/steering_arm_F"), "arm parts by the part's own name"
+    P.bushing("RL", 0.0)
+    for _ in range(40): P.updateGFX(1 / 60)
+    ar = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
+    assert ar and all(c[2] == 214 for c in ar) and all(c[1] == "spring" for c in ar), "only the toe link beam, and only its rate: no length change"
+    assert abs(ar[-1][3] - 14000000 * 0.85) < 1, ("85 % of the rate at worst", ar[-1][3])
+    P.swaybar("F", 0.0)
+    for _ in range(40): P.updateGFX(1 / 60)
+    assert lua.eval("#tors") > 0 and all(t[1] == 7 for t in [lua.eval("tors")[i + 1] for i in range(len(lua.eval("tors")))]), "only the front anti-roll bar: not the rear one, not a rigidify torsionbar"
+    assert abs(lua.eval("tors[#tors][2]") - 900 * 0.2) < 1e-6 and lua.eval("tors[#tors][3]") == 5, "a broken bar link keeps a fifth of the rate"
+    P.pads("F", 1.0)
+    lua.execute("wheels.wheels[1].brakeSurfaceTemperature = 300")
+    for _ in range(40): P.updateGFX(1 / 60)
+    t1 = lua.eval("wheels.wheels[1].brakeTorque")
+    P.fluid("F", 0.0)
+    for _ in range(60): P.updateGFX(1 / 60)
+    t2 = lua.eval("wheels.wheels[1].brakeTorque")
+    assert t2 < t1 - 1 and lua.eval("wheels.wheels[3].brakeTorque") == 1000, "old fluid fades the front brakes earlier, only the front"
+    P.master(0.0)
+    for _ in range(60): P.updateGFX(1 / 60)
+    assert lua.eval("wheels.wheels[1].brakeTorque") < t2 * 0.9, "a weak master cylinder lowers the torque at the pedal"
+    P.bearing("FL", 0.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("wheels.wheels[1].frictionTorque") > 40 and lua.eval("wheels.wheels[2].frictionTorque") == 0, "the failing bearing drags its own wheel"
+    P.clear()
+    assert abs(lua.eval("tors[#tors][2]") - 900) < 1e-9, "the anti-roll bar is back"
+    assert lua.eval("wheels.wheels[1].frictionTorque") == 0 and lua.eval("wheels.wheels[1].brakeTorque") == 1000, "bearing drag and brake torque are back"
+    P.clutch(0.0)
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()

@@ -15,7 +15,7 @@ M.KINDS = {
   bushing = {life = 150000, group = 'suspension'}, balljoint = {life = 150000, group = 'suspension'}, steering = {life = 180000, group = 'suspension'},
   bearing = {life = 200000, group = 'suspension'},
   padF = {life = 40000, group = 'brakes'}, padR = {life = 80000, group = 'brakes'}, rotor = {life = 80000, group = 'brakes'},
-  caliper = {life = 150000, group = 'brakes'}, fluid = {days = 1095, group = 'brakes'},
+  caliper = {life = 150000, group = 'brakes'}, fluid = {days = 1095, group = 'brakes'}, master = {life = 200000, days = 3650, group = 'brakes'},
   engine = {life = 350000, group = 'engine'}, turbo = {life = 150000, group = 'engine'}, oil = {life = 15000, group = 'engine'}, filter = {life = 25000, group = 'engine'}, ignition = {life = 60000, group = 'engine'},
   exhaust = {days = 2920, group = 'engine'}, cat = {life = 200000, group = 'engine'}, radiator = {days = 3650, group = 'engine'},
   mounts = {life = 150000, group = 'drive'}, clutch = {life = 150000, group = 'drive'}, gearbox = {life = 250000, group = 'drive'},
@@ -61,10 +61,12 @@ end
 
 -- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
 -- fully worn. mult is the garage's price multiplier.
-M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60}
+M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60,
+          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320}
 M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
           clutch = 'clutch', paint = 'paint', gearbox = 'gearbox', diff = 'differential', cv = 'driveshafts', turbo = 'turbocharger', radiator = 'radiator',
-          ignition = 'ignition', oil = 'engine oil'}
+          ignition = 'ignition', oil = 'engine oil',
+          swaybar = 'anti-roll bar', bushing = 'control arm bushes', bearing = 'wheel bearing', fluid = 'brake fluid', master = 'brake master cylinder'}
 function M.repairPrice(kind, c, mult)
   local base = M.PRICE[kind]
   if not base then return nil end
@@ -147,6 +149,8 @@ M.FAILURE = {
   gearbox = {level = 0.10, text = 'The gearbox is grinding'}, cv = {level = 0.10, text = 'A driveshaft joint is knocking'},
   turbo = {level = 0.10, text = 'The turbo has lost boost'}, radiator = {level = 0.10, text = 'The radiator is not cooling well'},
   ignition = {level = 0.10, text = 'The engine is misfiring'},
+  swaybar = {level = 0.05, text = 'An anti-roll bar link has broken'}, bushing = {level = 0.10, text = 'A control arm bush has worn out'},
+  bearing = {level = 0.10, text = 'A wheel bearing is failing'}, fluid = {level = 0.08, text = 'The brake fluid has boiled'}, master = {level = 0.08, text = 'The brake pedal has gone soft'},
 }
 -- a failure roll for one part over dtHours: the new condition and the text, or nil. Only a part still above its failure level can fail (a failed part stays failed until repaired).
 function M.failureStep(kind, c, dtHours, s, rand)
@@ -183,7 +187,8 @@ function E.spring(c, s, st)
 end
 
 function E.swaybar(c, s, st) return {k = clamp((st and st.linkBroken) and 0.2 or (1 - 0.3 * eff(c, s)), 0.2, 1)} end
-function E.bushing(c, s) local w = eff(c, s) return {k = clamp(1 - 0.5 * w, 0.5, 1), d = clamp(1 - 0.3 * w, 0.7, 1)} end
+-- the control arms and links: the rate of their NORMAL beams, a little softer at worst (the alignment is held by the beam's length, which stays; MODELLED, 0.85 is conservative on purpose)
+function E.bushing(c, s) local w = eff(c, s) return {k = clamp(1 - 0.15 * w, 0.85, 1), d = clamp(1 - 0.1 * w, 0.9, 1)} end
 function E.balljoint(c, s) return {strength = clamp(1 - 0.6 * eff(c, s), 0.4, 1)} end
 function E.steering(c, s, st)
   local w = eff(c, s)
@@ -214,6 +219,9 @@ function E.fluid(c, s, st)
   local water = (st and st.water) or (1 - c) * 0.04
   return {curveShiftC = -80 * clamp(water, 0, 0.04) / 0.03 * (s.effectStrength > 0 and 1 or 0), leakTorque = (st and st.leaking) and 0.5 or 1}
 end
+
+-- the master cylinder and booster: a weaker pedal, up to a fifth less braking at the pedal (MODELLED)
+function E.master(c, s) return {torque = clamp(1 - 0.2 * eff(c, s), 0.8, 1)} end
 
 function E.engine(c, s)
   local w = eff(c, s)
@@ -251,13 +259,13 @@ function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end 
 -- The game already fades brakes with heat (wheels.lua calculateThermalEfficiency on brakeSurfaceTemperature), so the car must apply wornFade (the EXTRA
 -- loss of a worn pad), not this absolute curve, or fade counts twice.
 M.FADE_ONSET, M.FADE_SPAN, M.FADE_LOSS = 350, 200, 0.4
-function M.brakeFade(tempC, padC, s)
+function M.brakeFade(tempC, padC, s, shiftC)
   if not s.wearEnabled or s.effectStrength <= 0 then return 1 end
-  local onset = M.FADE_ONSET - 50 * eff(padC or 1, s)   -- (worn pads and rotors carry less heat away: fade starts earlier)
+  local onset = M.FADE_ONSET - 50 * eff(padC or 1, s) + (shiftC or 0)   -- (worn pads and rotors carry less heat away: fade starts earlier; old brake fluid boils earlier: shiftC is negative)
   return 1 - M.FADE_LOSS * clamp(((tempC or 0) - onset) / M.FADE_SPAN, 0, 1)
 end
 
-function M.wornFade(tempC, padC, s) return M.brakeFade(tempC, padC, s) / M.brakeFade(tempC, 1, s) end   -- (<= 1; 1 on a new pad)
+function M.wornFade(tempC, padC, s, shiftC) return M.brakeFade(tempC, padC, s, shiftC) / M.brakeFade(tempC, 1, s) end   -- (<= 1; 1 on a new pad)
 
 function M.effects(kind, c, s, st)
   local f = E[kind]
@@ -321,6 +329,12 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'cv', corners = a and { a } or { 'F', 'R' } }
   elseif low:find('_radiator', 1, true) then
     out[#out + 1] = { kind = 'radiator', corners = { 'all' } }
+  elseif low:find('swaybar', 1, true) then
+    local a = axle('swaybar')
+    if a then out[#out + 1] = { kind = 'swaybar', corners = { a } } end
+  elseif low:find('_hub_', 1, true) then                                             -- the hub carries the wheel bearing; "covet_3wheel_hub_gears" has no axle letter
+    local a = axle('hub')
+    if a then out[#out + 1] = { kind = 'bearing', corners = corners(a) } end
   elseif low:find('_turbo_', 1, true) and not low:find('exhaust', 1, true) then       -- the turbo unit ("vivace_turbo_i4_1.5_diesel"); airbox and downpipe are pipes, "exhaust_turbo" is an exhaust
     out[#out + 1] = { kind = 'turbo', corners = { 'all' } }
   end

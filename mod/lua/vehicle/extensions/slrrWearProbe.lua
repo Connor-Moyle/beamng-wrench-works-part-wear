@@ -8,6 +8,7 @@
 --   slrrWearProbe.pads('F', 0.05)               brake pads of the front axle at 5 %
 --   slrrWearProbe.engine(0.2, 0.5)              internals at 20 %, air filter at 50 % (power cap, friction, misfire)
 --   slrrWearProbe.gearbox(c) / diff(axle, c) / cv(axle, c) / turbo(c) / radiator(c) / ignition(c) / oil(c)    the powertrain parts (the game's own wear fields of each device)
+--   slrrWearProbe.swaybar(axle, c) / bushing(corner, c) / bearing(corner, c) / fluid(axle, c) / master(c)      the chassis parts
 --   slrrWearProbe.preset('Realistic')           the strength of the effects (Realistic, Light, Off)
 --   slrrWearProbe.clear()                       every jbeam value back
 --   slrrWearProbe.status()                      what is applied now
@@ -22,6 +23,9 @@ local engineTarget
 local clutchTarget   -- {lock, freePlay} factors from the clutch condition
 local gearboxTarget, diffTarget, cvTarget = nil, {}, {}      -- {friction, shiftRate, lockTorque}; axle ('F', 'R', 'all') -> friction
 local turboTarget, radiatorTarget, ignitionTarget, oilTarget       -- {power, friction}; the game's radiator integrity; the misfire chance; the engine's dynamic friction factor
+local bars, barsScanned = {}, false     -- the anti-roll bars: torsionbars tagged arb / swaybar: {cid, axle, spring, damp, cur, target}
+local bearingTarget, bearingBase, wheelCorner = {}, {}, {}      -- corner -> drag (Nm); wheel index -> the frictionTorque it had; wheel index -> corner
+local fluidShift, masterTarget = {}, nil                       -- axle -> shift of the fade onset (C, negative); the pedal's torque factor
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
@@ -68,6 +72,19 @@ local function linkPart(path)
 end
 local MIN_RATE = 5000   -- a spring is stiffer than this (N/m): the lansdale, legran and wendover rear struts carry a 100 N/m "beam for sound" beside the real spring
 local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
+-- a control arm or link beam: a NORMAL beam whose OWN part (the last name of its path: an ancestor called "rear_arm_suspension" does not count) says link, toe, camber or arm, and is no spring,
+-- steering, door or sway bar part. The beams of the subframe and the vivace's toe links (in a part that says only "suspension") are not found: lowering those would change the car's shape.
+local ARM_WORDS = {link = true, links = true, toe = true, camber = true, arm = true, arms = true}
+local function armPart(path)
+  local last = tostring(path or ''):lower():match('([^/]+)/*$') or ''
+  local found = false
+  for w in last:gmatch('[a-z0-9]+') do
+    if w == 'arb' or w == 'swaybar' or w == 'steering' or w == 'steer' or w == 'door' or w == 'spring' or w == 'coilover' then return false end
+    if ARM_WORDS[w] then found = true end
+  end
+  return found
+end
+M.armPart = armPart
 -- a NORMAL beam (the vivace's springs) must also be in a part that says spring, coilover or strut (the vivace's front springs are in vivace_strut_F): the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1
 local function springPart(path)
   local p = tostring(path or ''):lower()
@@ -85,9 +102,14 @@ M.suspensionPart = suspensionPart
 -- every spring and damper of the car, by the game's own tests (partCondition.lua:161 for the damper) and the part they belong to
 local function scan()
   beams = {}
-  local springs, dampers, stops = 0, 0, 0
+  local springs, dampers, stops, arms = 0, 0, 0, 0
   for cid, b in pairs(v.data.beams) do
     local leaf = b.beamType == 4 and springPart(b.partPath) and suspensionPart(b.partPath, true) and (b.beamSpring or 0) > MIN_RATE   -- LBEAM: the pickup's leaf springs
+    if b.beamType == 0 and (b.beamSpring or 0) > 0 and armPart(b.partPath) then
+      arms = arms + 1
+      local node = v.data.nodes[b.id1]
+      beams[cid] = {kind = 'bushing', corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
+    end
     if leaf or ((b.beamType == 2 or (b.beamType == 0 and springPart(b.partPath))) and suspensionPart(b.partPath, b.beamType == 0)) then   -- BOUNDED, or NORMAL in a spring part (the vivace's springs)
       local node = v.data.nodes[b.id1]
       if leaf then
@@ -107,12 +129,12 @@ local function scan()
       end
     end
   end
-  return springs, dampers, stops
+  return springs, dampers, stops, arms
 end
 
 function M.detect()
-  local springs, dampers, stops = scan()
-  say(string.format('springs %d, dampers %d, bump stops skipped %d', springs, dampers, stops))
+  local springs, dampers, stops, arms = scan()
+  say(string.format('springs %d, dampers %d, bump stops skipped %d, arm and link beams %d, anti-roll bars %d', springs, dampers, stops, arms, #M.scanBars()))
   for cid, r in pairs(beams) do say(string.format('  %s %s beam %d in %s', r.kind, r.corner, cid, tostring(r.part))) end
   local nw = 0
   for i, w in pairs(wheels.wheelRotators or wheels.wheels) do
@@ -140,12 +162,14 @@ local function want(kind, corner, cond)
           r.target = {b[1] * e.comp, b[2] * e.rebound, b[3] * e.fast, b[4] * e.fast, b[5], b[6]}
         elseif r.leaf then
           r.target = {r.base[1] * e.rate, r.base[2]}   -- a leaf spring is an L-beam: no rest length to shorten, only the rate softens
+        elseif kind == 'bushing' then
+          r.target = {r.base[1] * e.k, r.base[2] * e.d}
         else
           r.rest0 = r.rest0 or obj:getBeamRestLength(cid)
           r.target = {r.base[1] * e.rate, r.base[2], r.rest0 - e.sagMm / 1000}   -- motion ratio taken as 1 (a coilover strut stands nearly upright)
         end
         if not r.curv then
-          local src = (kind == 'damper' or r.leaf) and r.base or {r.base[1], r.base[2], r.rest0 or obj:getBeamRestLength(cid)}
+          local src = (kind == 'damper' or kind == 'bushing' or r.leaf) and r.base or {r.base[1], r.base[2], r.rest0 or obj:getBeamRestLength(cid)}
           r.curv = {}
           for i = 1, #src do r.curv[i] = src[i] end
         end
@@ -290,7 +314,61 @@ function M.radiator(cond)
   say(string.format('radiator condition %.2f: the game radiator integrity %.2f', cond, e.integrity))
 end
 
+-- ---- the chassis. The anti-roll bar of the stock cars is a TORSIONBAR (vkTag arb_F / arb_R, the part "covet_swaybar_F"), not a pair of beams: its stiffness is set with the game's own
+-- obj:setTorsionbarSpringDamp (the call of the game's adaptive torsion bars). Tagged by the words arb / swaybar in the bar's tag or part; which of the car's torsionbars these are is
+-- in the log at detect() (not yet seen in the game: the tag may not be kept in the vehicle data).
+function M.scanBars()
+  if barsScanned then return bars end
+  barsScanned, bars = true, {}
+  for _, tb in pairs(v.data.torsionbars or {}) do
+    local tag = (tostring(tb.vkTag or '') .. ' ' .. tostring(tb.partPath or tb.partOrigin or '')):lower()
+    local arb = false
+    for w in tag:gmatch('[a-z0-9]+') do if w == 'arb' or w == 'swaybar' then arb = true end end
+    if arb and tb.cid and (tb.spring or 0) > 0 then
+      local node = v.data.nodes[tb.id1]
+      local axle = node and cornerOf(node):sub(1, 1) or (tag:find('_r', 1, true) and 'R' or 'F')
+      bars[#bars + 1] = {cid = tb.cid, axle = axle, spring = tb.spring, damp = tb.damp or 0}
+    end
+  end
+  return bars
+end
+function M.swaybar(axle, cond)
+  local e = rules.effects('swaybar', cond, settings, {linkBroken = cond <= rules.FAILURE.swaybar.level + 1e-9})
+  if not e then return end
+  for _, bar in ipairs(M.scanBars()) do
+    if match(axle, bar.axle) then bar.cur, bar.target = bar.cur or bar.spring, bar.spring * e.k moving = true end
+  end
+  remember('swaybar', axle, cond)
+  say(string.format('anti-roll bar %s condition %.2f: rate x%.2f', axle, cond, e.k))
+end
+function M.bushing(corner, cond) want('bushing', corner, cond) remember('bushing', corner, cond) say(string.format('arms and links %s condition %.2f', corner, cond)) end
+function M.bearing(corner, cond)
+  local e = rules.effects('bearing', cond, settings)
+  if not e then return end
+  bearingTarget[corner] = e.dragNm
+  remember('bearing', corner, cond)
+  say(string.format('wheel bearing %s condition %.2f: drag %.1f Nm', corner, cond, e.dragNm))
+end
+function M.fluid(axle, cond)
+  local e = rules.effects('fluid', cond, settings)
+  if not e then return end
+  fluidShift[axle] = e.curveShiftC
+  moving = true
+  remember('fluid', axle, cond)
+  say(string.format('brake fluid %s condition %.2f: fade starts %.0f C earlier', axle, cond, -e.curveShiftC))
+end
+function M.master(cond)
+  local e = rules.effects('master', cond, settings)
+  if not e then return end
+  masterTarget = e.torque < 1 and e.torque or nil
+  moving = true
+  remember('master', 'all', cond)
+  say(string.format('master cylinder condition %.2f: brake torque x%.2f', cond, e.torque))
+end
+
 function M.reapply(a)
+  if a.kind == 'swaybar' then return M.swaybar(a.corner, a.c) elseif a.kind == 'bearing' then return M.bearing(a.corner, a.c) elseif a.kind == 'fluid' then return M.fluid(a.corner, a.c)
+  elseif a.kind == 'master' then return M.master(a.c) elseif a.kind == 'bushing' then return M.bushing(a.corner, a.c) end
   if a.kind == 'gearbox' then return M.gearbox(a.c) elseif a.kind == 'diff' then return M.diff(a.corner, a.c) elseif a.kind == 'cv' then return M.cv(a.corner, a.c)
   elseif a.kind == 'turbo' then return M.turbo(a.c) elseif a.kind == 'radiator' then return M.radiator(a.c) elseif a.kind == 'ignition' then return M.ignition(a.c) elseif a.kind == 'oil' then return M.oil(a.c) end
   if a.kind == 'pads' then M.pads(a.corner, a.c) elseif a.kind == 'engine' then M.engine(a.c) elseif a.kind == 'rotor' then M.rotor(a.corner, a.c) elseif a.kind == 'clutch' then M.clutch(a.c) else want(a.kind, a.corner, a.c) end
@@ -314,6 +392,13 @@ function M.clear()
   brakes, applied, engineTarget, clutchTarget, rotorCond, moving = {}, {}, nil, nil, {}, false
   for d, fields in pairs(fieldBase) do for f, x in pairs(fields) do d[f] = x end end
   fieldBase, gearboxTarget, diffTarget, cvTarget, ignitionTarget, oilTarget = {}, nil, {}, {}, nil, nil
+  for _, bar in ipairs(bars) do
+    if bar.cur and bar.cur ~= bar.spring then pcall(function() obj:setTorsionbarSpringDamp(bar.cid, bar.spring, bar.damp) end) end
+    bar.cur, bar.target = nil, nil
+  end
+  for i, base in pairs(bearingBase) do local w = (wheels.wheelRotators or wheels.wheels)[i] if w then w.frictionTorque = base end end
+  bearingTarget, bearingBase, fluidShift, masterTarget = {}, {}, {}, nil
+  barsScanned = false      -- (the next use looks at the car's torsionbars again)
   local eng0 = engine()
   if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
   if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end
@@ -348,8 +433,15 @@ local function step()
       if changed then
         still = true
         if r.kind == 'damper' then obj:setBoundedBeamDamp(cid, r.curv[1], r.curv[2], r.curv[3], r.curv[4], r.curv[5], r.curv[6])
+        elseif r.kind == 'bushing' then obj:setBeamSpringDamp(cid, r.curv[1], r.curv[2], -1, -1)      -- (the length stays: the alignment is the beam's length)
         else obj:setBeamSpringDamp(cid, r.curv[1], r.curv[2], -1, -1) if not r.leaf then obj:setBeamLength(cid, r.curv[3]) end end
       end
+    end
+  end
+  for _, bar in ipairs(bars) do
+    if bar.target and bar.cur then
+      local nv = rules.limitStep(bar.cur, bar.target, bar.spring, 0.10)
+      if nv ~= bar.cur then bar.cur, still = nv, true obj:setTorsionbarSpringDamp(bar.cid, nv, bar.damp) end
     end
   end
   for i, br in pairs(brakes) do
@@ -357,10 +449,11 @@ local function step()
     if w and br.target then
       local cn = br.corner or ''
       local worst = rotorCond[cn] or rotorCond[cn:sub(1, 1)] or rotorCond.all or 1
-      local extra = rules.wornFade(w.brakeSurfaceTemperature or 0, math.min(br.padC or 1, worst), settings)   -- on top of the game's own heat fade
+      local shift = fluidShift[cn:sub(1, 1)] or fluidShift.all or 0
+      local extra = rules.wornFade(w.brakeSurfaceTemperature or 0, math.min(br.padC or 1, worst), settings, shift) * (masterTarget or 1)   -- on top of the game's own heat fade
       w.brakeTorque = rules.limitStep(w.brakeTorque, br.target[1] * extra, br.base[1], 0.10)
       w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.target[2], br.target[3], br.target[4]
-      if math.abs(w.brakeTorque - br.target[1] * extra) > 1e-6 or math.min(br.padC or 1, worst) < 1 then still = true end   -- (heat changes the fade every frame)
+      if math.abs(w.brakeTorque - br.target[1] * extra) > 1e-6 or math.min(br.padC or 1, worst) < 1 or shift ~= 0 or masterTarget then still = true end   -- (heat changes the fade every frame)
     end
   end
   moving = still
@@ -378,6 +471,16 @@ function M.updateGFX(dt)
     end
   end
   if moving then step() end
+  if next(bearingTarget) then
+    for i, w in pairs(wheels.wheelRotators or wheels.wheels) do
+      if not wheelCorner[i] then local node = v.data.nodes[w.node1] wheelCorner[i] = node and cornerOf(node) or '?' end
+      local d = bearingTarget[wheelCorner[i]]
+      if d then
+        if bearingBase[i] == nil then bearingBase[i] = brakes[i] and brakes[i].base[4] or w.frictionTorque or 0 end
+        w.frictionTorque = bearingBase[i] + d      -- (the pads write their own grind each step; the bearing's drag is added to it)
+      end
+    end
+  end
   if clutchTarget then
     for _, d in ipairs(clutchDevices()) do
       if d.wearLockTorqueCoef and not (d.type == 'dctGearbox' and gearboxTarget) then d.wearLockTorqueCoef = clutchTarget.lock end     -- (a dual-clutch box with a worn gearbox gets both factors below)
