@@ -103,7 +103,7 @@ local function lit(t)      -- a Lua literal of the snapshot, for the game side
 end
 local function send()
   dirty = false
-  if obj and obj.queueGameEngineLua then obj:queueGameEngineLua(string.format('if slrrWear then slrrWear.onReport(%d, %s) end', obj:getId(), lit(M.snapshot()))) end
+  if obj and obj.queueGameEngineLua then obj:queueGameEngineLua(string.format('if slrr_partwear then slrr_partwear.onReport(%d, %s) end', obj:getId(), lit(M.snapshot()))) end
 end
 
 -- one wear step for every part from the distance and the events since the last one

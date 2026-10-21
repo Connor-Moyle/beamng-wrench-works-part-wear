@@ -58,7 +58,7 @@ def main():
     # a report goes up to the game side while the state is changing
     lua.execute("sent = {} run(30, 0)")
     lua.execute("W_.setCondition('spring', 'RR', 0.7) run(12, 0)")
-    assert len(lua.eval("sent")) >= 1 and "slrrWear.onReport(5," in lua.eval("sent[1]") and "spring" in lua.eval("sent[#sent]"), lua.eval("sent[#sent]")
+    assert len(lua.eval("sent")) >= 1 and "slrr_partwear.onReport(5," in lua.eval("sent[1]") and "spring" in lua.eval("sent[#sent]"), lua.eval("sent[#sent]")
     # off: the apply layer is cleared, and nothing wears any more
     lua.execute("calls = {}")
     W.setSettings(lua.table(wearEnabled=False))
