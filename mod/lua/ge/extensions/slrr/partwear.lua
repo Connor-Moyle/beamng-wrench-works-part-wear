@@ -320,6 +320,28 @@ local function worn(vehId)       -- { {kind, corner, c}, ... } of the car's part
 end
 local function label(w) return (rules.NAME[w.kind] or w.kind) .. ((CORNER_NAME[w.corner] or '') ~= '' and (' ' .. CORNER_NAME[w.corner]) or '') end
 
+-- A read-only view of a car's stored conditions for other mods (Street Legal's service and used-car reports): { parts = { { id = 'damper:FL', kind, corner, section, condition (1 = new), name }, ... } }.
+-- Only the parts that have wear stored are listed (a part that is not listed is new). Sections are the rules' groups, with the exhaust and the catalyst split off as 'exhaust'.
+-- nil while part wear is off (or the car is not watched, for conditionsOf); conditionsOfKey reads the saved record of any car of the current mode or career slot, spawned or not.
+local SECTION_OF = { exhaust = 'exhaust', cat = 'exhaust' }
+local function conditionsOfRecord(rec)
+  local parts = {}
+  for kind, t in pairs(rec or {}) do
+    local k = rules.KINDS[kind]
+    if k and type(t) == 'table' then
+      for corner, c in pairs(t) do
+        if type(c) == 'number' and c == c then
+          parts[#parts + 1] = { id = kind .. ':' .. corner, kind = kind, corner = corner, section = SECTION_OF[kind] or k.group, condition = c, name = rules.NAME[kind] or kind }
+        end
+      end
+    end
+  end
+  table.sort(parts, function(a, b) return a.id < b.id end)
+  return { parts = parts }
+end
+function M.conditionsOfKey(key) return settings.wearEnabled and key and conditionsOfRecord(loadStore()[key]) or nil end
+function M.conditionsOf(vehId) return watched[vehId] and M.conditionsOfKey(carKey(vehId)) or nil end
+
 function M.onWrenchWorksServices(list, vehId)
   if not settings.wearEnabled then return end
   local P = garageParts()

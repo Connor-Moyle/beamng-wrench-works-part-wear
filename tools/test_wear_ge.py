@@ -178,6 +178,12 @@ def main():
     G.onWrenchWorksService("pw:damper:FL", 7)
     G.onWrenchWorksServices(lua.eval("list"), 7)
     assert lua.eval("#list") == 1 and lua.eval("#paid") == 1, "repaired: not offered again, not charged twice"
+    # the read-only view for other mods: sorted rows with a stable id and a section; nil when the car is not watched or wear is off
+    G.onReport(7, lua.eval("{damper = {FL = 0.2}, padF = {F = 0.5}, exhaust = {all = 0.7}}"))
+    cv = lua.eval("(function(c) local o = {} for i, p in ipairs(c.parts) do o[i] = p.id .. '/' .. p.section .. '/' .. p.condition end return table.concat(o, ' ') end)")
+    assert cv(G.conditionsOfKey(key)) == "damper:FL/suspension/0.2 exhaust:all/exhaust/0.7 padF:F/brakes/0.5", cv(G.conditionsOfKey(key))
+    assert G.conditionsOf(99) is None and G.conditionsOfKey(None) is None
+    assert len(G.conditionsOfKey("no such car")["parts"]) == 0
     lua.execute("money = 10 list = {}")
     G.onWrenchWorksServices(lua.eval("list"), 7)
     assert lua.eval("list[1].disabled") is True, "too little money: disabled"
