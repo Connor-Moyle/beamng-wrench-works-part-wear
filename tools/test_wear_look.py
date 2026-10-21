@@ -57,6 +57,17 @@ def main():
     L.update(lua.globals().get, S)
     L.restore()
     assert any("look(7,2,0" in lua.eval("sent")[i + 1] for i in range(lua.eval("#sent"))), "restore"
+    # a teardown writes nothing: unloading drops the state and sends no material change
+    lua.execute("sent = {} conds = {rotor = {FL = 0.2}}")
+    L.update(lua.globals().get, S)
+    lua.execute("sent = {}")
+    L.onExtensionUnloaded()
+    assert lua.eval("#sent") == 0 and L.stages() == "", "unload is a state drop, no engine write"
+    # the corner of a wheel is its position, the same rule as the apply layer's (wheel names are not used: a mirrored or oddly named car still agrees with the probe)
+    lua.execute("wheels.wheels[0].name = 'FR' wheels.wheels[1].name = 'FL' sent = {} conds = {rotor = {FL = 0.5}}")
+    L = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearLook.lua"), encoding="utf8").read())
+    L.update(lua.globals().get, S)
+    assert "look(7,0,1,{{\"disc_brake\",\"disc_FL\"}})" in lua.eval("sent[1]") and lua.eval("#sent") == 1, "the disc at the front-left position shows front-left wear whatever its wheel is called"
     # game side: glowMap entry only while part wear and its worn look are on; the switch per mesh
     lua.execute("""
       logs, files, cmds = {}, {}, {}

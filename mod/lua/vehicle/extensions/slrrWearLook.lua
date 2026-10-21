@@ -64,12 +64,13 @@ function M.update(get, settings)
   end
 end
 
-function M.restore()                  -- every disc back to the car's own
+function M.restore()                  -- every disc back to the car's own: only for the player switching part wear or the worn look off (the car is alive)
   for wi, stage in pairs(stageOf) do if stage ~= 0 then send(wi, 0) end end
   stageOf = {}
 end
 function M.stages() local t = {} for wi, s in pairs(stageOf) do t[#t + 1] = wi .. '=' .. s end table.sort(t) return table.concat(t, ' ') end
 function M.onReset() stageOf = {} end      -- the game puts every material switch back on a reset: the worn ones go out again on the next update
-function M.onExtensionUnloaded() pcall(M.restore) end
+function M.drop() stageOf = {} end                -- state only: at a level end or when the car is destroyed nothing is written to the engine's materials
+function M.onExtensionUnloaded() M.drop() end
 
 return M

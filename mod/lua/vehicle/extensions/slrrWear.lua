@@ -194,6 +194,6 @@ function M.status()
 end
 
 function M.onReset() lastV, braking, pending, lastVz, acc, landCool = 0, false, 3, nil, {}, 0 end      -- no false landing from the speed before the reset, and no events carried over
-function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end if look() then pcall(look().restore) end end
+function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end if look() and look().drop then pcall(look().drop) end end      -- (no material writes at a teardown)
 
 return M
