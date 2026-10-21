@@ -27,10 +27,14 @@ def main():
       end
       local cid = 100
       for i = 1, 4 do
-        v.data.beams[cid] = {beamType = 2, id1 = i, beamSpring = 80000, beamDamp = 400, beamPrecompression = 1.1, partPath = '/spring/'} cid = cid + 1
+        -- (the rear springs are NORMAL beams, as on the vivace, the front ones bounded)
+        v.data.beams[cid] = {beamType = i > 2 and 0 or 2, id1 = i, beamSpring = 80000, beamDamp = 400, beamPrecompression = 1.1, partPath = '/vivace_body/suspension_F/spring/'} cid = cid + 1
         v.data.beams[cid] = {beamType = 2, id1 = i, beamSpring = 0, beamDamp = 3000, beamDampRebound = 5000, beamDampFast = 1500, beamDampReboundFast = 2500,
                              beamDampVelocitySplit = 0.1, beamDampVelocitySplitRebound = 0.1, partPath = '/damper/'} cid = cid + 1
       end
+      -- what the shape tests alone would take for suspension, found on the vivace: door hinge springs and steering beams
+      v.data.beams[210] = {beamType = 2, id1 = 1, beamSpring = 800, beamDamp = 200, beamPrecompression = 1.2, partPath = '/vivace_body/ardente_door_L/ardente_door_L'}
+      v.data.beams[211] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 900, beamDampRebound = 900, beamDampVelocitySplit = 0.1, partPath = '/vivace_body/ardente_suspension_F/vivace_steering_wide/vivace_steering_wide_sport'}
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
       obj = {getBeamRestLength = function(_, c) return 0.4 end,
@@ -71,6 +75,13 @@ def main():
     ks = [c for c in sp if c[1] == "spring"]
     ls = [c for c in sp if c[1] == "len"]
     assert ks and all(c[3] <= 80000 + 1e-9 for c in ks) and ls and ls[-1][3] < 0.4, ("sag and a softer spring", ls[-1:] if ls else None)
+    # a NORMAL rear spring (the vivace's) sags too, and the door hinge and steering beams are never touched
+    lua.execute("calls = {}")
+    P.spring("RL", 0.3)
+    for _ in range(60):
+        P.updateGFX(1 / 60)
+    rl = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
+    assert any(c[1] == "len" for c in rl) and all(c[2] not in (210, 211) for c in rl), "a NORMAL spring sags; the door and steering beams are not touched"
     # a reset: everything is applied again after two frames
     lua.execute("calls = {}")
     P.onReset()

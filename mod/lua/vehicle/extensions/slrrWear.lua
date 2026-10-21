@@ -70,7 +70,8 @@ function M.setSettings(s)
     active = layer() ~= nil
     given = {}
     push(true)
-    say('on')
+    local ok, springs, dampers = pcall(layer().detect)      -- what the apply layer found on this car, in the log: a car with 0 shows up
+    say(string.format('on: %s springs, %s dampers found', ok and tostring(springs) or '?', ok and tostring(dampers) or '?'))
   elseif active and not want then
     active, given = false, {}
     if layer() then pcall(layer().clear) end
