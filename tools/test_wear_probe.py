@@ -53,6 +53,18 @@ def main():
     springs, dampers, nw = P.detect()
     assert (springs, dampers, nw) == (4, 4, 4), ("found", springs, dampers, nw)
     assert not [m for m in lua.eval("logs") .values() if "bumpstop" in m], "the bump stop is not listed"
+    # the part words are whole words, and for NORMAL beams only: stock suspensions that say 4link, multilink or sit under an arm/alarm ancestor are still found; the alignment and anti-roll links are not
+    for path, normal, want in (
+            ("/pickup_body/pickup_coilover_4link_F/pickup_coilover_4link_F", True, True),      # the pickup's front: a 4-link axle (found by a survey of the stock part names)
+            ("/etk_body/multilink_suspension_R/multilink_spring_R", True, True),
+            ("/x/alarm_suspension/shock_R", False, True),
+            ("/x/rear_arm_suspension/damper_R", False, True),       # (a bounded damper under an 'arm' ancestor: the link words only apply to NORMAL beams)
+            ("/vivace_body/ardente_suspension_R/vivace_camber_link_spring", True, False),
+            ("/vivace_body/ardente_suspension_R/vivace_toe_link", True, False),
+            ("/simple_traffic_body/simple_traffic_swaybar_F_strut", True, False),
+            ("/vivace_body/ardente_door_L/ardente_door_L", False, False),
+            ("/vivace_body/ardente_suspension_F/vivace_steering_wide", False, False)):
+        assert P.suspensionPart(path, normal) == want, (path, normal, want)
     base = lua.eval("v.data.beams[101].beamDampRebound")
     P.damper("FL", 0.3)
     for _ in range(40):

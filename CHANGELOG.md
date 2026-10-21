@@ -12,7 +12,10 @@ Seen with no effect yet:
 
 - Rust on brake calipers and hubs while driving: the game switches their materials (2 of 2 meshes of the front-left wheel on the Vivace, no errors in the log), but the wheel hides them and no change was visible; a car with open wheels has not been checked.
 
-Built and tested offline only (0.1.1): a part swap in freeroam sets back to new only the parts of the slot that changed (a new front coilover resets the front shock absorbers and springs, new pads the pads, a new engine or flywheel the engine or clutch), by the slot's name across the stock cars; the rest of the car keeps its wear. A slot with no front or rear in its name resets nothing. Not yet tried in the game.
+Built and tested offline only (0.1.1):
+
+- Found by a survey of the stock part names: the pickup, van, Nine and the traffic cars with a 4-link front axle had their front springs and shock absorbers skipped by the part finder ("4link" was read as an alignment link), so wear did not reach their front suspension. The finder now reads whole words, and only for the beams that can be links. Not yet checked in the game.
+- A part swap in freeroam sets back to new only the parts of the slot that changed (a new front coilover resets the front shock absorbers and springs, new pads the pads, a new engine or flywheel the engine or clutch), by the slot's name across the stock cars; the rest of the car keeps its wear. A slot with no front or rear in its name resets nothing. Not yet tried in the game.
 
 Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).
 
