@@ -17,9 +17,9 @@ T = lambda d: {k: v for k, v in d.items()}  # noqa: E731
 DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["k"], "bushing": ["k", "d"], "balljoint": ["strength"], "steering": ["k", "powerCoef"],
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
         "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"],
-        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"]}
+        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"], "lights": ["brightness"]}
 DOWN["fuel"], DOWN["intercooler"] = ["cap"], ["cap"]
-UP = {"spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
+UP = {"steering": ["deadZone", "lagS"], "lights": ["flicker"], "flywheel": ["inertia"], "spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
       "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "cv": ["friction"], "turbo": ["friction"], "oil": ["dynFriction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
 
@@ -167,6 +167,13 @@ def main():
         assert W.failureStep(k, 0.12 if k != "battery" else 0.1, 1, real, lambda: 0.0) is not None, ("a failure", k)
     assert eff("fuel", 0.0, real)["cap"] >= 0.94 and eff("intercooler", 0.0, real)["cap"] >= 0.95 and eff("cat", 0.0, real)["cap"] >= 0.85 and eff("battery", 0.0, real)["crank"] >= 0.6, "the caps are small and bounded"
     assert abs(W.torqueCap(1, eff("fuel", 0.0, real)["cap"], eff("cat", 0.0, real)["cap"], eff("intercooler", 0.0, real)["cap"]) - 0.94 * 0.85 * 0.95) < 0.02, "the caps multiply into one"
+    # the last five: steering play, flywheel, bulbs, alternator, exhaust sound
+    for k in ("steering", "flywheel", "lights", "alternator", "exhaust"):
+        assert W.PRICE[k] > 0 and W.NAME[k], ("a price and a name", k)
+    assert eff("steering", 0.0, real)["deadZone"] <= 0.0601 and eff("steering", 0.0, real)["lagS"] <= 0.081 and eff("steering", 1.0, real)["deadZone"] == 0, "steering play: 6 % and 0.08 s at worst, none when new"
+    assert eff("flywheel", 0.0, real)["inertia"] <= 1.0801 and eff("lights", 0.0, real)["brightness"] >= 0.6 and eff("lights", 0.5, real)["flicker"] == 0 and eff("lights", 0.0, real)["flicker"] <= 0.25
+    assert eff("exhaust", 0.0, real)["mufflingOffset"] >= -0.2001 and eff("exhaust", 0.0, real)["gainDb"] <= 1.501, "inside the game's own sport-exhaust range"
+    assert W.failureStep("alternator", 0.1, 1, real, lambda: 0.0) is not None and W.failureStep("steering", 0.12, 1, real, lambda: 0.0) is not None
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99
@@ -189,8 +196,9 @@ def main():
     assert sw("brakepad_F") == [("padF", "F")] and sw("brakepad_R") == [("padR", "R")] and sw("covet_brakepad_RRL") == [("padR", "R")]
     assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
     assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
-    assert sw("covet_flywheel") == [("clutch", "all")]
-    assert sw("covet_exhaust") == [("cat", "all")] and sw("pickup_muffler") == [("cat", "all")] and sw("sunburst2_exhaust_turbo_race") == [("cat", "all")] and sw("vivace_exhaust_tips") == []
+    assert sw("covet_flywheel") == [("clutch", "all"), ("flywheel", "all")]
+    assert sw("covet_steering") == [("steering", "all")] and sw("covet_power_steering") == [] and sw("covet_taillight_R_reverse_bulb") == [("lights", "all")]
+    assert sw("covet_exhaust") == [("cat", "all"), ("exhaust", "all")] and sw("pickup_muffler") == [("cat", "all"), ("exhaust", "all")] and sw("sunburst2_exhaust_turbo_race") == [("cat", "all"), ("exhaust", "all")] and sw("vivace_exhaust_tips") == []
     assert sw("vivace_fueltank") == [("fuel", "all")] and sw("sunburst2_fuelcell_race") == [("fuel", "all")]
     assert sw("covet_swaybar_F") == [("swaybar", "F")] and sw("pickup_desert_swaybar_SFA") == [("swaybar", "F")] and sw("bolide_swaybar_RR") == [("swaybar", "R")]
     assert sw("covet_hub_F") == [("bearing", "FL,FR")] and sw("covet_hub_R") == [("bearing", "RL,RR")] and sw("covet_3wheel_hub_gears") == [] and sw("bolide_hub_RF") == []
@@ -198,7 +206,7 @@ def main():
     assert sw("covet_halfshafts_R") == [("cv", "R")] and sw("vivace_driveshaft") == [("cv", "F,R")] and sw("covet_radiator") == [("radiator", "all")] and sw("vivace_turbo_i4_1.5_diesel") == [("turbo", "all")]
     for none in ("covet_turbo_airbox", "covet_turbo_downpipe", "vivace_exhaust_tips", "ardente_exhaust_exit", "covet_oilpan", "covet_camshaft_race", "covet_header"):
         assert sw(none) == [], ("holds no wear item", none)
-    for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_taillight_L_tail_brake_bulb", "covet_boxutility_springs", ""):
+    for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_boxutility_springs", ""):
         assert sw(none) == [], ("holds no wear item", none)
     # the slot names of the stock cars (covet, vivace, pickup, etk800, sunburst2, bolide) with the kinds and corners each holds: the table does not regress without the game's files
     import json
@@ -206,7 +214,7 @@ def main():
     for slot, want in fixture.items():
         got = [[w["kind"], [w["corners"][j] for j in range(1, len(w["corners"]) + 1)]] for w in (W.slotWear(slot)[i] for i in range(1, len(W.slotWear(slot)) + 1))]
         assert got == want, (slot, got, want)
-    assert sw("vivace_flywheel_lightweight") == [("clutch", "all")], "a word of the slot name, not a part of one, drops a slot"
+    assert sw("vivace_flywheel_lightweight") == [("clutch", "all"), ("flywheel", "all")], "a word of the slot name, not a part of one, drops a slot"
     print("wear rules ok: %d kinds, %d with factors that fall and %d with amounts that rise, all within bounds" % (len(KINDS), len(DOWN), len(UP)))
 
 

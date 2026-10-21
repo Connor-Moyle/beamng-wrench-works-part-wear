@@ -28,6 +28,13 @@ local bearingTarget, bearingBase, wheelCorner = {}, {}, {}      -- corner -> dra
 local fluidShift, masterTarget = {}, nil                       -- axle -> shift of the fade onset (C, negative); the pedal's torque factor
 local extraCaps = {}      -- kind ('cat', 'fuel', 'intercooler') -> a factor on the engine's power: they multiply with the internals' and the filter's, one cap
 local batteryTarget    -- the starter torque factor of a weak battery
+local steerTarget, steerState      -- {dead, lag} of the steering rack's play; the smoothed input
+local flywheelTarget                -- the engine inertia factor
+local lightsTarget, lightFuncs      -- {brightness, flicker}; the electrics filament values of the car's bulbs
+local lightBase, lightWritten = {}, {}   -- per bulb value: the value the game gave it, and the dimmed value we wrote (a value the game does not rewrite each frame is not dimmed twice)
+local altTarget, soc = nil, 1       -- the alternator's charge rate factor; the starter battery's charge (our own model: the game has none), 1 full
+local exhaustTarget, exhaustBase    -- {mufflingOffset, gainOffset} added to the car's own exhaust sound; the car's own values
+local capBase, capWritten     -- the engine's outputTorqueState as the game (or Street Legal) had it, and the value we wrote: a change of it by someone else is the new base
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
@@ -249,6 +256,17 @@ local function axleOfDevice(d)
   local a = tostring(d.name or ''):match('[_%l](%u)%u?$')
   return (a == 'F' or a == 'R') and a or nil
 end
+-- the engine's power cap is written as min(the game's own state, our cap) every frame and the game's own state is written back when no cap is wanted any more (a repair) or at clear()
+local function writeCap(eng, cap)
+  local cur = eng.outputTorqueState or 1
+  if capWritten == nil or cur ~= capWritten then capBase = cur end
+  capWritten = math.min(capBase, cap)
+  eng.outputTorqueState = capWritten
+end
+local function releaseCap(eng)
+  if capWritten ~= nil and eng.outputTorqueState == capWritten then eng.outputTorqueState = capBase end
+  capBase, capWritten = nil, nil
+end
 local function setField(d, field, value)
   if d[field] == nil then return end
   fieldBase[d] = fieldBase[d] or {}
@@ -389,7 +407,58 @@ function M.battery(cond)
   say(string.format('battery condition %.2f: starter torque x%.2f', cond, e.crank))
 end
 
+-- ---- the rest: the steering rack's play, the flywheel, the bulbs, the alternator and the exhaust sound
+-- Steering: electrics.values.steering_input is written by input.updateGFX each frame and read by the hydros, and the extensions' updateGFX runs between them (main.lua: "must be before drivetrain, hydros
+-- and after electrics"), so a dead zone and a lag on that value reach the rack. The dead zone is left out on a gamepad (its own dead zone is already in the input) and while the AI drives.
+function M.steering(cond)
+  local e = rules.effects('steering', cond, settings, {})
+  if not e then return end
+  steerTarget = {dead = e.deadZone, lag = e.lagS}
+  remember('steering', 'all', cond)
+  say(string.format('steering condition %.2f: dead zone %.1f %%, slack %.2f s', cond, e.deadZone * 100, e.lagS))
+end
+function M.flywheel(cond)
+  local e = rules.effects('flywheel', cond, settings)
+  if not e then return end
+  flywheelTarget = e.inertia
+  remember('flywheel', 'all', cond)
+  say(string.format('flywheel condition %.2f: inertia x%.3f', cond, e.inertia))
+end
+function M.lights(cond)
+  local e = rules.effects('lights', cond, settings)
+  if not e then return end
+  if not lightFuncs then
+    lightFuncs = {}
+    for _, prop in pairs(v.data.props or {}) do if type(prop) == 'table' and type(prop.func) == 'string' and prop.func:find('filament', 1, true) then lightFuncs[prop.func] = true end end
+  end
+  lightsTarget = {brightness = e.brightness, flicker = e.flicker}
+  remember('lights', 'all', cond)
+  local n = 0 for _ in pairs(lightFuncs) do n = n + 1 end
+  say(string.format('bulbs condition %.2f: brightness x%.2f, flicker %.2f, %d bulb values found', cond, e.brightness, e.flicker, n))
+end
+function M.alternator(cond)
+  local e = rules.effects('alternator', cond, settings)
+  if not e then return end
+  altTarget = e.charge
+  remember('alternator', 'all', cond)
+  say(string.format('alternator condition %.2f: charge rate x%.2f', cond, e.charge))
+end
+function M.exhaust(cond)
+  local e = rules.effects('exhaust', cond, settings)
+  if not e then return end
+  local eng = engine()
+  local sc = eng and eng.soundConfiguration and eng.soundConfiguration.exhaust
+  if not (sc and sc.params and eng.setExhaustGainMufflingOffset) then say('exhaust: this car has no exhaust sound parameters') return end
+  exhaustBase = exhaustBase or {sc.params.mufflingOffset or 0, sc.params.gainOffset or 0}
+  exhaustTarget = {e.mufflingOffset, e.gainDb}
+  eng:setExhaustGainMufflingOffset(exhaustBase[1] + e.mufflingOffset, exhaustBase[2] + e.gainDb)
+  remember('exhaust', 'all', cond)
+  say(string.format('exhaust condition %.2f: muffling %+.2f, gain %+.1f', cond, e.mufflingOffset, e.gainDb))
+end
+
 function M.reapply(a)
+  if a.kind == 'steering' then return M.steering(a.c) elseif a.kind == 'flywheel' then return M.flywheel(a.c) elseif a.kind == 'lights' then return M.lights(a.c)
+  elseif a.kind == 'alternator' then return M.alternator(a.c) elseif a.kind == 'exhaust' then return M.exhaust(a.c) end
   if a.kind == 'fuel' then return M.fuel(a.c) elseif a.kind == 'cat' then return M.cat(a.c) elseif a.kind == 'intercooler' then return M.intercooler(a.c) elseif a.kind == 'battery' then return M.battery(a.c) end
   if a.kind == 'swaybar' then return M.swaybar(a.corner, a.c) elseif a.kind == 'bearing' then return M.bearing(a.corner, a.c) elseif a.kind == 'fluid' then return M.fluid(a.corner, a.c)
   elseif a.kind == 'master' then return M.master(a.c) elseif a.kind == 'bushing' then return M.bushing(a.corner, a.c) end
@@ -423,13 +492,21 @@ function M.clear()
   for i, base in pairs(bearingBase) do local w = (wheels.wheelRotators or wheels.wheels)[i] if w then w.frictionTorque = base end end
   bearingTarget, bearingBase, fluidShift, masterTarget = {}, {}, {}, nil
   extraCaps, batteryTarget = {}, nil
+  if electrics and electrics.values then for f, w in pairs(lightWritten) do if electrics.values[f] == w and lightBase[f] ~= nil then electrics.values[f] = lightBase[f] end end end
+  lightBase, lightWritten = {}, {}
+  steerTarget, steerState, lightsTarget, altTarget, soc = nil, nil, nil, nil, 1
+  local engC = engine()
+  if flywheelTarget and engC and engC.initialInertia then engC.inertia = engC.initialInertia engC.invEngInertia = 1 / engC.inertia end
+  flywheelTarget = nil
+  if exhaustBase and engC and engC.setExhaustGainMufflingOffset then pcall(engC.setExhaustGainMufflingOffset, engC, exhaustBase[1], exhaustBase[2]) end
+  exhaustTarget, exhaustBase, lightFuncs = nil, nil, nil
   barsScanned = false      -- (the next use looks at the car's torsionbars again)
   local eng0 = engine()
   if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
   if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end
   turboBase, turboTarget, radiatorTarget = nil, nil, nil
   local eng = powertrain.getDevice('mainEngine')
-  if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
+  if eng then releaseCap(eng) end      -- (the dynamic friction and the misfire chance went back with fieldBase)
   say('cleared: every jbeam value back')
 end
 
@@ -508,16 +585,63 @@ function M.updateGFX(dt)
       setField(d, 'wearLockupClutchTorqueCoef', clutchTarget.lock)      -- (setField keeps the game's own value for clear(): its mileage wear is not lost)
     end
   end
-  if engineTarget or ignitionTarget or oilTarget or next(extraCaps) or batteryTarget then
+  if engineTarget or ignitionTarget or oilTarget or next(extraCaps) or batteryTarget or altTarget or capWritten ~= nil then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
       local cap = engineTarget and engineTarget.cap or 1
       for _, f in pairs(extraCaps) do cap = cap * f end
-      if cap < 1 then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, cap) end
-      if batteryTarget then setField(eng, 'starterTorque', (fieldBase[eng] and fieldBase[eng].starterTorque or eng.starterTorque or 0) * batteryTarget) end
-      if engineTarget or oilTarget then eng.wearDynamicFrictionCoef = (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1) end
+      if engineTarget or next(extraCaps) then writeCap(eng, cap) elseif capWritten ~= nil then releaseCap(eng) end
+      if batteryTarget or altTarget then
+        setField(eng, 'starterTorque', (fieldBase[eng] and fieldBase[eng].starterTorque or eng.starterTorque or 0) * math.max(0.4, (batteryTarget or 1) * (0.55 + 0.45 * soc)))      -- (a flat battery turns the starter slower, never under 40 %)
+      end
+      if engineTarget or oilTarget then setField(eng, 'wearDynamicFrictionCoef', (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1)) end
       local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
-      if mis > 0 then eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, mis) end
+      if mis > 0 then setField(eng, 'slowIgnitionErrorChance', math.max(fieldBase[eng] and fieldBase[eng].slowIgnitionErrorChance or eng.slowIgnitionErrorChance or 0, mis)) end
+    end
+  end
+  -- the starter battery's charge (our own model, not persisted: a respawn starts full): the starter drains it, the alternator charges it while the engine runs, the lights drain it
+  if altTarget or batteryTarget then
+    local eng = powertrain.getDevice('mainEngine')
+    local el = electrics and electrics.values or {}
+    if eng then
+      local cap = batteryTarget or 1
+      local lamps = ((el.lowbeam and el.lowbeam ~= 0) or (el.highbeam and el.highbeam ~= 0)) and 1 or 0
+      if (eng.starterEngagedCoef or 0) > 0 then soc = soc - dt / 40 / cap
+      elseif (el.rpm or 0) > 400 then soc = soc + dt * (altTarget or 1) / 300 - lamps * dt / 1200 / cap
+      else soc = soc - lamps * dt / 1800 / cap end
+      soc = math.max(0, math.min(1, soc))
+    end
+  end
+  if flywheelTarget then
+    local eng = powertrain.getDevice('mainEngine')
+    if eng and eng.initialInertia then eng.inertia = eng.initialInertia * flywheelTarget eng.invEngInertia = 1 / eng.inertia end
+  end
+  if lightsTarget and lightFuncs and electrics and electrics.values then
+    for f in pairs(lightFuncs) do
+      local x = electrics.values[f]
+      if type(x) == 'number' then
+        if lightWritten[f] == nil or x ~= lightWritten[f] then lightBase[f] = x end      -- the game wrote it: the new base; still our value: the base is the one it came from
+        local k = lightsTarget.brightness
+        if lightsTarget.flicker > 0 and math.random() < lightsTarget.flicker then k = k * 0.33 end
+        lightWritten[f] = lightBase[f] * k
+        electrics.values[f] = lightWritten[f]
+      end
+    end
+  end
+  if steerTarget and electrics and electrics.values and type(electrics.values.steering_input) == 'number' then
+    local aiOn = ai and ai.isDriving and ai.isDriving()
+    if aiOn then steerState = nil      -- (the first frame after the AI lets go starts from the input, not from the old slack)
+    else
+      local x = electrics.values.steering_input
+      local pad = input and input.lastFilterType == (rawget(_G, 'FILTER_PAD') or 1)
+      local d = pad and 0 or steerTarget.dead
+      if d > 0 then local ax = math.abs(x) x = ax < d and 0 or (x < 0 and -1 or 1) * (ax - d) / (1 - d) end
+      if steerTarget.lag > 0 and dt > 0 then
+        steerState = steerState or x
+        steerState = steerState + (x - steerState) * math.min(1, dt / (steerTarget.lag + dt))
+        x = steerState
+      else steerState = x end
+      electrics.values.steering_input = x
     end
   end
   if gearboxTarget then

@@ -20,7 +20,8 @@ M.KINDS = {
   exhaust = {days = 2920, group = 'engine'}, cat = {life = 200000, group = 'engine'}, radiator = {days = 3650, group = 'engine'},
   mounts = {life = 150000, group = 'drive'}, clutch = {life = 150000, group = 'drive'}, gearbox = {life = 250000, group = 'drive'},
   cv = {life = 200000, group = 'drive'}, diff = {life = 300000, group = 'drive'},
-  battery = {days = 1460, group = 'electrics'}, alternator = {life = 200000, group = 'electrics'},
+  battery = {days = 1460, group = 'electrics'}, alternator = {life = 200000, group = 'electrics'}, lights = {life = 200000, days = 5475, group = 'electrics'},
+  flywheel = {life = 300000, group = 'drive'},
   paint = {life = 300000, days = 4380, group = 'body'},        -- the car's paint as a whole (clearcoat 8-15 years in the research; the split between km and age is MODELLED)
 }
 
@@ -62,12 +63,12 @@ end
 -- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
 -- fully worn. mult is the garage's price multiplier.
 M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60,
-          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320, fuel = 380, cat = 350, intercooler = 450, battery = 160}
+          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320, fuel = 380, cat = 350, intercooler = 450, battery = 160, alternator = 260, exhaust = 280, steering = 340, lights = 40, flywheel = 400}
 M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
           clutch = 'clutch', paint = 'paint', gearbox = 'gearbox', diff = 'differential', cv = 'driveshafts', turbo = 'turbocharger', radiator = 'radiator',
           ignition = 'ignition', oil = 'engine oil',
           swaybar = 'anti-roll bar', bushing = 'control arm bushes', bearing = 'wheel bearing', fluid = 'brake fluid', master = 'brake master cylinder',
-          fuel = 'fuel pump and injectors', cat = 'catalytic converter', intercooler = 'intercooler', battery = 'battery'}
+          fuel = 'fuel pump and injectors', cat = 'catalytic converter', intercooler = 'intercooler', battery = 'battery', alternator = 'alternator', exhaust = 'exhaust system', steering = 'steering rack and tie rods', lights = 'bulbs', flywheel = 'flywheel'}
 function M.repairPrice(kind, c, mult)
   local base = M.PRICE[kind]
   if not base then return nil end
@@ -152,6 +153,7 @@ M.FAILURE = {
   ignition = {level = 0.10, text = 'The engine is misfiring'},
   fuel = {level = 0.08, text = 'The engine is starving for fuel at high load'}, cat = {level = 0.08, text = 'The catalytic converter is blocked'},
   intercooler = {level = 0.10, text = 'The intercooler is leaking boost'}, battery = {level = 0.05, text = 'The battery is nearly flat'},
+  alternator = {level = 0.05, text = 'The alternator has stopped charging'}, steering = {level = 0.08, text = 'The steering has gone loose'},
   swaybar = {level = 0.05, text = 'An anti-roll bar link has broken'}, bushing = {level = 0.10, text = 'A control arm bush has worn out'},
   bearing = {level = 0.10, text = 'A wheel bearing is failing'}, fluid = {level = 0.08, text = 'The brake fluid has boiled'}, master = {level = 0.08, text = 'The brake pedal has gone soft'},
 }
@@ -193,9 +195,11 @@ function E.swaybar(c, s, st) return {k = clamp((st and st.linkBroken) and 0.2 or
 -- the control arms and links: the rate of their NORMAL beams, a little softer at worst (the alignment is held by the beam's length, which stays; MODELLED, 0.85 is conservative on purpose)
 function E.bushing(c, s) local w = eff(c, s) return {k = clamp(1 - 0.15 * w, 0.85, 1), d = clamp(1 - 0.1 * w, 0.9, 1)} end
 function E.balljoint(c, s) return {strength = clamp(1 - 0.6 * eff(c, s), 0.4, 1)} end
+-- the steering rack and tie rods: play. deadZone is the share of the input swallowed around the centre (6 % at worst), lagS the seconds of slack the input is smoothed over; k and powerCoef are the old
+-- stiffness terms, not applied by the apply layer (no game value for a rack's stiffness)
 function E.steering(c, s, st)
   local w = eff(c, s)
-  return {k = clamp(1 - 0.4 * w, 0.6, 1), powerCoef = (st and st.leaking) and clamp(1 - 0.5 * w, 0.5, 1) or 1}
+  return {k = clamp(1 - 0.4 * w, 0.6, 1), powerCoef = (st and st.leaking) and clamp(1 - 0.5 * w, 0.5, 1) or 1, deadZone = 0.06 * w, lagS = 0.08 * w * w}
 end
 function E.bearing(c, s)
   local w = eff(c, s)
@@ -236,7 +240,8 @@ function E.filter(c, s) return {cap = clamp(1 - 0.04 * eff(c, s), 0.96, 1)} end
 function E.fuel(c, s) return {cap = clamp(1 - 0.06 * eff(c, s), 0.94, 1)} end
 function E.intercooler(c, s) return {cap = clamp(1 - 0.05 * eff(c, s), 0.95, 1)} end
 function E.ignition(c, s) return {misfire = clamp(0.2 * math.max(0, eff(c, s) - 0.6), 0, 0.4)} end
-function E.exhaust(c, s) local w = eff(c, s) return {mufflingOffset = -0.3 * w, gainDb = 2 * w} end
+-- the game's own sport-exhaust modes use mufflingOffset -0.25 to 0.2 and gainOffset -2 to 1.5: ours stay inside that
+function E.exhaust(c, s) local w = eff(c, s) return {mufflingOffset = -0.2 * w, gainDb = 1.5 * w} end
 function E.cat(c, s) return {cap = clamp(1 - 0.3 * math.max(0, eff(c, s) - 0.5), 0.85, 1)} end
 function E.mounts(c, s) local w = eff(c, s) return {k = clamp(1 - 0.5 * w, 0.5, 1), d = clamp(1 - 0.3 * w, 0.7, 1)} end
 function E.clutch(c, s) local w = eff(c, s) return {lockTorque = clamp(1 - 0.55 * w, 0.45, 1), freePlay = 1 + 6 * w} end
@@ -259,6 +264,10 @@ function E.paint(c, s)
 end
 function E.battery(c, s) return {crank = clamp(1 - 0.4 * eff(c, s), 0.6, 1)} end
 function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end   -- (a dead alternator still charges a little: no stranding)
+-- the bulbs: the brightness of every bulb's filament value (down to 60 %), and from 70 % worn a flicker (the share of frames a bulb drops to a third)
+function E.lights(c, s) local w = eff(c, s) return {brightness = clamp(1 - 0.4 * w, 0.6, 1), flicker = clamp(0.25 * math.max(0, w - 0.7) / 0.3, 0, 0.25)} end
+-- the flywheel: a little more rotating mass at worst (MODELLED: no source ties wear to inertia; the game's engine has one inertia value)
+function E.flywheel(c, s) return {inertia = 1 + 0.08 * eff(c, s)} end
 
 -- Brake fade. Pad friction holds to an onset temperature, then falls linearly to 40 % less over FADE_SPAN degrees C.
 -- Numbers: OEM pads fade from about 350 C; measured pads lost 0.41-0.48 -> 0.25-0.28 mu at 510-573 C (about 40 %). The span and the lower onset of a worn pad are MODELLED, not sourced.
@@ -297,8 +306,8 @@ end
 -- Which wear kinds a parts slot holds, from the slot's name across the stock cars (the game's slots are per axle, not per corner): the slot "vivace_shock_R_wide" is the rear shock absorbers,
 -- "covet_coilover_F" the front shock absorbers and springs together, "brakepad_F" the front pads, "etk800_brake_F" the front discs, "*_engine" and "*_engine_internals*" the engine,
 -- "*_flywheel" the clutch (the clutch kit is sold and fitted with the flywheel: MODELLED). Returns a list of { kind =, corners = { ... } }, empty for a slot that holds no wear item.
-local NOT_WEAR = { strutbrace = true, strutbar = true, bar = true, towerbar = true, cover = true, covers = true, bulb = true, handbrake = true, pedalbox = true, mount = true, mounts = true,
-                   ecu = true, intake = true, bay = true, light = true, lights = true, airbox = true, downpipe = true }      -- whole words of the slot name (split at '_'): a slot like "..._flywheel_lightweight" is not dropped
+local NOT_WEAR = { strutbrace = true, strutbar = true, bar = true, towerbar = true, cover = true, covers = true, handbrake = true, pedalbox = true, mount = true, mounts = true,
+                   ecu = true, intake = true, bay = true, light = true, lights = true, airbox = true, downpipe = true, power = true }      -- whole words of the slot name (split at '_'): a slot like "..._flywheel_lightweight" is not dropped
 local AXLE = { F = 'F', IFS = 'F', SFA = 'F', R = 'R', RR = 'R', RL = 'R', RRL = 'R', RRR = 'R' }     -- the slot name's axle word
 function M.slotWear(slot)
   slot = tostring(slot or '')
@@ -326,6 +335,7 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'engine', corners = { 'all' } }
   elseif low:find('_flywheel') then
     out[#out + 1] = { kind = 'clutch', corners = { 'all' } }
+    out[#out + 1] = { kind = 'flywheel', corners = { 'all' } }
   elseif low:find('transmission', 1, true) then
     out[#out + 1] = { kind = 'gearbox', corners = { 'all' } }
   elseif low:find('_differential', 1, true) then
@@ -338,8 +348,13 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'radiator', corners = { 'all' } }
   elseif low:find('exhaust', 1, true) and not low:find('tip', 1, true) and not low:find('exit', 1, true) or low:find('muffler', 1, true) then   -- the catalytic converter is part of the exhaust fitted with it
     out[#out + 1] = { kind = 'cat', corners = { 'all' } }
+    out[#out + 1] = { kind = 'exhaust', corners = { 'all' } }
   elseif low:find('fueltank', 1, true) or low:find('fuelcell', 1, true) then            -- the fuel pump sits in the tank
     out[#out + 1] = { kind = 'fuel', corners = { 'all' } }
+  elseif low:find('_steering', 1, true) then                                           -- the steering rack ("covet_steering"; the power steering pump has the word power)
+    out[#out + 1] = { kind = 'steering', corners = { 'all' } }
+  elseif low:find('bulb', 1, true) then
+    out[#out + 1] = { kind = 'lights', corners = { 'all' } }
   elseif low:find('swaybar', 1, true) then
     local a = axle('swaybar')
     if a then out[#out + 1] = { kind = 'swaybar', corners = { a } } end

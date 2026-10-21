@@ -18,7 +18,7 @@ def main():
       electrics = {values = {wheelspeed = 0}}
       obj = {getId = function() return 5 end, queueGameEngineLua = function(_, c) sent[#sent + 1] = c end}
       slrrWearProbe = {}
-      for _, k in ipairs({'damper', 'spring', 'rotor', 'pads', 'engine', 'clutch', 'gearbox', 'diff', 'cv', 'turbo', 'radiator', 'ignition', 'oil', 'swaybar', 'bushing', 'bearing', 'fluid', 'master', 'fuel', 'cat', 'intercooler', 'battery', 'setSettings', 'clear'}) do
+      for _, k in ipairs({'damper', 'spring', 'rotor', 'pads', 'engine', 'clutch', 'gearbox', 'diff', 'cv', 'turbo', 'radiator', 'ignition', 'oil', 'swaybar', 'bushing', 'bearing', 'fluid', 'master', 'fuel', 'cat', 'intercooler', 'battery', 'steering', 'flywheel', 'lights', 'alternator', 'exhaust', 'setSettings', 'clear'}) do
         slrrWearProbe[k] = function(...) calls[#calls + 1] = {k, ...} end
       end
       slrrWearProbe.detect = function() return 6, 4, 4 end
@@ -42,7 +42,7 @@ def main():
     c = lua.eval("calls")
     assert len(c) == 1 and c[1][1] == "damper" and c[1][2] == "FL" and abs(c[1][3] - 0.4) < 1e-9, [list(x.values()) for x in c.values()]
     # the powertrain parts are handed to the apply layer: by axle for the diff and the shafts, one for the car for the others
-    for kind, corner in (("gearbox", "all"), ("diff", "R"), ("cv", "F"), ("turbo", "all"), ("radiator", "all"), ("ignition", "all"), ("oil", "all"), ("swaybar", "F"), ("bushing", "RL"), ("bearing", "FR"), ("fluid", "R"), ("master", "all"), ("fuel", "all"), ("cat", "all"), ("intercooler", "all"), ("battery", "all")):
+    for kind, corner in (("gearbox", "all"), ("diff", "R"), ("cv", "F"), ("turbo", "all"), ("radiator", "all"), ("ignition", "all"), ("oil", "all"), ("swaybar", "F"), ("bushing", "RL"), ("bearing", "FR"), ("fluid", "R"), ("master", "all"), ("fuel", "all"), ("cat", "all"), ("intercooler", "all"), ("battery", "all"), ("steering", "all"), ("flywheel", "all"), ("lights", "all"), ("alternator", "all"), ("exhaust", "all")):
         lua.execute("calls = {}")
         W.setCondition(kind, corner, 0.4)
         lua.execute("run(1, 0)")

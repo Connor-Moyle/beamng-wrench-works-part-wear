@@ -8,7 +8,7 @@ const luaparse = require('luaparse');
 
 const STD = 'assert error ipairs pairs next pcall xpcall select setmetatable getmetatable rawget rawset rawequal tonumber tostring type unpack require print math string table os io _G coroutine'.split(' ');
 const GE_ONLY = 'setExtensionUnloadMode be getObjectByID getPlayerVehicle scenetree jsonReadFile jsonWriteFile core_vehicle_manager core_camera Engine FS Sim loadJsonMaterialsFile core_environment ui_options deepcopy'.split(' ');
-const CAR_ONLY = 'obj electrics wheels powertrain energyStorage particles fire v beamstate sensors'.split(' ');
+const CAR_ONLY = 'obj electrics wheels powertrain energyStorage particles fire v beamstate sensors ai input'.split(' ');
 const GAME = {
   ge: [...GE_ONLY, 'log', 'extensions', 'slrr_settings', 'slrr_partwear', 'carSurfaceFx', 'sl_career', 'sl_fleet', 'career_career', 'career_modules_inventory', 'dumps', 'vec3'],
   vehicle: [...CAR_ONLY, 'log', 'extensions', 'guihooks', 'slrrWear', 'slrrWearProbe', 'slrrWearLook', 'vec3', 'slrr_partwear'],
