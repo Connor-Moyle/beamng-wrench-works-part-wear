@@ -77,6 +77,7 @@ def main():
     lua.execute("car.partConfig = 'vehicles/covet/base.pc' sl_career = {isActive = function() return true end, getSlot = function() return 2 end}")
     G.reload()
     assert G.scope() == "sl2"
+    G.setCarKey(7, key)      # (an explicit key wins over the car id)
     G.onReport(7, lua.eval("{damper = {RR = 0.2}}"))
     G.onUpdate(11)
     assert lua.eval("files['/settings/slrrPartWear_state_sl2.json'][KEY].damper.RR") == 0.2
@@ -84,7 +85,33 @@ def main():
     lua.execute("sl_career = {isActive = function() return true end, getSlot = function() return 3 end}")
     G.onReport(7, lua.eval("{spring = {FL = 0.9}}"))
     assert G.scope() == "sl3" and lua.eval("files['/settings/slrrPartWear_state_sl3.json'] == nil or files['/settings/slrrPartWear_state_sl3.json'][KEY].damper == nil"), "slot 3 starts empty"
-    lua.execute("sl_career = nil")
+    G.setCarKey(7, None)
+    # Street Legal's career: the key is the player's car id, so two identical cars never share wear; a car with no id yet stores and restores nothing until it has one
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
+    lua.execute("sl_career = {isActive = function() return true end, getSlot = function() return 2 end} "
+                "fleet = {} sl_fleet = {carOfVehicle = function(v) return fleet[v] end} "
+                "car2 = {JBeam = 'covet', partConfig = 'vehicles/covet/base.pc', queueLuaCommand = function(_, c) cmds[#cmds + 1] = c end} "
+                "be.getObjectByID = function(_, i) if i == 7 then return car elseif i == 8 then return car2 end end")
+    G.reload()
+    G.attach(8)
+    lua.execute("cmds = {}")
+    G.onReport(8, lua.eval("{damper = {FL = 0.1}}"))
+    lua.execute("fleet[7] = 11 fleet[8] = 12")
+    G.onReport(7, lua.eval("{damper = {FL = 0.6}}"))
+    G.onUpdate(2)      # the key of car 8 is known now: it is given its (empty) record
+    G.onReport(8, lua.eval("{damper = {FL = 0.3}}"))
+    G.onUpdate(11)
+    sl2 = lua.eval("(function() local t = {} for k, v in pairs(files['/settings/slrrPartWear_state_sl2.json']) do t[#t + 1] = k end table.sort(t) return table.concat(t, ',') end)()")
+    assert "slcar11" in sl2 and "slcar12" in sl2 and lua.eval("files['/settings/slrrPartWear_state_sl2.json'].slcar11.damper.FL") == 0.6 and lua.eval("files['/settings/slrrPartWear_state_sl2.json'].slcar12.damper.FL") == 0.3, sl2
+    assert lua.eval("files['/settings/slrrPartWear_state_sl2.json'].slcar12.damper.FL ~= 0.1"), "the report from a car with no id was not stored"
+    # the game's career: the inventory id
+    lua.execute("sl_career = nil career_career = {isActive = function() return true end} career_modules_inventory = {getInventoryIdFromVehicleId = function(v) return v == 7 and 41 or nil end}")
+    G.reload()
+    assert G.scope() == "stock"
+    G.onReport(7, lua.eval("{spring = {RR = 0.5}}"))
+    G.onUpdate(11)
+    assert lua.eval("files['/settings/slrrPartWear_state_stock.json'].inv41.spring.RR") == 0.5
+    lua.execute("career_career = nil career_modules_inventory = nil sl_fleet = nil")
     # a NaN or inf condition never reaches the car's command
     G.onReport(7, lua.eval("{damper = {FL = 0/0, FR = 1/0}}"))
     G.repair(7, "spring", None)

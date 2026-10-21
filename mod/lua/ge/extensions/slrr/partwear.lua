@@ -12,7 +12,7 @@ local schema = require('slrr/partwearSchema')
 local STATE_FILE = '/settings/slrrPartWear_state.json'
 local SAVE_EVERY = 10
 local settings = rules.settings('Off')
-local watched, keyOf, store = {}, {}, nil
+local watched, keyOf, givenKey, store = {}, {}, {}, nil
 local dirtyAt, clock = nil, 0
 local storeScope = 'free'
 
@@ -56,8 +56,21 @@ local function hash(s)      -- a 32-bit string hash of the WHOLE text (a seriali
   for i = 1, #s do h = (h * 33 + s:byte(i)) % 4294967296 end
   return string.format('%08x', h)
 end
-local function carKey(id)       -- model + hash of the whole part config: cars of one model and config share one record until setCarKey gives a car its own (a career car's id)
+-- The record a car's wear is kept under: setCarKey's key if a caller gave one; in Street Legal's career the player's car id (sl_fleet.carOfVehicle), in the game's career the inventory id
+-- (career_modules_inventory): two identical career cars never share wear. A career car that has no id yet (it is being registered) has no key: nothing is restored or stored for it until
+-- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
+local function carKey(id)
   if keyOf[id] then return keyOf[id] end
+  local scope = scopeNow()
+  if scope:sub(1, 2) == 'sl' then
+    local f = rawget(_G, 'sl_fleet')
+    local ok, carId = pcall(function() return f and f.carOfVehicle and f.carOfVehicle(id) end)
+    return ok and carId and ('slcar' .. tostring(carId)) or nil
+  elseif scope == 'stock' then
+    local inv = rawget(_G, 'career_modules_inventory')
+    local ok, invId = pcall(function() return inv and inv.getInventoryIdFromVehicleId and inv.getInventoryIdFromVehicleId(id) end)
+    return ok and invId and ('inv' .. tostring(invId)) or nil
+  end
   local o = veh(id)
   if not o then return 'car' .. tostring(id) end
   local cfg = tostring(o.partConfig)
@@ -70,7 +83,8 @@ M.carKey = carKey
 local function paint(id, off)
   local C = rawget(_G, 'carSurfaceFx')
   if not (C and C.setPaintWear) then return end
-  local blob = loadStore()[carKey(id)]
+  local key = carKey(id)
+  local blob = key and loadStore()[key]
   local c = blob and blob.paint and blob.paint.all or 1
   local e = (not off) and rules.effects('paint', c, settings) or nil
   pcall(C.setPaintWear, id, e or { fade = 0, rust = 0, scuffs = 0, grime = 0 })
@@ -80,7 +94,9 @@ local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
   send(id, "setExtensionUnloadMode('slrrWearProbe','manual') extensions.load('slrrWearProbe') setExtensionUnloadMode('slrrWear','manual') extensions.load('slrrWear')")
   send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
-  local blob = loadStore()[carKey(id)]
+  local key = carKey(id)
+  givenKey[id] = key or false
+  local blob = key and loadStore()[key]
   if blob then send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')') end
   paint(id)
 end
@@ -90,21 +106,23 @@ function M.attach(id)
   watched[id] = true
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id] = nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id] = nil, nil, nil end
 M.onVehicleDestroyed = M.forget
 function M.onVehicleSpawned(id) if settings.wearEnabled and watched[id] then give(id) end end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
 
 -- the vehicle's report: its snapshot of the parts below new
 function M.onReport(id, blob)
-  if not watched[id] or type(blob) ~= 'table' then return end
-  loadStore()[carKey(id)] = next(blob) and blob or nil
+  local key = watched[id] and type(blob) == 'table' and carKey(id)
+  if not key then return end
+  loadStore()[key] = next(blob) and blob or nil
   paint(id)
   dirtyAt = dirtyAt or clock
 end
 
 function M.repair(id, kind, corner)
-  local snap = loadStore()[carKey(id)]
+  local key = carKey(id)
+  local snap = key and loadStore()[key]
   if snap and snap[kind] then
     if corner then snap[kind][corner] = nil else snap[kind] = nil end
     if snap[kind] and not next(snap[kind]) then snap[kind] = nil end
@@ -132,8 +150,16 @@ function M.reload()
 end
 
 function M.getSettings() return settings end
+local checkAt = 0
 function M.onUpdate(dtReal)
   clock = clock + (dtReal or 0)
+  if settings.wearEnabled and clock >= checkAt then      -- a career car gets its id a moment after it spawns, or a car changes hands: give it its record when its key is known or has changed
+    checkAt = clock + 1
+    for id in pairs(watched) do
+      local k = carKey(id) or false
+      if k ~= givenKey[id] then give(id) end
+    end
+  end
   if dirtyAt and clock - dirtyAt >= SAVE_EVERY then saveStore() end
 end
 function M.onExit() if dirtyAt then saveStore() end end
