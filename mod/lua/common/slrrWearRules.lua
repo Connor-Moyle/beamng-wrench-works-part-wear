@@ -196,7 +196,8 @@ function E.steering(c, s, st)
 end
 function E.bearing(c, s)
   local w = eff(c, s)
-  return {dragNm = c < 0.25 and 5 + 60 * w * w or 0, humVolume = w * w}   -- (a failing bearing drags; a worn one only hums)
+  local t = clamp((0.25 - c) / 0.25, 0, 1)      -- 0 at a quarter of the life, 1 at none: the drag rises from nothing, no step
+  return {dragNm = t * (5 + 60 * w * w), humVolume = w * w}   -- (a failing bearing drags; a worn one only hums)
 end
 
 local function pads(c, s)
