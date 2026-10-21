@@ -39,6 +39,7 @@ local function scopeNow()
 end
 local function stateFile(scope) return scope == 'free' and STATE_FILE or (STATE_FILE:gsub('%.json$', '_' .. scope .. '.json')) end
 local function saveStore() if store and jsonWriteFile then jsonWriteFile(stateFile(storeScope), store, true) end dirtyAt = nil end
+local PRUNE_DAYS = 30
 local function loadStore()
   local now = scopeNow()
   if store and storeScope ~= now then saveStore() store = nil end       -- another mode or career slot: the old state is written, the new one read
@@ -46,6 +47,15 @@ local function loadStore()
     storeScope = now
     store = jsonReadFile and jsonReadFile(stateFile(now))
     if type(store) ~= 'table' then store = {} end
+    -- freeroam records are keyed by model and part config, so every config ever driven leaves one: each record has a last-seen day (store.__seen) and a freeroam record
+    -- untouched for PRUNE_DAYS is dropped here (a record with no day yet starts counting now)
+    local day = math.floor(os.time() / 86400)
+    if type(store.__seen) ~= 'table' then store.__seen = {} end
+    local seen = store.__seen
+    for k in pairs(store) do if k ~= '__seen' and not seen[k] then seen[k] = day end end
+    for k, d in pairs(seen) do
+      if store[k] == nil or (now == 'free' and type(d) == 'number' and day - d > PRUNE_DAYS) then store[k], seen[k] = nil, nil end
+    end
   end
   return store
 end
@@ -280,7 +290,9 @@ function M.onReport(id, blob)
     end
     pendingNew[id] = #keep > 0 and keep or nil      -- (a report that has it new or not at all: the car has the reset, no more filtering)
   end
-  loadStore()[key] = next(blob) and blob or nil
+  local st = loadStore()
+  st[key] = next(blob) and blob or nil
+  st.__seen[key] = st[key] and math.floor(os.time() / 86400) or nil
   paint(id)
   dirtyAt = dirtyAt or clock
 end
@@ -409,7 +421,7 @@ function M.onExit() if dirtyAt then saveStore() end end
 
 function M.status()
   local n = 0 for _ in pairs(watched) do n = n + 1 end
-  local cars = 0 for _ in pairs(loadStore()) do cars = cars + 1 end
+  local cars = 0 for k in pairs(loadStore()) do if k ~= '__seen' then cars = cars + 1 end end
   return string.format('part wear %s, %d cars watched, %d cars with stored wear', settings.wearEnabled and 'on' or 'off', n, cars)
 end
 
