@@ -18,18 +18,20 @@ local settings = rules.settings('Off')
 local cond = {}            -- cond[kind][corner] = c
 local given = {}           -- the c last handed to the apply layer, same shape
 local active = false
-local timer, report, dirty = 0, 0, false
+local timer, report, dirty, pending = 0, 0, false, 0
 local lastV, braking = 0, false
 
 local function say(m) log('I', 'slrrWear', m) end
 local function layer() return rawget(_G, 'slrrWearProbe') end
+
+local function finite(x, d) x = tonumber(x) if x == nil or x ~= x or x == math.huge or x == -math.huge then return d end return x end   -- no NaN or inf in a condition, a snapshot or a report
 
 local function get(kind, corner) return (cond[kind] and cond[kind][corner]) or 1 end
 function M.getCondition(kind, corner) return get(kind, corner or CORNERS[kind] and CORNERS[kind][1]) end
 function M.setCondition(kind, corner, c)
   if not CORNERS[kind] then return false end
   cond[kind] = cond[kind] or {}
-  cond[kind][corner] = rules.clamp(tonumber(c) or 1, 0, 1)
+  cond[kind][corner] = rules.clamp(finite(c, 1), 0, 1)
   dirty = true
   return true
 end
@@ -78,7 +80,7 @@ function M.snapshot()
   local out = {}
   for kind, t in pairs(cond) do
     for corner, c in pairs(t) do
-      if c < 0.995 then out[kind] = out[kind] or {} out[kind][corner] = math.floor(c * 1000 + 0.5) / 1000 end
+      if c < 0.995 then out[kind] = out[kind] or {} out[kind][corner] = math.floor(finite(c, 1) * 1000 + 0.5) / 1000 end
     end
   end
   return out
@@ -117,11 +119,11 @@ local function wear(km, events)
   end
 end
 
-function M.updateGFX(dt)
-  if not active then return end
+local function tick(dt)
+  if pending > 0 then pending = pending - 1 if pending == 0 then push(true) end end      -- a few frames after a reset (the apply layer reapplies on its own after two): hand every part over again, whatever the order
   timer, report = timer + dt, report + dt
   if timer >= TICK then
-    local speed = math.abs(tonumber(electrics and electrics.values and electrics.values.wheelspeed) or 0)
+    local speed = math.abs(finite(electrics and electrics.values and electrics.values.wheelspeed, 0))
     local events = {}
     local decel = (lastV - speed) / timer
     if decel > HARD_STOP and lastV > HARD_FROM then if not braking then events.hardstop = 1 end braking = true elseif decel < 3 then braking = false end
@@ -131,6 +133,15 @@ function M.updateGFX(dt)
   end
   if dirty and report >= REPORT then report = 0 send() end
 end
+function M.updateGFX(dt)              -- our code never gets to disable the vehicle: one error switches part wear off for this car, logged once
+  if not active then return end
+  local ok, err = pcall(tick, finite(dt, 0))
+  if not ok then
+    active, given = false, {}
+    if layer() then pcall(layer().clear) end
+    say('switched off after an error: ' .. tostring(err))
+  end
+end
 
 function M.status()
   local t = {}
@@ -139,7 +150,7 @@ function M.status()
   return string.format('wear %s, %d parts below new: %s', active and 'on' or 'off', #t, table.concat(t, ', '))
 end
 
-function M.onReset() lastV, braking = 0, false end
+function M.onReset() lastV, braking, pending = 0, false, 3 end
 function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end end
 
 return M

@@ -66,6 +66,25 @@ def main():
     c0 = W.getCondition("damper", "FL")
     lua.execute("run(40, 30)")
     assert W.getCondition("damper", "FL") == c0, "no wear while off"
+    # NaN / inf never get into a condition or a snapshot
+    W.setSettings(lua.table(wearEnabled=True, lifeScale=0.1, abuseScale=1, ageScale=1, effectStrength=1, springSagMax=25, springRateLoss=0.05, damperLossMax=0.8,
+                            brakeTorqueLoss=0.08, enginePowerLoss=0.15, failures=False, failureRate=0, judder=1, visualWear=1))
+    W.restoreSnapshot(lua.eval("{damper = {FL = 0/0, FR = 1/0}, spring = {RL = -1/0}}"))
+    assert W.getCondition("damper", "FL") == 1 and W.getCondition("damper", "FR") == 1 and W.getCondition("spring", "RL") == 1, "a non-finite condition is new"
+    # a reset: every part is handed to the apply layer again a few frames later, whatever the order of the two onReset handlers
+    W.setCondition("damper", "FL", 0.5)
+    lua.execute("run(2, 0) calls = {}")
+    W.onReset()
+    lua.execute("run(4, 0, 0.01)")
+    assert any(x[1] == "damper" and x[2] == "FL" for x in lua.eval("calls").values()), "handed over again after a reset"
+    # one error in the tick switches part wear off for the car, once, and clears the apply layer
+    lua.execute("calls = {} obj.queueGameEngineLua = function() error('boom') end W_.setCondition('spring', 'RR', 0.5)")
+    lua.execute("run(30, 0)")
+    assert W.status().startswith("wear off"), W.status()
+    assert lua.eval("calls[#calls][1]") == "clear" and any("switched off after an error" in m for m in lua.eval("logs").values())
+    n = lua.eval("#logs")
+    lua.execute("run(30, 0)")
+    assert lua.eval("#logs") == n, "the error is said once"
     print("wear state ok: off by default, wear by distance and hard stops, steps handed on, snapshot restore, report, off clears")
 
 

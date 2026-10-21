@@ -1,7 +1,7 @@
 -- Part wear, game side (global slrr_partwear). Reads the Mods page's settings (slrr/partwearSchema.lua), gives every watched car the vehicle extensions (slrrWear + the apply layer
 -- slrrWearProbe), sends the settings and the car's saved conditions, and stores the conditions each car reports (every few seconds while they change).
 -- OFF until wearEnabled: no extension is loaded in any car. The store is one file, STATE_FILE: { [carKey] = { kind = { corner = c } } }; carKey is the car's model and part config,
--- or what a caller gives with setCarKey(id, key) (a career car's own id).
+-- or what a caller gives with setCarKey(id, key) (a career car's own id). One file per scope (freeroam, each Street Legal slot, the game's career) so wear never leaks between careers.
 --   slrr_partwear.attach(id)         watch a car (the player's car is attached by itself while part wear is on)
 --   slrr_partwear.repair(id, kind, corner)   set one part back to new (corner nil = all corners of the kind)
 --   slrr_partwear.status()           what is stored and watched
@@ -14,6 +14,7 @@ local SAVE_EVERY = 10
 local settings = rules.settings('Off')
 local watched, keyOf, store = {}, {}, nil
 local dirtyAt, clock = nil, 0
+local storeScope = 'free'
 
 local function veh(id) return be and be:getObjectByID(id) end
 local function lit(v)      -- a Lua literal of a JSON-safe table (numbers, strings, booleans, tables)
@@ -22,23 +23,48 @@ local function lit(v)      -- a Lua literal of a JSON-safe table (numbers, strin
     for k, x in pairs(v) do t[#t + 1] = string.format('[%q]=%s', tostring(k), lit(x)) end
     return '{' .. table.concat(t, ',') .. '}'
   elseif type(v) == 'string' then return string.format('%q', v) end
+  if type(v) == 'number' and (v ~= v or v == math.huge or v == -math.huge) then return '1' end      -- a NaN or inf would be a syntax error in the car's command
   return tostring(v)
 end
+-- wear never leaks between careers: one state file per scope. Freeroam is 'free'; Street Legal's career is 'sl<slot>' (its qa slot 'slqa'), the game's own career 'stock'; M.setScope(name) names any other.
+local forced
+local function scopeNow()
+  if forced then return forced end
+  local sl = rawget(_G, 'sl_career')
+  if sl and sl.isActive and sl.isActive() == true then return 'sl' .. tostring(sl.getSlot and sl.getSlot() or 1) end
+  local cc = rawget(_G, 'career_career')
+  if cc and cc.isActive and cc.isActive() == true then return 'stock' end
+  return 'free'
+end
+local function stateFile(scope) return scope == 'free' and STATE_FILE or (STATE_FILE:gsub('%.json$', '_' .. scope .. '.json')) end
+local function saveStore() if store and jsonWriteFile then jsonWriteFile(stateFile(storeScope), store, true) end dirtyAt = nil end
 local function loadStore()
+  local now = scopeNow()
+  if store and storeScope ~= now then saveStore() store = nil end       -- another mode or career slot: the old state is written, the new one read
   if not store then
-    store = jsonReadFile and jsonReadFile(STATE_FILE)
+    storeScope = now
+    store = jsonReadFile and jsonReadFile(stateFile(now))
     if type(store) ~= 'table' then store = {} end
   end
   return store
 end
-local function saveStore() if store and jsonWriteFile then jsonWriteFile(STATE_FILE, store, true) end dirtyAt = nil end
+function M.setScope(name) forced = name end
+function M.scope() return scopeNow() end
 
-local function carKey(id)
+local function hash(s)      -- a 32-bit string hash of the WHOLE text (a serialized part config can be long and alike for many cars)
+  local h = 5381
+  for i = 1, #s do h = (h * 33 + s:byte(i)) % 4294967296 end
+  return string.format('%08x', h)
+end
+local function carKey(id)       -- model + hash of the whole part config: cars of one model and config share one record until setCarKey gives a car its own (a career car's id)
   if keyOf[id] then return keyOf[id] end
   local o = veh(id)
-  return o and (tostring(o.JBeam) .. '|' .. tostring(o.partConfig):sub(1, 200)) or ('car' .. tostring(id))
+  if not o then return 'car' .. tostring(id) end
+  local cfg = tostring(o.partConfig)
+  return tostring(o.JBeam) .. '|' .. hash(cfg) .. '|' .. #cfg
 end
 function M.setCarKey(id, key) keyOf[id] = key end
+M.carKey = carKey
 
 -- the paint wear look of a car: the layers of the stored paint condition go to Car Surface FX (nothing happens without it, or without its setPaintWear)
 local function paint(id, off)
