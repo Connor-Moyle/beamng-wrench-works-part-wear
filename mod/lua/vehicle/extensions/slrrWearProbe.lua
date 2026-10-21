@@ -28,6 +28,7 @@ local bearingTarget, bearingBase, wheelCorner = {}, {}, {}      -- corner -> dra
 local fluidShift, masterTarget = {}, nil                       -- axle -> shift of the fade onset (C, negative); the pedal's torque factor
 local extraCaps = {}      -- kind ('cat', 'fuel', 'intercooler') -> a factor on the engine's power: they multiply with the internals' and the filter's, one cap
 local batteryTarget    -- the starter torque factor of a weak battery
+local capBase, capWritten     -- the engine's outputTorqueState as the game (or Street Legal) had it, and the value we wrote: a change of it by someone else is the new base
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
@@ -233,6 +234,17 @@ local function axleOfDevice(d)
   local a = tostring(d.name or ''):match('[_%l](%u)%u?$')
   return (a == 'F' or a == 'R') and a or nil
 end
+-- the engine's power cap is written as min(the game's own state, our cap) every frame and the game's own state is written back when no cap is wanted any more (a repair) or at clear()
+local function writeCap(eng, cap)
+  local cur = eng.outputTorqueState or 1
+  if capWritten == nil or cur ~= capWritten then capBase = cur end
+  capWritten = math.min(capBase, cap)
+  eng.outputTorqueState = capWritten
+end
+local function releaseCap(eng)
+  if capWritten ~= nil and eng.outputTorqueState == capWritten then eng.outputTorqueState = capBase end
+  capBase, capWritten = nil, nil
+end
 local function setField(d, field, value)
   if d[field] == nil then return end
   fieldBase[d] = fieldBase[d] or {}
@@ -415,7 +427,7 @@ function M.clear()
   local cl = powertrain.getDevice('clutch')
   if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = 1, 1 end
   local eng = powertrain.getDevice('mainEngine')
-  if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
+  if eng then releaseCap(eng) end      -- (the dynamic friction and the misfire chance went back with fieldBase)
   say('cleared: every jbeam value back')
 end
 
@@ -491,16 +503,16 @@ function M.updateGFX(dt)
     local cl = powertrain.getDevice('clutch')
     if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = clutchTarget.lock, clutchTarget.freePlay end
   end
-  if engineTarget or ignitionTarget or oilTarget or next(extraCaps) or batteryTarget then
+  if engineTarget or ignitionTarget or oilTarget or next(extraCaps) or batteryTarget or capWritten ~= nil then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
       local cap = engineTarget and engineTarget.cap or 1
       for _, f in pairs(extraCaps) do cap = cap * f end
-      if cap < 1 then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, cap) end
+      if engineTarget or next(extraCaps) then writeCap(eng, cap) elseif capWritten ~= nil then releaseCap(eng) end
       if batteryTarget then setField(eng, 'starterTorque', (fieldBase[eng] and fieldBase[eng].starterTorque or eng.starterTorque or 0) * batteryTarget) end
-      if engineTarget or oilTarget then eng.wearDynamicFrictionCoef = (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1) end
+      if engineTarget or oilTarget then setField(eng, 'wearDynamicFrictionCoef', (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1)) end
       local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
-      if mis > 0 then eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, mis) end
+      if mis > 0 then setField(eng, 'slowIgnitionErrorChance', math.max(fieldBase[eng] and fieldBase[eng].slowIgnitionErrorChance or eng.slowIgnitionErrorChance or 0, mis)) end
     end
   end
   if gearboxTarget then

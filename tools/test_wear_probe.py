@@ -48,7 +48,7 @@ def main():
              setBoundedBeamDamp = function(_, c, ...) calls[#calls + 1] = {'damp', c, ...} end,
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
-      dev = {name = 'mainEngine', outputTorqueState = 1, starterTorque = 100}
+      dev = {name = 'mainEngine', outputTorqueState = 1, starterTorque = 100, wearDynamicFrictionCoef = 1.2, slowIgnitionErrorChance = 0, fastIgnitionErrorChance = 0}
       clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
       -- the powertrain parts: a gearbox (the game gave it a wear coefficient from its odometer: 1.3), an automatic, two differentials, two shaft kinds, a turbo and a radiator on the engine
       gbox = {type = 'manualGearbox', name = 'gearbox', wearFrictionCoef = 1.3}
@@ -165,7 +165,7 @@ def main():
     back2 = lua.eval("turboCalls[#turboCalls]")
     assert abs(back2[2] - 1.5) < 1e-9 and abs(back2[3] - 0.9) < 1e-9, "the turbo's own damage state is back"
     assert lua.eval("radCalls[#radCalls][2]") == 1, "the radiator is new again"
-    assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1
+    assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1.2, "the game's own friction coefficient (1.2 from its odometer) is back, not 1"
     P.clutch(0.0)
     P.updateGFX(1 / 60)
     # the engine split: one power cap from the internals, filter, cat, fuel and intercooler (a turbo is on the stand-in), and a weak battery lowers the starter's torque
@@ -178,6 +178,25 @@ def main():
     capNow = lua.eval("dev.outputTorqueState")
     assert abs(capNow - 0.85 * 0.94 * 0.95) < 0.01, ("the caps multiply", capNow)
     assert abs(lua.eval("dev.starterTorque") - 100 * 0.6) < 1e-9, "a flat battery: 60 % of the starter torque"
+    # a repair gives the power back (the cap goes to 1 and the game's own state is written again), and a state the game set is kept
+    P.clear()
+    P.cat(0.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") < 0.9, "a worn cat caps the power"
+    P.cat(1.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") == 1, "a repaired cat gives the power back"
+    P.cat(0.0)
+    P.updateGFX(1 / 60)
+    lua.execute("dev.outputTorqueState = 0.5")      # the game (engine damage) sets its own state
+    P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") == 0.5, "the game's own lower state is kept"
+    P.cat(1.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") == 0.5, "and a repair does not repair the engine's damage"
+    P.clear()
+    assert lua.eval("dev.outputTorqueState") == 0.5, "clear puts the game's value back, not 1"
+    lua.execute("dev.outputTorqueState = 1")
     P.clear()
     lua.execute("dev.turbocharger.isExisting = false")
     P.cat(0.0)
@@ -224,7 +243,7 @@ def main():
     lua.execute("calls = {}")
     P.clear()
     assert lua.eval("clutchDev.wearLockTorqueCoef") == 1
-    assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1
+    assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1.2
     back = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "damp" and abs(c[4] - 5000) < 1e-9 for c in back), "the damper is back at its jbeam value"
     print("wear probe ok: found %d springs and %d dampers, steps within 10 %%, nothing above jbeam, reapplied after a reset, cleared" % (springs, dampers))
