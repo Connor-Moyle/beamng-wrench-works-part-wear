@@ -44,7 +44,7 @@ M.PRESETS = {
   Off = {wearEnabled = false, lifeScale = 0.1, abuseScale = 0, ageScale = 0, effectStrength = 0, springSagMax = 0, springRateLoss = 0,
          damperLossMax = 0, brakeTorqueLoss = 0, enginePowerLoss = 0, failures = false, failureRate = 0, judder = 0, visualWear = 0},
 }
-M.RANGES = {lifeScale = {0.01, 1}, abuseScale = {0, 3}, ageScale = {0, 3}, effectStrength = {0, 2}, springSagMax = {0, 40}, springRateLoss = {0, 0.2},
+M.RANGES = {lifeScale = {0.01, 1}, abuseScale = {0, 3}, ageScale = {0, 3}, effectStrength = {0, 2}, springSagMax = {0, 40}, springRateLoss = {0, 0.2}, wearRate = {0.05, 20},
             damperLossMax = {0, 0.9}, brakeTorqueLoss = {0, 0.3}, enginePowerLoss = {0, 0.3}, failureRate = {0, 3}, judder = {0, 2}, visualWear = {0, 1}}
 
 -- the settings of a preset, as a fresh table; a value in `over` replaces the preset's (clamped to its range)
@@ -115,7 +115,7 @@ function M.wearStep(kind, c, inp, s)
     end
   end
   if k.days then lost = lost + math.max(0, inp.days or 0) * s.ageScale / k.days end
-  return clamp(c - lost, 0, 1)
+  return clamp(c - lost * (s.wearRate or 1), 0, 1)     -- wearRate: the career's own 'how often services are needed' on top of the player's wear speed (1 = as set)
 end
 
 -- which of the shared events a part counts, under the names of M.ABUSE_KM: ev = {hardstop, landing, hotF_s, hotR_s (seconds with the front / rear brakes hot), overheat_s, limiter_s}

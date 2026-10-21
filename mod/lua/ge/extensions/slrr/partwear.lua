@@ -39,6 +39,7 @@ local function scopeNow()
 end
 local function stateFile(scope) return scope == 'free' and STATE_FILE or (STATE_FILE:gsub('%.json$', '_' .. scope .. '.json')) end
 local function saveStore() if store and jsonWriteFile then jsonWriteFile(stateFile(storeScope), store, true) end dirtyAt = nil end
+local PRUNE_DAYS = 30
 local function loadStore()
   local now = scopeNow()
   if store and storeScope ~= now then saveStore() store = nil end       -- another mode or career slot: the old state is written, the new one read
@@ -46,6 +47,15 @@ local function loadStore()
     storeScope = now
     store = jsonReadFile and jsonReadFile(stateFile(now))
     if type(store) ~= 'table' then store = {} end
+    -- freeroam records are keyed by model and part config, so every config ever driven leaves one: each record has a last-seen day (store.__seen) and a freeroam record
+    -- untouched for PRUNE_DAYS is dropped here (a record with no day yet starts counting now)
+    local day = math.floor(os.time() / 86400)
+    if type(store.__seen) ~= 'table' then store.__seen = {} end
+    local seen = store.__seen
+    for k in pairs(store) do if k ~= '__seen' and not seen[k] then seen[k] = day end end
+    for k, d in pairs(seen) do
+      if store[k] == nil or (now == 'free' and type(d) == 'number' and day - d > PRUNE_DAYS) then store[k], seen[k] = nil, nil end
+    end
   end
   return store
 end
@@ -100,14 +110,30 @@ local function paint(id, off)
 end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 
+local wearRate = 1       -- the wear rate another mod asked for this session (Street Legal's 'Wear rate' setting); not saved: the caller sends it again
+function M.sentSettings() local t = {} for k, v in pairs(settings) do t[k] = v end t.wearRate = wearRate return t end
+-- k = a number above 0 (1 = as the player set the wear speed): every part's wear from now on is k times as fast, the stored conditions are not touched. Returns the rate in force.
+function M.setWearRate(k)
+  if type(k) == 'number' and k == k and k > 0 and k < math.huge then
+    wearRate = rules.clamp(k, rules.RANGES.wearRate[1], rules.RANGES.wearRate[2])
+    if settings.wearEnabled then for id in pairs(watched) do send(id, 'if slrrWear then slrrWear.setSettings(' .. lit(M.sentSettings()) .. ') end') end end
+  end
+  return wearRate
+end
+function M.getWearRate() return wearRate end
+
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
   send(id, "extensions.load('slrrWearProbe') extensions.load('slrrWearLook') extensions.load('slrrWear')")
-  send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
+  send(id, 'slrrWear.setSettings(' .. lit(M.sentSettings()) .. ')')
   local key = carKey(id)
   givenKey[id] = key or false
   if key then say('car ' .. tostring(id) .. ' record key ' .. key) end
-  local blob = key and loadStore()[key]
-  if blob then send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')') end
+  local st = key and loadStore()
+  local blob = st and st[key]
+  if blob then
+    st.__seen[key] = math.floor(os.time() / 86400)       -- a record in use is not unused, whether or not the car has reported yet
+    send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')')
+  end
   paint(id)
 end
 
@@ -280,7 +306,9 @@ function M.onReport(id, blob)
     end
     pendingNew[id] = #keep > 0 and keep or nil      -- (a report that has it new or not at all: the car has the reset, no more filtering)
   end
-  loadStore()[key] = next(blob) and blob or nil
+  local st = loadStore()
+  st[key] = next(blob) and blob or nil
+  st.__seen[key] = st[key] and math.floor(os.time() / 86400) or nil
   paint(id)
   dirtyAt = dirtyAt or clock
 end
@@ -319,6 +347,28 @@ local function worn(vehId)       -- { {kind, corner, c}, ... } of the car's part
   return out
 end
 local function label(w) return (rules.NAME[w.kind] or w.kind) .. ((CORNER_NAME[w.corner] or '') ~= '' and (' ' .. CORNER_NAME[w.corner]) or '') end
+
+-- A read-only view of a car's stored conditions for other mods (Street Legal's service and used-car reports): { parts = { { id = 'damper:FL', kind, corner, section, condition (1 = new), name }, ... } }.
+-- Only the parts that have wear stored are listed (a part that is not listed is new). Sections are the rules' groups, with the exhaust and the catalyst split off as 'exhaust'.
+-- nil while part wear is off (or the car is not watched, for conditionsOf); conditionsOfKey reads the saved record of any car of the current mode or career slot, spawned or not.
+local SECTION_OF = { exhaust = 'exhaust', cat = 'exhaust' }
+local function conditionsOfRecord(rec)
+  local parts = {}
+  for kind, t in pairs(rec or {}) do
+    local k = rules.KINDS[kind]
+    if k and type(t) == 'table' then
+      for corner, c in pairs(t) do
+        if type(c) == 'number' and c == c then
+          parts[#parts + 1] = { id = kind .. ':' .. corner, kind = kind, corner = corner, section = SECTION_OF[kind] or k.group, condition = c, name = rules.NAME[kind] or kind }
+        end
+      end
+    end
+  end
+  table.sort(parts, function(a, b) return a.id < b.id end)
+  return { parts = parts }
+end
+function M.conditionsOfKey(key) return settings.wearEnabled and key and conditionsOfRecord(loadStore()[key]) or nil end
+function M.conditionsOf(vehId) return watched[vehId] and M.conditionsOfKey(carKey(vehId)) or nil end
 
 function M.onWrenchWorksServices(list, vehId)
   if not settings.wearEnabled then return end
@@ -387,7 +437,7 @@ function M.onExit() if dirtyAt then saveStore() end end
 
 function M.status()
   local n = 0 for _ in pairs(watched) do n = n + 1 end
-  local cars = 0 for _ in pairs(loadStore()) do cars = cars + 1 end
+  local cars = 0 for k in pairs(loadStore()) do if k ~= '__seen' then cars = cars + 1 end end
   return string.format('part wear %s, %d cars watched, %d cars with stored wear', settings.wearEnabled and 'on' or 'off', n, cars)
 end
 

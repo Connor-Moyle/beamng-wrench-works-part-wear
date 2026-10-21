@@ -178,6 +178,42 @@ def main():
     G.onWrenchWorksService("pw:damper:FL", 7)
     G.onWrenchWorksServices(lua.eval("list"), 7)
     assert lua.eval("#list") == 1 and lua.eval("#paid") == 1, "repaired: not offered again, not charged twice"
+    # freeroam records untouched for 30 days are dropped at load; career records are kept; a record without a day starts counting
+    G.setScope("free")
+    G.reload()
+    G.setScope("sl2"); G.conditionsOfKey("x")       # (the store in memory is written and dropped when the scope changes; the preset file below is read when we come back)
+    lua.execute("files['/settings/slrrPartWear_state.json'] = {old = {damper = {FL = 0.5}}, fresh = {damper = {FL = 0.5}}, nodate = {damper = {FL = 0.5}}, "
+                "__seen = {old = math.floor(os.time() / 86400) - 31, fresh = math.floor(os.time() / 86400) - 29, gone = 5}}")
+    G.setScope("free")
+    G.setCarKey(7, "fresh")
+    assert G.conditionsOfKey("old")["parts"][1] is None and G.conditionsOfKey("fresh")["parts"][1] is not None and G.conditionsOfKey("nodate")["parts"][1] is not None, "old freeroam record pruned, the others kept"
+    assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.gone") is None and lua.eval("files['/settings/slrrPartWear_state.json'].__seen.nodate") is not None
+    G.onReport(7, lua.eval("{damper = {FL = 0.1}}"))
+    assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.fresh") >= lua.eval("math.floor(os.time() / 86400)")
+    # the career's wear rate: sent with the settings to cars that exist and cars that come later; not a number above 0: ignored; not touching stored conditions
+    lua.execute("cmds = {}")
+    assert G.getWearRate() == 1 and G.setWearRate(2) == 2 and G.getWearRate() == 2
+    assert any("[\"wearRate\"]=2," in x.replace(" ", "") for x in cmds(lua)), cmds(lua)
+    assert G.setWearRate(0) == 2 and G.setWearRate(-1) == 2 and G.setWearRate("x") == 2 and G.setWearRate(0/0 if False else float("nan")) == 2
+    assert G.setWearRate(1000) == 20
+    lua.execute("cmds = {}")
+    G.attach(7)
+    assert any("[\"wearRate\"]=20," in x.replace(" ", "") for x in cmds(lua)), "a car spawned later gets the rate"
+    G.onUpdate(100)      # (the store is written)
+    assert lua.eval("files['/settings/slrrPartWear.json'].wearRate") is None and not lua.eval("(function() for _, f in pairs(files) do if type(f) == 'table' and f.wearRate ~= nil then return true end end end)()"), "the rate is never saved"
+    G.setWearRate(1)
+    # a record handed to a car at spawn counts as used, even before the car has reported
+    lua.execute("files['/settings/slrrPartWear_state.json'].nodate.damper = {FL = 0.4} files['/settings/slrrPartWear_state.json'].__seen.nodate = math.floor(os.time() / 86400) - 29")
+    G.setCarKey(7, "nodate")
+    G.attach(7)
+    assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.nodate") >= lua.eval("math.floor(os.time() / 86400)"), "a record given to a car is refreshed"
+    G.setCarKey(7, key)
+    # the read-only view for other mods: sorted rows with a stable id and a section; nil when the car is not watched or wear is off
+    G.onReport(7, lua.eval("{damper = {FL = 0.2}, padF = {F = 0.5}, exhaust = {all = 0.7}}"))
+    cv = lua.eval("(function(c) local o = {} for i, p in ipairs(c.parts) do o[i] = p.id .. '/' .. p.section .. '/' .. p.condition end return table.concat(o, ' ') end)")
+    assert cv(G.conditionsOfKey(key)) == "damper:FL/suspension/0.2 exhaust:all/exhaust/0.7 padF:F/brakes/0.5", cv(G.conditionsOfKey(key))
+    assert G.conditionsOf(99) is None and G.conditionsOfKey(None) is None
+    assert len(G.conditionsOfKey("no such car")["parts"]) == 0
     lua.execute("money = 10 list = {}")
     G.onWrenchWorksServices(lua.eval("list"), 7)
     assert lua.eval("list[1].disabled") is True, "too little money: disabled"
