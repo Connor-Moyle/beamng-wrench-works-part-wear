@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.1 (unreleased)
+
+Proven in the game since 0.1.0:
+
+- Breakdowns (with "Parts can break" on): a shock absorber at 10 % blew within two seconds of a roll and dropped to 5 % with the message "A shock absorber has blown" on screen; the engine at 14 % gave "The engine is running rough" and dropped to 12 %. Only a part between its failure level and 15 % can break.
+- Worn paint through Car Surface FX (its "Worn paint (test)" switch on): a white Covet at 20 % paint condition showed faded, dull paint, a grimy film on the roof and bonnet, scuff lines on the door and orange rust spots along the sill and arches; at 100 % only light dirt.
+
+Seen with no effect yet:
+
+- Worn clutch: the values reach the clutch (lock torque about half, free play 6 times) but no slip showed in a 5 s full-throttle run on the Covet (it gained 3.9 m/s in 5 s against 4.9 m/s with a new one). Cars with an automatic or double-clutch gearbox, like the Vivace, have no clutch device: it does nothing there.
+- Rust on brake calipers and hubs while driving: no change was visible through the wheels.
+
+Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).
+
 ## 0.1.0 (2026-10-21)
 
 This list is only filled in as each item is proven in the game with screenshots and logs.
@@ -15,17 +29,14 @@ Proven in the game:
 - Worn engine: with the engine at 20 %, the Covet took 7.8 s on average from standstill to 20 m/s against 6.6 s with a new one (three runs each, no overlap): the engine's output cap falls from 0.93 to 0.88 and its friction rises 1.4 times. The garage Car info power curve does not show it (192 against 190 hp on the Vivace): it reads the engine's fixed curve.
 - Worn engine bay look: on the Covet with the bonnet off, the engine takes a dust film at 50 % and dark grime with some rust-brown touches at 20 %, set at spawn; hoses, the washer bottle and the battery box stay as they are. It reads as a tired dirty engine, with less shine than intended.
 - A part swap in freeroam (the bonnet taken off on the Covet) keeps the car's wear: the four shock absorbers stayed at 30 % and the record key was the same after the respawn.
-- Breakdowns (with "Parts can break" on): a shock absorber at 10 % blew within two seconds of a roll and dropped to 5 % with the message "A shock absorber has blown" on screen; the engine at 14 % gave "The engine is running rough" and dropped to 12 %. Only a part between its failure level and 15 % can break.
-- Worn paint through Car Surface FX (its "Worn paint (test)" switch on): a white Covet at 20 % paint condition showed faded, dull paint, a grimy film on the roof and bonnet, scuff lines on the door and orange rust spots along the sill and arches; at 100 % only light dirt.
 - Wrench Works garage repairs (freeroam): a worn shock absorber and two worn discs were listed under Services > Part wear with their condition and a price ($129 for the shock absorber); paying for the shock absorber took the entry off the list and put the part back to 100 %.
 
 Built and tested offline only (all off by default; switch on in ESC > Mods > Part wear):
 
 - A condition per part (shock absorbers, springs, brake pads and discs, engine, clutch, paint) that wears by distance, hard stops, heat, hard landings and age.
 - Effects of worn parts: shocks bounce more, springs sit lower and a little softer, pads and discs fade earlier, the clutch slips (the numbers are from the research notes; the ones with no source are labelled as modelled in the rules file).
-- Breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft): the messages are built, only the two above are seen.
-- Worn clutch: the values reach the clutch (lock torque about half, free play 6 times) but no slip showed in a 5 s full-throttle run on the Covet (acceleration was 20 % lower, 3.9 against 4.9 m/s gained). Cars with an automatic or double-clutch gearbox, like the Vivace, have no clutch device: it does nothing there.
-- Rust on brake calipers and hubs while driving: switched, but no change was visible through the wheels.
+- Breakdowns (off with the "Parts can break" setting): a badly worn part can fail, with a message on screen: a blown shock, soft brakes, a slipping clutch.
+- Worn paint look through Car Surface FX (needs its "Worn paint (test)" switch).
 - Wrench Works garage: worn parts are listed under Services with their condition and a price, and a click pays and sets the part back to new.
 - Worn brake disc look (switch: Worn look in the Mods page): brake discs show a surface bloom of rust and then heavy rust as the disc and pad condition falls, set when the car is spawned (it changes at the next spawn or garage visit; the red-hot brake glow is untouched); calipers and hubs change while driving. Only on cars spawned after part wear is switched on.
 - Wear is kept per car and per career slot, so careers never share wear.
