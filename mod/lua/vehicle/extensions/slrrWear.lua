@@ -20,6 +20,10 @@ local given = {}           -- the c last handed to the apply layer, same shape
 local active = false
 local timer, report, dirty, pending = 0, 0, false, 0
 local lastV, braking = 0, false
+local lastVz, landCool, acc = nil, 0, {}   -- the vertical speed of the last frame, the quiet time after a landing, the seconds and events collected since the last tick
+local axles = nil                          -- wheel index -> 'F' / 'R' by where the wheel's node is on the car (jbeam y grows backward)
+local rand = math.random
+function M.setRandom(f) rand = f end
 
 local function say(m) log('I', 'slrrWear', m) end
 local function layer() return rawget(_G, 'slrrWearProbe') end
@@ -109,25 +113,60 @@ local function send()
 end
 
 -- one wear step for every part from the distance and the events since the last one
-local function wear(km, events)
+local function announce(text)
+  if guihooks and guihooks.message then pcall(guihooks.message, text, 6, 'slrrWear') end
+  say(text)
+end
+local function wear(km, ev, dt)
   for kind, corners in pairs(CORNERS) do
     for _, corner in ipairs(corners) do
       local c = get(kind, corner)
-      local n = rules.wearStep(kind, c, {km = km, events = events}, settings)
-      if n < c then cond[kind] = cond[kind] or {} cond[kind][corner] = n dirty = true end
+      local n = rules.wearStep(kind, c, {km = km, events = rules.eventsFor(kind, corner, ev)}, settings)
+      if n < c then cond[kind] = cond[kind] or {} cond[kind][corner] = n dirty = true c = n end
+      local lvl, text = rules.failureStep(kind, c, dt / 3600, settings, rand)      -- a badly worn part can fail (only with the breakdowns setting on)
+      if lvl then cond[kind] = cond[kind] or {} cond[kind][corner] = lvl dirty = true announce(text) end
     end
   end
+end
+
+-- every frame: a hard landing is a big upward deceleration just after a fall
+local function sample(dt)
+  landCool = math.max(0, landCool - dt)
+  local vel = obj and obj.getVelocity and obj:getVelocity()
+  local vz = vel and finite(vel.z, nil)
+  if vz and lastVz and dt > 0 then
+    if lastVz < -2 and (vz - lastVz) / dt > rules.LANDING_G and landCool == 0 then acc.landing = (acc.landing or 0) + 1 landCool = 1 end
+  end
+  lastVz = vz
+end
+-- every tick: the seconds the brakes, the engine and the rev limiter spent over their limits
+local function heat(ev, dt)
+  if not (axles and next(axles)) then
+    axles = {}
+    local ys, n = 0, 0
+    for i, w in pairs(wheels and wheels.wheels or {}) do local nd = v and v.data.nodes[w.node1] if nd and nd.pos then ys, n = ys + nd.pos.y, n + 1 end end
+    for i, w in pairs(wheels and wheels.wheels or {}) do local nd = v and v.data.nodes[w.node1] axles[i] = (nd and nd.pos and n > 0 and nd.pos.y < ys / n) and 'F' or 'R' end
+  end
+  for i, w in pairs(wheels and wheels.wheels or {}) do
+    if finite(w.brakeSurfaceTemperature, 0) > rules.HOT_C then local k = axles[i] == 'F' and 'hotF_s' or 'hotR_s' ev[k] = dt end
+  end
+  local el = electrics and electrics.values or {}
+  if finite(el.watertemp, 0) > rules.OVERHEAT_C then ev.overheat_s = dt end
+  if el.revLimiterActive == true or finite(el.revLimiterActive, 0) > 0 then ev.limiter_s = dt end
 end
 
 local function tick(dt)
   if pending > 0 then pending = pending - 1 if pending == 0 then push(true) end end      -- a few frames after a reset (the apply layer reapplies on its own after two): hand every part over again, whatever the order
   timer, report = timer + dt, report + dt
+  sample(dt)
   if timer >= TICK then
     local speed = math.abs(finite(electrics and electrics.values and electrics.values.wheelspeed, 0))
-    local events = {}
+    local events = acc
+    acc = {}
+    heat(events, timer)
     local decel = (lastV - speed) / timer
     if decel > HARD_STOP and lastV > HARD_FROM then if not braking then events.hardstop = 1 end braking = true elseif decel < 3 then braking = false end
-    wear(speed * timer / 1000, events)
+    wear(speed * timer / 1000, events, timer)
     lastV, timer = speed, 0
     push(false)
   end

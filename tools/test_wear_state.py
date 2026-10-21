@@ -77,6 +77,32 @@ def main():
     W.onReset()
     lua.execute("run(4, 0, 0.01)")
     assert any(x[1] == "damper" and x[2] == "FL" for x in lua.eval("calls").values()), "handed over again after a reset"
+    # heat and hard landings wear the parts they hit; a badly worn part can fail (only with the breakdowns setting), and the failure is announced
+    S = dict(wearEnabled=True, lifeScale=0.1, abuseScale=1, ageScale=1, effectStrength=1, springSagMax=25, springRateLoss=0.05, damperLossMax=0.8,
+             brakeTorqueLoss=0.08, enginePowerLoss=0.15, failures=False, failureRate=1, judder=1, visualWear=1)
+    W.setSettings(lua.table(**S))
+    W.restoreSnapshot(lua.eval("{}"))
+    lua.execute('''msgs = {} guihooks = {message = function(t) msgs[#msgs + 1] = t end}
+      vz = 0 obj.getVelocity = function() return {x = 0, y = 0, z = vz} end
+      wheels = {wheels = {[1] = {node1 = 1, brakeSurfaceTemperature = 500}, [2] = {node1 = 2, brakeSurfaceTemperature = 20}}}
+      v = {data = {nodes = {[1] = {pos = {x = 0.7, y = 0, z = 0}}, [2] = {pos = {x = 0.7, y = 2.5, z = 0}}}}}
+      function landing() vz = -6 W_.updateGFX(0.016) vz = 1 W_.updateGFX(0.016) vz = 0 end''')
+    lua.execute("for _ = 1, 5 do landing() run(4, 0, 0.5) end")
+    assert W.getCondition("damper", "FL") < 1 - 0.0015 and W.getCondition("spring", "FR") < 1, "hard landings wear the dampers and springs"
+    assert W.getCondition("padF", "F") < 1 - 0.001 and W.getCondition("padR", "R") == 1, ("hot front brakes wear the front pads, the cool rear ones not", W.getCondition("padF", "F"), W.getCondition("padR", "R"))
+    assert W.getCondition("clutch", "all") == 1 and lua.eval("#msgs") == 0, "no failures with the setting off"
+    lua.execute("calls = {}")
+    S["failures"] = True
+    W.setSettings(lua.table(**S))
+    W.setCondition("damper", "FL", 0.1)
+    lua.execute("W_.setRandom(function() return 0 end) run(2, 0)")
+    assert abs(W.getCondition("damper", "FL") - 0.05) < 1e-9 and lua.eval("#msgs") == 1 and "shock" in lua.eval("msgs[1]"), "a badly worn damper blew and it was announced"
+    lua.execute("run(8, 0)")
+    assert lua.eval("#msgs") == 1, "a failed part fails once"
+    lua.execute("W_.setRandom(function() return 0.99 end)")
+    W.setCondition("clutch", "all", 0.1)
+    lua.execute("run(20, 0)")
+    assert W.getCondition("clutch", "all") == 0.1, "no failure when the roll does not hit"
     # one error in the tick switches part wear off for the car, once, and clears the apply layer
     lua.execute("calls = {} obj.queueGameEngineLua = function() error('boom') end W_.setCondition('spring', 'RR', 0.5)")
     lua.execute("run(30, 0)")

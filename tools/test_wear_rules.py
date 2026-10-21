@@ -115,6 +115,19 @@ def main():
     assert W.failureRoll(0.0, 1, real, lambda: 0.99) is True
     assert W.failureRoll(0.14, 1, real, lambda: 0.5) is False
 
+    # events a part counts, and the failure roll
+    ev = lua.table_from({"hardstop": 1, "landing": 2, "hotF_s": 3, "hotR_s": 4, "overheat_s": 5, "limiter_s": 6})
+    assert dict(W.eventsFor("padF", "F", ev)) == {"hardstop": 1, "hot_s": 3} and dict(W.eventsFor("padR", "R", ev))["hot_s"] == 4
+    assert W.eventsFor("rotor", "RL", ev)["hot_s"] == 4 and W.eventsFor("rotor", "FL", ev)["hot_s"] == 3
+    assert dict(W.eventsFor("engine", "all", ev)) == {"overheat_s": 5, "limiter_s": 6} and dict(W.eventsFor("damper", "FL", ev)) == {"landing": 2}
+    assert dict(W.eventsFor("diff", "all", ev)) == {}
+    c, text = W.failureStep("damper", 0.1, 1, real, lambda: 0.0)
+    assert c == W.FAILURE["damper"]["level"] and "shock" in text
+    assert W.failureStep("damper", 0.05, 1, real, lambda: 0.0) is None, "an already failed part cannot fail again"
+    assert W.failureStep("damper", 0.5, 1, real, lambda: 0.0) is None, "a part above 15 % does not fail"
+    assert W.failureStep("damper", 0.1, 1, light, lambda: 0.0) is None, "Light has no breakdowns"
+    assert W.failureStep("diff", 0.01, 1, real, lambda: 0.0) is None, "a kind with no failure never fails"
+    assert all(0 < W.FAILURE[k]["level"] < 0.15 for k in W.FAILURE.keys()), "a failed part is below the roll threshold"
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99

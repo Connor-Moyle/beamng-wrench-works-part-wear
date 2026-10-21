@@ -94,6 +94,38 @@ function M.wearStep(kind, c, inp, s)
   return clamp(c - lost, 0, 1)
 end
 
+-- which of the shared events a part counts, under the names of M.ABUSE_KM: ev = {hardstop, landing, hotF_s, hotR_s (seconds with the front / rear brakes hot), overheat_s, limiter_s}
+function M.eventsFor(kind, corner, ev)
+  ev = ev or {}
+  if kind == 'padF' then return {hardstop = ev.hardstop, hot_s = ev.hotF_s} end
+  if kind == 'padR' then return {hardstop = ev.hardstop, hot_s = ev.hotR_s} end
+  if kind == 'rotor' then return {hardstop = ev.hardstop, hot_s = (tostring(corner):sub(1, 1) == 'R') and ev.hotR_s or ev.hotF_s} end
+  if kind == 'engine' then return {overheat_s = ev.overheat_s, limiter_s = ev.limiter_s} end
+  if kind == 'damper' or kind == 'spring' then return {landing = ev.landing} end
+  return {}
+end
+M.HOT_C = 350                 -- brake surface temperature above which the pads and discs are counted as hot (the fade onset of the research; the game's own fade starts about here)
+M.OVERHEAT_C = 112            -- coolant temperature above which the engine is counted as overheating (Street Legal uses the same)
+M.LANDING_G = 30              -- vertical deceleration (m/s^2) after a fall that counts as a hard landing (MODELLED)
+
+-- What a failure does: the part drops to a low condition (the apply layer then gives it its worst effect: a blown shock, grinding brakes, a slipping clutch). The condition is the whole state:
+-- it survives a respawn and a save, and only a repair puts the part back. MODELLED levels; the text is shown on screen.
+M.FAILURE = {
+  damper = {level = 0.05, text = 'A shock absorber has blown'},
+  spring = {level = 0.10, text = 'A spring has gone soft'},
+  padF = {level = 0.06, text = 'The front brakes have gone soft'},
+  padR = {level = 0.06, text = 'The rear brakes have gone soft'},
+  clutch = {level = 0.08, text = 'The clutch is slipping'},
+  engine = {level = 0.12, text = 'The engine is running rough'},
+}
+-- a failure roll for one part over dtHours: the new condition and the text, or nil. Only a part still above its failure level can fail (a failed part stays failed until repaired).
+function M.failureStep(kind, c, dtHours, s, rand)
+  local f = M.FAILURE[kind]
+  if not f or c <= f.level then return nil end
+  if M.failureRoll(c, dtHours, s, rand) then return f.level, f.text end
+  return nil
+end
+
 -- a failure roll for dt hours: below 0.15 a part can fail, hazard per hour failRate * (0.15 - c) / 0.15; rand() in 0..1 is injected for tests
 function M.failureRoll(c, dtHours, s, rand)
   if not s.failures or c >= 0.15 then return false end
