@@ -264,4 +264,39 @@ function M.limitStep(prev, target, base, maxFrac)
   return prev + clamp(target - prev, -m, m)
 end
 
+-- Which wear kinds a parts slot holds, from the slot's name across the stock cars (the game's slots are per axle, not per corner): the slot "vivace_shock_R_wide" is the rear shock absorbers,
+-- "covet_coilover_F" the front shock absorbers and springs together, "brakepad_F" the front pads, "etk800_brake_F" the front discs, "*_engine" and "*_engine_internals*" the engine,
+-- "*_flywheel" the clutch (the clutch kit is sold and fitted with the flywheel: MODELLED). Returns a list of { kind =, corners = { ... } }, empty for a slot that holds no wear item.
+local NOT_WEAR = { 'strutbrace', 'strut_bar', 'strutbar', 'towerbar', 'cover', 'bulb', 'light', 'handbrake', 'pedalbox', 'mount', 'ecu', 'intake', 'bay' }
+local AXLE = { F = 'F', IFS = 'F', SFA = 'F', R = 'R', RR = 'R', RL = 'R', RRL = 'R', RRR = 'R' }     -- the slot name's axle word
+function M.slotWear(slot)
+  slot = tostring(slot or '')
+  local low = slot:lower()
+  for _, w in ipairs(NOT_WEAR) do if low:find(w, 1, true) then return {} end end
+  local function axle(word) local t = slot:match(word .. '_(%u+)') return t and AXLE[t] end
+  local function corners(a) return a == 'F' and { 'FL', 'FR' } or { 'RL', 'RR' } end
+  local out = {}
+  if low:find('coilover', 1, true) or low:find('strut', 1, true) then
+    local a = axle(low:find('coilover', 1, true) and 'coilover' or 'strut')
+    if a then out[#out + 1] = { kind = 'damper', corners = corners(a) } out[#out + 1] = { kind = 'spring', corners = corners(a) } end
+  elseif low:find('shock', 1, true) then
+    local a = axle('shock')
+    if a then out[#out + 1] = { kind = 'damper', corners = corners(a) } end
+  elseif low:find('spring', 1, true) then
+    local a = axle('spring')
+    if a then out[#out + 1] = { kind = 'spring', corners = corners(a) } end
+  elseif low:find('brakepad', 1, true) then
+    local a = axle('brakepad')
+    if a then out[#out + 1] = { kind = a == 'F' and 'padF' or 'padR', corners = { a } } end
+  elseif slot:find('_brakes?_%u') then
+    local a = axle('brakes?')
+    if a then out[#out + 1] = { kind = 'rotor', corners = corners(a) } end
+  elseif low:find('_engine$') or low:find('_engine_alt$') or low:find('_engine_midengine$') or low:find('engine_.-internals') or low:find('_engine_internals') then
+    out[#out + 1] = { kind = 'engine', corners = { 'all' } }
+  elseif low:find('_flywheel') then
+    out[#out + 1] = { kind = 'clutch', corners = { 'all' } }
+  end
+  return out
+end
+
 return M

@@ -60,6 +60,7 @@ end
 -- The record a car's wear is kept under: setCarKey's key if a caller gave one; in Street Legal's career the player's car id (sl_fleet.carOfVehicle), in the game's career the inventory id
 -- (career_modules_inventory): two identical career cars never share wear. A career car that has no id yet (it is being registered) has no key: nothing is restored or stored for it until
 -- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
+local chosen = {}       -- vehicle id -> { slot id -> chosen part name } as of its last spawn or parts change
 local pinned = {}       -- vehicle id -> the freeroam key a part swap started from: the swap respawns the car with a changed part config, which is still the same car
 local function carKey(id)
   if keyOf[id] then return keyOf[id] end
@@ -180,16 +181,54 @@ function M.attach(id)
   watched[id] = true
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id] = nil, nil, nil, nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id] = nil, nil, nil, nil, nil, nil end
 -- A part swap in freeroam (the game's parts menu, Wrench Works) fires this BEFORE the respawn: keep the car's record, so a swap is not a free repair of every other part. A config loaded
 -- over the car (onVehicleReplaced) is another car again. (Career cars have explicit keys and are not touched.)
-function M.onPartsTreeConfigChanged()
+-- The parts the car carries, by slot, to tell which slot a swap changed: slot id -> chosen part name, from the parts tree (nodes keyed by slot id under `children`).
+local function flatten(tree, out)
+  out = out or {}
+  for id, node in pairs(type(tree) == 'table' and tree.children or {}) do
+    if type(node) == 'table' then out[id] = node.chosenPartName or '' flatten(node, out) end
+  end
+  return out
+end
+local function currentTree()
+  local pm = rawget(_G, 'core_vehicle_partmgmt')
+  local ok, cfg = pcall(function() return pm and pm.getConfig and pm.getConfig() end)
+  return ok and type(cfg) == 'table' and cfg.partsTree or nil
+end
+-- A new part in a slot is new: only the wear kinds and corners that slot holds (rules.slotWear) go back to 1.0, the rest of the car keeps its wear.
+local function swapped(id, old, new)
+  local n = 0
+  for slot, part in pairs(new) do
+    if old[slot] ~= nil and old[slot] ~= part then
+      for _, w in ipairs(rules.slotWear(slot)) do
+        for _, corner in ipairs(w.corners) do M.repair(id, w.kind, corner) n = n + 1 end
+      end
+    end
+  end
+  if n > 0 then say('car ' .. tostring(id) .. ': ' .. n .. ' worn part(s) are new after the parts swap') end
+end
+-- A part swap in freeroam (the game's parts menu, Wrench Works) fires this BEFORE the respawn: keep the car's record, so a swap is not a free repair of every other part, and set the
+-- kinds of the changed slots back to new. A config loaded over the car (onVehicleReplaced) is another car again. (Career cars have explicit keys and are not pinned.)
+function M.onPartsTreeConfigChanged(tree)
   local id = be and be:getPlayerVehicleID(0)
-  if settings.wearEnabled and id and id >= 0 and not keyOf[id] and not pinned[id] and scopeNow() == 'free' then pinned[id] = carKey(id) end
+  if not (settings.wearEnabled and id and id >= 0) then return end
+  if not keyOf[id] and not pinned[id] and scopeNow() == 'free' then pinned[id] = carKey(id) end
+  local new = flatten(tree)
+  if next(new) then
+    local old = chosen[id] or flatten(currentTree())
+    if next(old) then swapped(id, old, new) end
+    chosen[id] = new
+  end
 end
 function M.onVehicleReplaced(id) pinned[id] = nil end
 M.onVehicleDestroyed = M.forget
-function M.onVehicleSpawned(id) lookMsc[id] = nil if settings.wearEnabled and watched[id] then give(id) end end
+function M.onVehicleSpawned(id)
+  lookMsc[id] = nil
+  if settings.wearEnabled and watched[id] then give(id) end
+  if settings.wearEnabled and be and id == be:getPlayerVehicleID(0) then local t = flatten(currentTree()) if next(t) then chosen[id] = t end end
+end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
 
 -- the vehicle's report: its snapshot of the parts below new

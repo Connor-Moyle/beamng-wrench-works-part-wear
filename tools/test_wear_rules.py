@@ -145,6 +145,19 @@ def main():
     assert W.wornFade(500, 1.0, real) == 1 and W.wornFade(200, 0.0, real) == 1 and 0.8 < W.wornFade(340, 0.0, real) < 1, 'only the extra loss of a worn pad'
     assert abs(W.wornFade(500, 0.0, real) - W.brakeFade(500, 0.0, real) / W.brakeFade(500, 1.0, real)) < 1e-12
     assert abs(W.limitStep(1.0, 0.0, 1.0) - 0.9) < 1e-9 and abs(W.limitStep(0.0, 5.0, 2.0) - 0.2) < 1e-9 and W.limitStep(0.5, 0.52, 1.0) == 0.52
+    # the slots: which wear kinds and corners a parts slot holds, by the slot's name (stock cars)
+    def sw(slot):
+        r = W.slotWear(slot)
+        return sorted((r[i]["kind"], ",".join(r[i]["corners"][j] for j in range(1, len(r[i]["corners"]) + 1))) for i in range(1, len(r) + 1))
+    assert sw("covet_coilover_F") == [("damper", "FL,FR"), ("spring", "FL,FR")]
+    assert sw("vivace_shock_R_wide") == [("damper", "RL,RR")] and sw("vivace_spring_R") == [("spring", "RL,RR")]
+    assert sw("pickup_desert_shock_SFA") == [("damper", "FL,FR")] and sw("pickup_desert_coilover_IFS") == [("damper", "FL,FR"), ("spring", "FL,FR")], "solid and independent front axles are front"
+    assert sw("brakepad_F") == [("padF", "F")] and sw("brakepad_R") == [("padR", "R")] and sw("covet_brakepad_RRL") == [("padR", "R")]
+    assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
+    assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
+    assert sw("covet_flywheel") == [("clutch", "all")]
+    for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_taillight_L_tail_brake_bulb", "covet_boxutility_springs", ""):
+        assert sw(none) == [], ("holds no wear item", none)
     print("wear rules ok: %d kinds, %d with factors that fall and %d with amounts that rise, all within bounds" % (len(KINDS), len(DOWN), len(UP)))
 
 

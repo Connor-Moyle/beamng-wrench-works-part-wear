@@ -71,6 +71,24 @@ def main():
     G.onVehicleReplaced(7)
     assert G.carKey(7) != k0, "another config loaded over the car is another car"
     lua.execute("car.partConfig = 'vehicles/covet/base.pc'")
+    # a new part in a slot is new, and only that slot's kinds and corners: swap the front coilovers, the rear dampers and the front pads keep their wear
+    lua.execute("""
+      local old = {children = {covet_coilover_F = {chosenPartName = 'cf1'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = 'h1'}}}
+      core_vehicle_partmgmt = {getConfig = function() return {partsTree = old} end}
+      swapNew = {children = {covet_coilover_F = {chosenPartName = 'cf2'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = ''}}}
+      cmds = {}""")
+    G.onVehicleSpawned(7)
+    lua.execute("cmds = {}")
+    G.onPartsTreeConfigChanged(lua.eval("swapNew"))
+    sent = " ".join(cmds(lua))
+    for want in ('("damper", "FL", 1)', '("damper", "FR", 1)', '("spring", "FL", 1)', '("spring", "FR", 1)'):
+        assert want in sent, ("the swapped front coilovers are new", want, sent)
+    for no in ('"RL"', '"RR"', 'padF'):
+        assert no not in sent, ("the rest of the car keeps its wear", no, sent)
+    lua.execute("cmds = {}")
+    G.onPartsTreeConfigChanged(lua.eval("swapNew"))
+    assert not cmds(lua), "the same parts again change nothing"
+    G.onVehicleReplaced(7)      # (the pin of the swap ends)
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} cmds = {}")
     G.reload()
     assert "wearEnabled=false" in cmds(lua)[0] and "off" in G.status()
