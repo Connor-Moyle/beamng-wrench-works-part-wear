@@ -63,6 +63,14 @@ def main():
     G.repair(7, "spring", "RR")
     assert cmds(lua)[0].startswith('slrrWear.setCondition("spring", "RR", 1)'), cmds(lua)
     # off again: the car is told to switch off
+    # a part swap in freeroam respawns the car with a changed part config: the car keeps its record (no free repair of the other parts); a config loaded over the car is another car
+    k0 = G.carKey(7)
+    G.onPartsTreeConfigChanged()
+    lua.execute("car.partConfig = '{\"partsTree\":{\"swapped\":true}}'")
+    assert G.carKey(7) == k0, "a part swap keeps the car's record"
+    G.onVehicleReplaced(7)
+    assert G.carKey(7) != k0, "another config loaded over the car is another car"
+    lua.execute("car.partConfig = 'vehicles/covet/base.pc'")
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} cmds = {}")
     G.reload()
     assert "wearEnabled=false" in cmds(lua)[0] and "off" in G.status()

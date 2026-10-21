@@ -60,6 +60,7 @@ end
 -- The record a car's wear is kept under: setCarKey's key if a caller gave one; in Street Legal's career the player's car id (sl_fleet.carOfVehicle), in the game's career the inventory id
 -- (career_modules_inventory): two identical career cars never share wear. A career car that has no id yet (it is being registered) has no key: nothing is restored or stored for it until
 -- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
+local pinned = {}       -- vehicle id -> the freeroam key a part swap started from: the swap respawns the car with a changed part config, which is still the same car
 local function carKey(id)
   if keyOf[id] then return keyOf[id] end
   local scope = scopeNow()
@@ -72,6 +73,7 @@ local function carKey(id)
     local ok, invId = pcall(function() return inv and inv.getInventoryIdFromVehicleId and inv.getInventoryIdFromVehicleId(id) end)
     return ok and invId and ('inv' .. tostring(invId)) or nil
   end
+  if pinned[id] then return pinned[id] end
   local o = veh(id)
   if not o then return 'car' .. tostring(id) end
   local cfg = tostring(o.partConfig)
@@ -178,7 +180,14 @@ function M.attach(id)
   watched[id] = true
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id] = nil, nil, nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id] = nil, nil, nil, nil, nil end
+-- A part swap in freeroam (the game's parts menu, Wrench Works) fires this BEFORE the respawn: keep the car's record, so a swap is not a free repair of every other part. A config loaded
+-- over the car (onVehicleReplaced) is another car again. (Career cars have explicit keys and are not touched.)
+function M.onPartsTreeConfigChanged()
+  local id = be and be:getPlayerVehicleID(0)
+  if settings.wearEnabled and id and id >= 0 and not keyOf[id] and not pinned[id] and scopeNow() == 'free' then pinned[id] = carKey(id) end
+end
+function M.onVehicleReplaced(id) pinned[id] = nil end
 M.onVehicleDestroyed = M.forget
 function M.onVehicleSpawned(id) lookMsc[id] = nil if settings.wearEnabled and watched[id] then give(id) end end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
