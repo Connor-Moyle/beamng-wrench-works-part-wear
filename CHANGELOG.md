@@ -22,7 +22,7 @@ Known limits:
 - No spring wear on the front of strut cars like the Vivace (the front spring is not a beam the finder recognises), and none on the rear of leaf-spring pickups. Their dampers are worn as usual.
 - A newly fitted part of a slot no table row covers keeps the old part's wear; repair it in the Wrench Works garage.
 
-Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).
+Still built and tested offline only: the breakdowns of the other parts (soft brakes, a spring gone soft, the clutch's own breakdown message).
 
 ## 0.1.0 (2026-10-21)
 
