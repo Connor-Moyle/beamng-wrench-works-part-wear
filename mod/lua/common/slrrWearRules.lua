@@ -267,12 +267,13 @@ end
 -- Which wear kinds a parts slot holds, from the slot's name across the stock cars (the game's slots are per axle, not per corner): the slot "vivace_shock_R_wide" is the rear shock absorbers,
 -- "covet_coilover_F" the front shock absorbers and springs together, "brakepad_F" the front pads, "etk800_brake_F" the front discs, "*_engine" and "*_engine_internals*" the engine,
 -- "*_flywheel" the clutch (the clutch kit is sold and fitted with the flywheel: MODELLED). Returns a list of { kind =, corners = { ... } }, empty for a slot that holds no wear item.
-local NOT_WEAR = { 'strutbrace', 'strut_bar', 'strutbar', 'towerbar', 'cover', 'bulb', 'light', 'handbrake', 'pedalbox', 'mount', 'ecu', 'intake', 'bay' }
+local NOT_WEAR = { strutbrace = true, strutbar = true, bar = true, towerbar = true, cover = true, covers = true, bulb = true, handbrake = true, pedalbox = true, mount = true, mounts = true,
+                   ecu = true, intake = true, bay = true, light = true, lights = true }      -- whole words of the slot name (split at '_'): a slot like "..._flywheel_lightweight" is not dropped
 local AXLE = { F = 'F', IFS = 'F', SFA = 'F', R = 'R', RR = 'R', RL = 'R', RRL = 'R', RRR = 'R' }     -- the slot name's axle word
 function M.slotWear(slot)
   slot = tostring(slot or '')
   local low = slot:lower()
-  for _, w in ipairs(NOT_WEAR) do if low:find(w, 1, true) then return {} end end
+  for word in low:gmatch('[^_]+') do if NOT_WEAR[word] then return {} end end
   local function axle(word) local t = slot:match(word .. '_(%u+)') return t and AXLE[t] end
   local function corners(a) return a == 'F' and { 'FL', 'FR' } or { 'RL', 'RR' } end
   local out = {}

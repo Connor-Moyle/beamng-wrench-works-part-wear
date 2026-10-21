@@ -1,0 +1,1030 @@
+{
+"ardente_strut_bar": [],
+"bolide_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"bolide_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_brake_RR": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_clutchpedal": [],
+"bolide_coilover_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"bolide_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_coilover_RR": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"bolide_engine_alt": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"bolide_engine_ecu": [],
+"bolide_engine_ecu_3.9_v8": [],
+"bolide_engine_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"bolide_engine_v6_ecu": [],
+"bolide_engine_v6_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"bolide_enginemounts": [],
+"bolide_enginemounts_v6": [],
+"bolide_flywheel": [
+[
+"clutch",
+[
+"all"
+]
+]
+],
+"bolide_race_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"bolide_race_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_race_coilover_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"bolide_race_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"bolide_v6_flywheel": [
+[
+"clutch",
+[
+"all"
+]
+]
+],
+"brakepad": [],
+"brakepad_F": [
+[
+"padF",
+[
+"F"
+]
+]
+],
+"brakepad_F_carbon": [
+[
+"padF",
+[
+"F"
+]
+]
+],
+"brakepad_R": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"brakepad_RR": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"brakepad_R_carbon": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"covet_boxutility_brakes_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_boxutility_brakes_RR": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_boxutility_springs": [],
+"covet_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"covet_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_brake_R_3wheel": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_brakepad_RL": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"covet_brakepad_RR": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"covet_brakepad_RRL": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"covet_brakepad_RRR": [
+[
+"padR",
+[
+"R"
+]
+]
+],
+"covet_bumper_R_midengine": [],
+"covet_bumperbar_F_midengine": [],
+"covet_coilover_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"covet_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_coilover_R_3wheel": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_coilover_R_midengine": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"covet_engcover_midengine": [],
+"covet_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"covet_engine_ecu": [],
+"covet_engine_ecu_2.0": [],
+"covet_engine_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"covet_engine_internals_2.0": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"covet_engine_midengine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"covet_enginemounts": [],
+"covet_enginemounts_midengine": [],
+"covet_exhaust_midengine": [],
+"covet_flywheel": [
+[
+"clutch",
+[
+"all"
+]
+]
+],
+"covet_fueltank_midengine": [],
+"covet_handbrake_padding": [],
+"covet_handbrake_race": [],
+"covet_hub_R_midengine": [],
+"covet_intake_midengine": [],
+"covet_interior_midengine": [],
+"covet_licenseplate_R_midengine": [],
+"covet_lip_F_midengine_rally": [],
+"covet_oilcooler_midengine": [],
+"covet_oilpan_midengine": [],
+"covet_pedalbox_clutch": [],
+"covet_pedalbox_pad_clutch": [],
+"covet_radiator_midengine": [],
+"covet_rollcage_midengine": [],
+"covet_spoiler_midengine": [],
+"covet_strut_bar_F": [],
+"covet_strut_bar_R": [],
+"covet_swaybar_R_midengine": [],
+"covet_towhitch_midengine": [],
+"covet_trim_midengine": [],
+"covet_wheeldata_R_midengine": [],
+"etk800_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"etk800_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"etk800_shock_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"etk800_shock_R_wide": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"etk800_spring_R": [
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"etk800_spring_R_wide": [
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"etk800_strut_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"etk800_strut_F_wide": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"etk800_strutbrace_F": [],
+"etk_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"n2o_bottle_midengine": [],
+"n2o_system_midengine": [],
+"pickup_desert_brake_IFS": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_desert_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"pickup_desert_brake_SFA": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_desert_coilover_IFS": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_desert_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"pickup_desert_shock_IFS": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_desert_shock_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"pickup_desert_shock_SFA": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_desert_spring_SFA": [
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"pickup_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"sunburst2_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"sunburst2_brake_F_rally": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"sunburst2_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"sunburst2_brake_R_rally": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"sunburst2_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"sunburst2_engine_1_6_ecu": [],
+"sunburst2_engine_1_6_intake": [],
+"sunburst2_engine_1_6_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"sunburst2_engine_2_0_ecu": [],
+"sunburst2_engine_2_0_intake": [],
+"sunburst2_engine_2_0_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"sunburst2_engine_2_5_ecu": [],
+"sunburst2_engine_2_5_intake": [],
+"sunburst2_engine_2_5_internals": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"sunburst2_enginemounts": [],
+"sunburst2_flywheel": [
+[
+"clutch",
+[
+"all"
+]
+]
+],
+"sunburst2_handbrake_padding": [],
+"sunburst2_handbrake_race": [],
+"sunburst2_pedalbox_clutch": [],
+"sunburst2_pedalbox_pad_clutch": [],
+"sunburst2_rally_coilover_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"sunburst2_rally_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"sunburst2_strut_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"sunburst2_strut_F_drift": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"sunburst2_strut_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"sunburst2_strut_bar": [],
+"tograc_shock_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"tograc_spring_R": [
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"tograc_strut_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"vivace_brake_F": [
+[
+"rotor",
+[
+"FL",
+"FR"
+]
+]
+],
+"vivace_brake_R": [
+[
+"rotor",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_engine": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_ecu_i3_1.2": [],
+"vivace_engine_ecu_i4_1.5_diesel": [],
+"vivace_engine_ecu_i4_1.6": [],
+"vivace_engine_ecu_i4_2.0": [],
+"vivace_engine_ecu_i4_2.0_diesel": [],
+"vivace_engine_ecu_i5": [],
+"vivace_engine_internals_i3_1.2_petrol": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_internals_i4_1.5_diesel": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_internals_i4_1.6_petrol": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_internals_i4_2.0_diesel": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_internals_i4_2.0_petrol": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_engine_internals_i5_2.5_petrol": [
+[
+"engine",
+[
+"all"
+]
+]
+],
+"vivace_enginemounts": [],
+"vivace_flywheel": [
+[
+"clutch",
+[
+"all"
+]
+]
+],
+"vivace_handbrake_padding": [],
+"vivace_handbrake_race": [],
+"vivace_pedalbox_clutch": [],
+"vivace_pedalbox_pad_clutch": [],
+"vivace_rally_coilover_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"vivace_rally_coilover_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+],
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_shock_R": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_shock_R_wide": [
+[
+"damper",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_spring_R": [
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_spring_R_wide": [
+[
+"spring",
+[
+"RL",
+"RR"
+]
+]
+],
+"vivace_strut_F": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"vivace_strut_F_wide": [
+[
+"damper",
+[
+"FL",
+"FR"
+]
+],
+[
+"spring",
+[
+"FL",
+"FR"
+]
+]
+],
+"vivace_strut_bar": []
+}

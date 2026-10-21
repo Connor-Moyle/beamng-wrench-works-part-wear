@@ -74,17 +74,28 @@ def main():
     # a new part in a slot is new, and only that slot's kinds and corners: swap the front coilovers, the rear dampers and the front pads keep their wear
     lua.execute("""
       local old = {children = {covet_coilover_F = {chosenPartName = 'cf1'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = 'h1'}}}
-      core_vehicle_partmgmt = {getConfig = function() return {partsTree = old} end}
+      treeNow = old
+      core_vehicle_partmgmt = {getConfig = function() return {partsTree = treeNow} end}
       swapNew = {children = {covet_coilover_F = {chosenPartName = 'cf2'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = ''}}}
       cmds = {}""")
     G.onVehicleSpawned(7)
     lua.execute("cmds = {}")
+    G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))
     sent = " ".join(cmds(lua))
     for want in ('("damper", "FL", 1)', '("damper", "FR", 1)', '("spring", "FL", 1)', '("spring", "FR", 1)'):
         assert want in sent, ("the swapped front coilovers are new", want, sent)
     for no in ('"RL"', '"RR"', 'padF'):
         assert no not in sent, ("the rest of the car keeps its wear", no, sent)
+    # the old car reports its old wear once more before it is replaced: the swapped corners stay new in the record, the rest keeps its wear
+    G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
+    lua.execute("treeNow = swapNew")      # (the game reports the new parts after the respawn)
+    G.onVehicleSpawned(7)
+    G.onUpdate(11)
+    st = lua.eval("files['/settings/slrrPartWear_state.json'][KEY]")
+    assert st["damper"]["FL"] is None and st["damper"]["FR"] is None, "the swapped front shock absorbers are new in the record"
+    assert st["damper"]["RL"] == 0.25 and st["damper"]["RR"] == 0.3 and st["padF"]["F"] == 0.2, "the other parts keep their wear"
+    G.onReport(7, lua.eval("{paint = {all = 0.1}}"))      # (the record as it was before this block)
     lua.execute("cmds = {}")
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))
     assert not cmds(lua), "the same parts again change nothing"

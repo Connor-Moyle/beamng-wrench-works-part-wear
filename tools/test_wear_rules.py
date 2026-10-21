@@ -158,6 +158,13 @@ def main():
     assert sw("covet_flywheel") == [("clutch", "all")]
     for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_taillight_L_tail_brake_bulb", "covet_boxutility_springs", ""):
         assert sw(none) == [], ("holds no wear item", none)
+    # the slot names of the stock cars (covet, vivace, pickup, etk800, sunburst2, bolide) with the kinds and corners each holds: the table does not regress without the game's files
+    import json
+    fixture = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "slot_fixture.json"), encoding="utf8"))
+    for slot, want in fixture.items():
+        got = [[w["kind"], [w["corners"][j] for j in range(1, len(w["corners"]) + 1)]] for w in (W.slotWear(slot)[i] for i in range(1, len(W.slotWear(slot)) + 1))]
+        assert got == want, (slot, got, want)
+    assert sw("vivace_flywheel_lightweight") == [("clutch", "all")], "a word of the slot name, not a part of one, drops a slot"
     print("wear rules ok: %d kinds, %d with factors that fall and %d with amounts that rise, all within bounds" % (len(KINDS), len(DOWN), len(UP)))
 
 
