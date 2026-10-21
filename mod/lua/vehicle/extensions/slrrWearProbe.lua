@@ -31,6 +31,7 @@ local batteryTarget    -- the starter torque factor of a weak battery
 local steerTarget, steerState      -- {dead, lag} of the steering rack's play; the smoothed input
 local flywheelTarget                -- the engine inertia factor
 local lightsTarget, lightFuncs      -- {brightness, flicker}; the electrics filament values of the car's bulbs
+local lightBase, lightWritten = {}, {}   -- per bulb value: the value the game gave it, and the dimmed value we wrote (a value the game does not rewrite each frame is not dimmed twice)
 local altTarget, soc = nil, 1       -- the alternator's charge rate factor; the starter battery's charge (our own model: the game has none), 1 full
 local exhaustTarget, exhaustBase    -- {mufflingOffset, gainOffset} added to the car's own exhaust sound; the car's own values
 local capBase, capWritten     -- the engine's outputTorqueState as the game (or Street Legal) had it, and the value we wrote: a change of it by someone else is the new base
@@ -475,6 +476,8 @@ function M.clear()
   for i, base in pairs(bearingBase) do local w = (wheels.wheelRotators or wheels.wheels)[i] if w then w.frictionTorque = base end end
   bearingTarget, bearingBase, fluidShift, masterTarget = {}, {}, {}, nil
   extraCaps, batteryTarget = {}, nil
+  if electrics and electrics.values then for f, w in pairs(lightWritten) do if electrics.values[f] == w and lightBase[f] ~= nil then electrics.values[f] = lightBase[f] end end end
+  lightBase, lightWritten = {}, {}
   steerTarget, steerState, lightsTarget, altTarget, soc = nil, nil, nil, nil, 1
   local engC = engine()
   if flywheelTarget and engC and engC.initialInertia then engC.inertia = engC.initialInertia engC.invEngInertia = 1 / engC.inertia end
@@ -600,15 +603,18 @@ function M.updateGFX(dt)
     for f in pairs(lightFuncs) do
       local x = electrics.values[f]
       if type(x) == 'number' then
+        if lightWritten[f] == nil or x ~= lightWritten[f] then lightBase[f] = x end      -- the game wrote it: the new base; still our value: the base is the one it came from
         local k = lightsTarget.brightness
         if lightsTarget.flicker > 0 and math.random() < lightsTarget.flicker then k = k * 0.33 end
-        electrics.values[f] = x * k
+        lightWritten[f] = lightBase[f] * k
+        electrics.values[f] = lightWritten[f]
       end
     end
   end
   if steerTarget and electrics and electrics.values and type(electrics.values.steering_input) == 'number' then
     local aiOn = ai and ai.isDriving and ai.isDriving()
-    if not aiOn then
+    if aiOn then steerState = nil      -- (the first frame after the AI lets go starts from the input, not from the old slack)
+    else
       local x = electrics.values.steering_input
       local pad = input and input.lastFilterType == (rawget(_G, 'FILTER_PAD') or 1)
       local d = pad and 0 or steerTarget.dead

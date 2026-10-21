@@ -258,6 +258,32 @@ def main():
         seen.add(round(lua.eval("electrics.values.lowhighBrake_filament"), 3))
     assert seen <= {0.6, 0.198} and 0.6 in seen and 0.198 in seen, ("dim, and flickering from 70 % worn", seen)
     assert lua.eval("electrics.values.signal_L") == 1.0, "only the filament values of bulbs are dimmed, not other electrics"
+    # a bulb value the game does not rewrite each frame is dimmed once, not again every frame
+    P.clear()
+    P.lights(0.0)
+    lua.execute("electrics.values.lowhighBrake_filament = 1.0")
+    seen = set()
+    for _ in range(300):
+        P.updateGFX(1 / 60)
+        seen.add(round(lua.eval("electrics.values.lowhighBrake_filament"), 3))
+    assert seen <= {0.6, 0.198}, ("not dimmed again and again", seen)
+    P.clear()
+    assert lua.eval("electrics.values.lowhighBrake_filament") == 1.0, "cleared: the bulb is as the game had it"
+    # a stuck steering value inside the dead zone is nothing, just outside it is a little, and the slack state is forgotten when the AI takes over
+    P.steering(0.0)
+    for _ in range(300):
+        lua.execute("electrics.values.steering_input = 0.05")
+        P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.steering_input") == 0, "a stuck value inside the dead zone steers nothing"
+    for _ in range(300):
+        lua.execute("electrics.values.steering_input = 0.07")
+        P.updateGFX(1 / 60)
+    assert 0.005 < lua.eval("electrics.values.steering_input") < 0.02, "just outside it only a little: the wheel is not pinned"
+    lua.execute("ai = {isDriving = function() return true end} electrics.values.steering_input = 1.0")
+    P.updateGFX(1 / 60)
+    lua.execute("ai = nil electrics.values.steering_input = 1.0")
+    P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.steering_input") > 0.1, "after the AI lets go the slack starts from the input, not from the old value"
     P.clear()
     lua.execute("electrics.values.lowhighBrake_filament = 1.0")
     P.updateGFX(1 / 60)
