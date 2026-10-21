@@ -35,6 +35,10 @@ def main():
     over = W.settings("Realistic", lua.table_from({"lifeScale": 5, "springSagMax": -3}))
     assert over.lifeScale == 1 and over.springSagMax == 0, "settings are clamped to their ranges"
     assert W.stage(0.9) == "Good" and W.stage(0.6) == "Worn" and W.stage(0.3) == "Bad" and W.stage(0.1) == "Failing"
+    assert W.lookStage(0.5, 1) == 1 and W.lookStage(0.2, 1) == 2 and W.lookStage(0.7, 1) == 0 and W.lookStage(0.2, 0) == 0, "the look stages: worn below 0.6, rusty below 0.3, none with the worn look at 0"
+    assert W.mechCondition(lua.eval("{}")) == 1 and W.mechCondition(None) == 1, "no record: the metal is new"
+    assert abs(W.mechCondition(lua.eval("{spring = {FL = 0.2}, rotor = {FL = 0}}")) - 0.9) < 1e-9, "the mean over the four corners of springs and dampers; a corner not stored is new; brakes do not count"
+    assert abs(W.mechCondition(lua.eval("{spring = {FL = 0, FR = 0, RL = 0, RR = 0}, damper = {FL = 0, FR = 0, RL = 0, RR = 0}}"))) < 1e-9
 
     for preset in ("Realistic", "Light"):
         s = W.settings(preset)

@@ -170,5 +170,235 @@
     "vertColor": null
    }
   ]
+ },
+ "slrr_covet_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_covet_mechanical_worn",
+  "mapTo": "slrr_covet_mechanical_worn",
+  "persistentId": "1e57f19b-e13e-5066-b581-006f510d1ad4",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/covet/covet_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/covet/covet_mechanical_m.data.png",
+    "normalMap": "/vehicles/covet/covet_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/covet/covet_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.6,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_covet_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_covet_mechanical_rusty",
+  "mapTo": "slrr_covet_mechanical_rusty",
+  "persistentId": "12a5e344-b029-54a6-9794-b2c1f34f0e13",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/covet/covet_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/covet/covet_mechanical_m.data.png",
+    "normalMap": "/vehicles/covet/covet_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/covet/covet_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 1.0,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.8,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vivace_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_vivace_mechanical_worn",
+  "mapTo": "slrr_vivace_mechanical_worn",
+  "persistentId": "ed37a56b-d6a5-5bc5-b620-5541c84190a8",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/vivace/vivace_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/vivace/vivace_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/vivace/vivace_mechanical_m.data.png",
+    "normalMap": "vehicles/vivace/vivace_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/vivace/vivace_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.6,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vivace_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_vivace_mechanical_rusty",
+  "mapTo": "slrr_vivace_mechanical_rusty",
+  "persistentId": "286b78fc-7e13-5523-9c94-77a48018bf87",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/vivace/vivace_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/vivace/vivace_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/vivace/vivace_mechanical_m.data.png",
+    "normalMap": "vehicles/vivace/vivace_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/vivace/vivace_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 1.0,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.8,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_trucks_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_trucks_mechanical_worn",
+  "mapTo": "slrr_trucks_mechanical_worn",
+  "persistentId": "4de358ea-7cb1-5cb6-a51f-eed7f038e8cd",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/trucks_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/common/trucks_mechanical_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/trucks_mechanical_m.data.png",
+    "normalMap": "vehicles/common/trucks_mechanical_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/trucks_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.6,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_trucks_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_trucks_mechanical_rusty",
+  "mapTo": "slrr_trucks_mechanical_rusty",
+  "persistentId": "09573eb2-f55a-5f19-87cc-01f950ea1b35",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/trucks_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/common/trucks_mechanical_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/trucks_mechanical_m.data.png",
+    "normalMap": "vehicles/common/trucks_mechanical_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/trucks_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 1.0,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.8,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
  }
 }

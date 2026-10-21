@@ -116,6 +116,28 @@ def main():
     veh = lua.eval("{glowMap = {disc_brake_FL = {off = 'disc_brake', on = 'disc_brake_glow'}}}")
     G2.onJbeamLoadingPhase2(None, 7, veh)
     assert veh["glowMap"]["disc_brake_FL"]["off"] == "slrr_disc_brake_rusty", "the same config finds its record"
+    # the suspension, frame and exhaust metal: the model's mechanical material gets one entry, its off target from the mean spring and damper condition, for the whole car; one worn
+    # corner of eight does not rust the car; an entry the car already carries under that name and a model the survey does not know get none
+    def spawn(record, veh_lua="{}"):          # a fresh game side (the store is read once per module) with this record under the car's key, then the car spawns
+        lua.execute("files['/settings/slrrPartWear_state.json'] = {[KEY] = %s}" % record)
+        G3 = lua.execute(open(os.path.join(ROOT, "ge", "extensions", "slrr", "partwear.lua"), encoding="utf8").read())
+        G3.reload()
+        veh = lua.eval(veh_lua)
+        G3.onJbeamLoadingPhase2(None, 7, veh)
+        return veh["glowMap"]
+    gm = spawn("{spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}, damper = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}")
+    m = gm["covet_mechanical"]
+    assert m["off"] == "slrr_covet_mechanical_rusty" and m["on"] == m["off"] and m["simpleFunction"] == "slrr_never", dict(m)
+    assert gm["disc_brake_FL"] is None, "no disc glow entry was invented"
+    gm = spawn("{spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}", "{glowMap = {disc_brake_FL = {off = 'disc_brake', on = 'disc_brake_glow'}}}")      # springs worn, dampers new: the mean is 0.55
+    assert gm["covet_mechanical"]["off"] == "slrr_covet_mechanical_worn" and gm["disc_brake_FL"]["off"] == "disc_brake", "worn metal, the discs untouched"
+    assert spawn("{spring = {FL = 0.1}}")["covet_mechanical"] is None, "one worn corner of eight: the car's own metal"
+    gm = spawn("{damper = {FL = 0, FR = 0, RL = 0, RR = 0}}", "{glowMap = {covet_mechanical = {off = 'theirs', on = 'x'}}}")
+    assert gm["covet_mechanical"]["off"] == "theirs", "an entry the car already has under the material's name is left alone"
+    lua.execute("car.JBeam = 'etk800'")
+    gm = spawn("{damper = {FL = 0, FR = 0, RL = 0, RR = 0}}")
+    assert gm["etk800_mechanical"] is None and gm["covet_mechanical"] is None, "a model outside the survey: nothing"
+    lua.execute("car.JBeam = 'covet'")
     lua.execute("files['/settings/slrrPartWear_state.json'] = {}")
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', visualWear = 0}")
     G.reload()

@@ -62,4 +62,5 @@ def main():
     print('wrote disc_rust_c.data.png, disc_rust_n.normal.png, disc_rust_r.data.png to', os.path.abspath(OUT))
 
 
-main()
+if __name__ == '__main__':      # (tools/make_mech_rust_textures.py imports the helpers above, with the same raw and out folders from its own arguments)
+    main()

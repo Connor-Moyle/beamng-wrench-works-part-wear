@@ -27,9 +27,11 @@ def main():
                 if h[:4] != b"DDS " or h[84:88] != b"DX10" or struct.unpack("<I", h[128:132])[0] != DXGI[kind]:
                     bad.append("%s is not a DX10 DDS of format %d" % (f, DXGI[kind]))
                 names.add(stem)
-    for need in ("disc_rust_c.data", "disc_rust_n.normal", "disc_rust_r.data"):
+    import json, re
+    stages = json.load(open(os.path.join(ART, "..", "vehicles", "common", "slrrPartWear", "stages.materials.json")))
+    for need in sorted({re.sub(r"\.png$", "", v.split("/art/slrr_partwear/")[1]) for m in stages.values() for s in m["Stages"] for v in s.values() if isinstance(v, str) and "/art/slrr_partwear/" in v}):
         if need not in names:
-            bad.append("%s.dds is missing" % need)
+            bad.append("%s.dds is missing (a stage material names it)" % need)
     if bad:
         print("wear textures FAIL:")
         for b in bad:

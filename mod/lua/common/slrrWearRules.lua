@@ -75,6 +75,18 @@ function M.discStage(c, visual)
   if (visual or 0) <= 0 then return 0 end
   return c < M.DISC_RUSTY_BELOW and 2 or (c < M.DISC_WORN_BELOW and 1 or 0)
 end
+M.lookStage = M.discStage              -- (the suspension, frame and exhaust metal use the same limits)
+-- the condition the suspension, frame and exhaust metal look follows: the mean of the car's springs and dampers over its four corners (a corner not in the record is new: the store
+-- keeps only parts below new)
+M.CORNERS = { 'FL', 'FR', 'RL', 'RR' }
+function M.mechCondition(rec)
+  local sum = 0
+  for _, kind in ipairs({ 'spring', 'damper' }) do
+    local t = type(rec) == 'table' and type(rec[kind]) == 'table' and rec[kind] or {}
+    for _, corner in ipairs(M.CORNERS) do sum = sum + clamp(tonumber(t[corner]) or 1, 0, 1) end
+  end
+  return sum / 8
+end
 
 -- 'Good' >= 75 %, 'Worn' 50-75, 'Bad' 25-50, 'Failing' < 25
 function M.stage(c)

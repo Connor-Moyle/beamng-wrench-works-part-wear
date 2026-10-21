@@ -5,3 +5,4 @@ The worn brake disc look (`mod/art/slrr_partwear/disc_rust_*`, made by `tools/ma
 | Used for | Asset | Source | Author | Licence | Date |
 |---|---|---|---|---|---|
 | worn brake disc look | Rust005 | https://ambientcg.com/view?id=Rust005 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
+| worn suspension, frame and exhaust metal look (`mod/art/slrr_partwear/mech_rust_*`, `tools/make_mech_rust_textures.py`: the same maps, bigger rust areas and a grime darkening in the colour detail) | Rust005 | https://ambientcg.com/view?id=Rust005 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |

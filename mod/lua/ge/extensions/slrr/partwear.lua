@@ -103,9 +103,11 @@ local function give(id)       -- the extensions, the settings, then the car's sa
   paint(id)
 end
 
--- The worn brake disc look: the car must carry the worn and rusty variants of disc_brake from spawn, so they go in its glowMap while part wear and its worn look are on
+-- The worn look at spawn. The brake discs: the car must carry the worn and rusty variants of disc_brake from spawn, so they go in its glowMap while part wear and its worn look are on
 -- (the variants are in vehicles/common/slrrPartWear/stages.materials.json, loaded with the first car; made by tools/make_disc_stage_materials.py). Cars spawned earlier keep their own discs.
 local DISC = 'disc_brake'
+-- JBeam name -> the material of the model's suspension, frame and exhaust metal (82's survey of the game files and 80's probe, 2026-10-21); the worn and rusty variants are in the same stages file
+local MECH = { covet = 'covet_mechanical', vivace = 'vivace_mechanical', pickup = 'trucks_mechanical' }
 function M.onJbeamLoadingPhase2(_, objID, vehicle)
   if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end
   vehicle.glowMap = vehicle.glowMap or {}
@@ -129,7 +131,20 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
       end
     end
   end
-  say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
+  -- The suspension, frame and exhaust metal: the model's mechanical material gets one glowMap entry whose off target is the worn or rusty variant, from the car's spring and damper
+  -- conditions. One stage for the whole car (a glowMap entry is per material, and nothing switches these while driving); a mesh that mixes in another material (the pickup's exhaust with
+  -- the engine's, an alt shock) keeps that part as it is, and the engine-bay materials are not touched. An entry the car already has under that name is left alone.
+  local o = veh(objID)
+  local mat = o and MECH[tostring(o.JBeam)]
+  local mech = 0
+  if mat and vehicle.glowMap[mat] == nil then
+    mech = rules.lookStage(rules.mechCondition(rec), settings.visualWear)
+    if mech > 0 then
+      local look = 'slrr_' .. mat .. (mech == 2 and '_rusty' or '_worn')
+      vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
+    end
+  end
+  say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, metal stage ' .. mech .. ', record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
 end
 local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }
 function M.look(id, wi, stage, list)       -- called by the car (slrrWearLook): a wheel's disc meshes to stage 0 (own), 1 (worn), 2 (rusty)
