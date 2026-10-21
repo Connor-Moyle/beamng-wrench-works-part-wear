@@ -10,7 +10,7 @@ Proven in the game since 0.1.0:
 
 Seen with no effect yet:
 
-- Rust on brake calipers and hubs while driving: no change was visible through the wheels.
+- Rust on brake calipers and hubs while driving: the game switches their materials (2 of 2 meshes of the front-left wheel on the Vivace, no errors in the log), but the wheel hides them and no change was visible; a car with open wheels has not been checked.
 
 Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).
 
