@@ -44,8 +44,13 @@ end
 
 -- A suspension beam is told by the part it belongs to: the game's own shape tests alone also catch the door hinges (bounded beams with a spring and a precompression) and the steering
 -- (bounded beams with damping), found on the vivace (80, 2026-10-21). Its springs are NORMAL beams with a precompression, named spring_RL in their part path, not bounded beams.
-local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror'}
+local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror', 'link', 'toe', 'camber', 'arm', 'swaybar', 'arb'}
 local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
+-- a NORMAL beam (the vivace's springs) must also be in a part that says spring or coilover: the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1 (0f)
+local function springPart(path)
+  local p = tostring(path or ''):lower()
+  return p:find('spring', 1, true) ~= nil or p:find('coilover', 1, true) ~= nil
+end
 local function suspensionPart(path)
   local p = tostring(path or ''):lower()
   for _, w in ipairs(NOT_SUSPENSION) do if p:find(w, 1, true) then return false end end
@@ -59,7 +64,7 @@ local function scan()
   beams = {}
   local springs, dampers, stops = 0, 0, 0
   for cid, b in pairs(v.data.beams) do
-    if (b.beamType == 2 or b.beamType == 0) and suspensionPart(b.partPath) then   -- BOUNDED, or NORMAL (the vivace's springs)
+    if (b.beamType == 2 or (b.beamType == 0 and springPart(b.partPath))) and suspensionPart(b.partPath) then   -- BOUNDED, or NORMAL in a spring part (the vivace's springs)
       local node = v.data.nodes[b.id1]
       if (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
         springs = springs + 1

@@ -35,6 +35,9 @@ def main():
       -- what the shape tests alone would take for suspension, found on the vivace: door hinge springs and steering beams
       v.data.beams[210] = {beamType = 2, id1 = 1, beamSpring = 800, beamDamp = 200, beamPrecompression = 1.2, partPath = '/vivace_body/ardente_door_L/ardente_door_L'}
       v.data.beams[211] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 900, beamDampRebound = 900, beamDampVelocitySplit = 0.1, partPath = '/vivace_body/ardente_suspension_F/vivace_steering_wide/vivace_steering_wide_sport'}
+      -- the alignment (toe) link of the vivace's rear suspension: a NORMAL beam with a spring and a precompression near 1, in a part that says suspension but not spring
+      v.data.beams[212] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, beamPrecompression = 1.003, partPath = '/vivace_body/ardente_suspension_R/vivace_suspension_R_wide'}
+      v.data.beams[213] = {beamType = 0, id1 = 3, beamSpring = 90000, beamDamp = 100, beamPrecompression = 1.05, partPath = '/vivace_body/ardente_suspension_R/vivace_camber_link_spring'}
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
       obj = {getBeamRestLength = function(_, c) return 0.4 end,
@@ -81,7 +84,7 @@ def main():
     for _ in range(60):
         P.updateGFX(1 / 60)
     rl = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
-    assert any(c[1] == "len" for c in rl) and all(c[2] not in (210, 211) for c in rl), "a NORMAL spring sags; the door and steering beams are not touched"
+    assert any(c[1] == "len" for c in rl) and all(c[2] not in (210, 211, 212, 213) for c in rl), "a NORMAL spring sags; the door and steering beams are not touched"
     # a reset: everything is applied again after two frames
     lua.execute("calls = {}")
     P.onReset()
