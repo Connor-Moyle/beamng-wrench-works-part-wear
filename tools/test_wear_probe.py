@@ -41,6 +41,8 @@ def main():
       v.data.beams[214] = {beamType = 0, id1 = 1, beamSpring = 20000, beamDamp = 0, beamPrecompression = 1.15, partPath = '/vivace_body/ardente_suspension_F/vivace_strut_F'}      -- the vivace's front spring, in the strut part
       v.data.beams[215] = {beamType = 4, id1 = 4, beamSpring = 265140, beamDamp = 1880, beamPrecompression = 0.957, partPath = '/pickup_body/pickup_axle_R/pickup_spring_R_base'}   -- a leaf spring (L-beam)
       v.data.beams[216] = {beamType = 4, id1 = 4, beamSpring = 900000, beamDamp = 10, partPath = '/pickup_body/wheel_RL/pickup_tire_RL'}   -- a tyre L-beam: not a spring
+      v.data.beams[217] = {beamType = 0, id1 = 2, beamSpring = 100, beamDamp = 10, beamPrecompression = 1.2, partPath = '/lansdale_body/lansdale_suspension_R/lansdale_strut_R'}   -- the "beam for sound" of a rear strut
+      v.data.beams[218] = {beamType = 0, id1 = 2, beamSpring = 7200, beamDamp = 10, beamPrecompression = 1.6, partPath = '/wigeon_body/wigeon_canopy_strut'}   -- a canopy gas strut
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
       obj = {getBeamRestLength = function(_, c) return 0.4 end,
@@ -68,6 +70,7 @@ def main():
             ("/vivace_body/ardente_suspension_R/vivace_toe_link", True, False),
             ("/simple_traffic_body/simple_traffic_swaybar_F_strut", True, False),
             ("/vivace_body/ardente_door_L/ardente_door_L", False, False),
+            ("/wigeon_body/wigeon_canopy_strut", True, False),
             ("/vivace_body/ardente_suspension_F/vivace_steering_wide", False, False)):
         assert P.suspensionPart(path, normal) == want, (path, normal, want)
     base = lua.eval("v.data.beams[101].beamDampRebound")
@@ -103,7 +106,7 @@ def main():
     al = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "spring" and c[2] == 214 for c in al) and any(c[1] == "len" and c[2] == 214 for c in al), "the strut spring sags"
     assert any(c[1] == "spring" and c[2] == 215 and c[3] < 265140 for c in al) and not any(c[2] == 215 and c[1] == "len" for c in al), "the leaf softens, no length"
-    assert not any(c[2] == 216 for c in al), "a tyre L-beam is no spring"
+    assert not any(c[2] in (216, 217, 218) for c in al), "a tyre L-beam, a sound beam and a canopy strut are no springs"
     P.clear()
     # a NORMAL rear spring (the vivace's) sags too, and the door hinge and steering beams are never touched
     lua.execute("calls = {}")

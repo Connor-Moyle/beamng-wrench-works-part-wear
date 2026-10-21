@@ -53,7 +53,7 @@ end
 
 -- A suspension beam is told by the part it belongs to: the game's own shape tests alone also catch the door hinges (bounded beams with a spring and a precompression) and the steering
 -- (bounded beams with damping), found on the vivace (80, 2026-10-21). Its springs are NORMAL beams with a precompression, named spring_RL in their part path, not bounded beams.
-local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror'}
+local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror', 'canopy', 'liftgate', 'hatch'}
 -- the alignment and anti-roll parts: only a NORMAL beam is ever one of them, and they are told by a whole word of the part path ("camber_link", "toe_link"), not a piece of one: the pickup's
 -- front is "pickup_coilover_4link_F" (a 4-link axle), a multilink rear is "multilink", and neither is a link beam
 local NOT_NORMAL = {link = true, links = true, toe = true, camber = true, arm = true, arms = true, swaybar = true, arb = true}
@@ -61,6 +61,7 @@ local function linkPart(path)
   for w in tostring(path or ''):lower():gmatch('[a-z0-9]+') do if NOT_NORMAL[w] then return true end end
   return false
 end
+local MIN_RATE = 5000   -- a spring is stiffer than this (N/m): the lansdale, legran and wendover rear struts carry a 100 N/m "beam for sound" beside the real spring
 local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
 -- a NORMAL beam (the vivace's springs) must also be in a part that says spring, coilover or strut (the vivace's front springs are in vivace_strut_F): the alignment links of vivace_suspension_R_wide are NORMAL beams with a spring and a precompression near 1
 local function springPart(path)
@@ -81,13 +82,13 @@ local function scan()
   beams = {}
   local springs, dampers, stops = 0, 0, 0
   for cid, b in pairs(v.data.beams) do
-    local leaf = b.beamType == 4 and springPart(b.partPath) and suspensionPart(b.partPath, true) and (b.beamSpring or 0) > 0   -- LBEAM: the pickup's leaf springs
+    local leaf = b.beamType == 4 and springPart(b.partPath) and suspensionPart(b.partPath, true) and (b.beamSpring or 0) > MIN_RATE   -- LBEAM: the pickup's leaf springs
     if leaf or ((b.beamType == 2 or (b.beamType == 0 and springPart(b.partPath))) and suspensionPart(b.partPath, b.beamType == 0)) then   -- BOUNDED, or NORMAL in a spring part (the vivace's springs)
       local node = v.data.nodes[b.id1]
       if leaf then
         springs = springs + 1
         beams[cid] = {kind = 'spring', leaf = true, corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
-      elseif (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
+      elseif (b.beamSpring or 0) > MIN_RATE and (b.beamPrecompression or 1) > 1 then
         springs = springs + 1
         beams[cid] = {kind = 'spring', corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
       elseif b.beamType == 2 and (b.beamSpring or 0) == 0 and (b.beamDamp or 0) > 0 and b.beamDampRebound and (b.beamDampVelocitySplit or math.huge) < math.huge then
