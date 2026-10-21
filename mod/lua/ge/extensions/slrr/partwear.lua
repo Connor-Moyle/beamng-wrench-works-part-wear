@@ -116,8 +116,12 @@ local function give(id)       -- the extensions, the settings, then the car's sa
   local key = carKey(id)
   givenKey[id] = key or false
   if key then say('car ' .. tostring(id) .. ' record key ' .. key) end
-  local blob = key and loadStore()[key]
-  if blob then send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')') end
+  local st = key and loadStore()
+  local blob = st and st[key]
+  if blob then
+    st.__seen[key] = math.floor(os.time() / 86400)       -- a record in use is not unused, whether or not the car has reported yet
+    send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')')
+  end
   paint(id)
 end
 

@@ -190,6 +190,11 @@ def main():
     assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.gone") is None and lua.eval("files['/settings/slrrPartWear_state.json'].__seen.nodate") is not None
     G.onReport(7, lua.eval("{damper = {FL = 0.1}}"))
     assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.fresh") >= lua.eval("math.floor(os.time() / 86400)")
+    # a record handed to a car at spawn counts as used, even before the car has reported
+    lua.execute("files['/settings/slrrPartWear_state.json'].nodate.damper = {FL = 0.4} files['/settings/slrrPartWear_state.json'].__seen.nodate = math.floor(os.time() / 86400) - 29")
+    G.setCarKey(7, "nodate")
+    G.attach(7)
+    assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.nodate") >= lua.eval("math.floor(os.time() / 86400)"), "a record given to a car is refreshed"
     G.setCarKey(7, key)
     # the read-only view for other mods: sorted rows with a stable id and a section; nil when the car is not watched or wear is off
     G.onReport(7, lua.eval("{damper = {FL = 0.2}, padF = {F = 0.5}, exhaust = {all = 0.7}}"))
