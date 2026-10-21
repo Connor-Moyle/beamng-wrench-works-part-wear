@@ -26,6 +26,8 @@ local turboTarget, radiatorTarget, ignitionTarget, oilTarget       -- {power, fr
 local bars, barsScanned = {}, false     -- the anti-roll bars: torsionbars tagged arb / swaybar: {cid, axle, spring, damp, cur, target}
 local bearingTarget, bearingBase, wheelCorner = {}, {}, {}      -- corner -> drag (Nm); wheel index -> the frictionTorque it had; wheel index -> corner
 local fluidShift, masterTarget = {}, nil                       -- axle -> shift of the fade onset (C, negative); the pedal's torque factor
+local extraCaps = {}      -- kind ('cat', 'fuel', 'intercooler') -> a factor on the engine's power: they multiply with the internals' and the filter's, one cap
+local batteryTarget    -- the starter torque factor of a weak battery
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
@@ -350,7 +352,29 @@ function M.master(cond)
   say(string.format('master cylinder condition %.2f: brake torque x%.2f', cond, e.torque))
 end
 
+-- ---- the engine split: caps on the engine's power (one cap: the product of ours, below Street Legal's own), and the battery as the starter's torque
+local function capKind(kind)
+  return function(cond)
+    local e = rules.effects(kind, cond, settings)
+    if not e then return end
+    local eng = engine()
+    local boosted = eng and ((eng.turbocharger and eng.turbocharger.isExisting) or (eng.supercharger and eng.supercharger.isExisting))
+    extraCaps[kind] = (kind ~= 'intercooler' or boosted) and e.cap or nil      -- an intercooler only matters with a turbo or supercharger
+    remember(kind, 'all', cond)
+    say(string.format('%s condition %.2f: power x%.3f%s', kind, cond, e.cap, extraCaps[kind] and '' or ' (not applied: no turbo)'))
+  end
+end
+M.fuel, M.cat, M.intercooler = capKind('fuel'), capKind('cat'), capKind('intercooler')
+function M.battery(cond)
+  local e = rules.effects('battery', cond, settings)
+  if not e then return end
+  batteryTarget = e.crank < 1 and e.crank or nil
+  remember('battery', 'all', cond)
+  say(string.format('battery condition %.2f: starter torque x%.2f', cond, e.crank))
+end
+
 function M.reapply(a)
+  if a.kind == 'fuel' then return M.fuel(a.c) elseif a.kind == 'cat' then return M.cat(a.c) elseif a.kind == 'intercooler' then return M.intercooler(a.c) elseif a.kind == 'battery' then return M.battery(a.c) end
   if a.kind == 'swaybar' then return M.swaybar(a.corner, a.c) elseif a.kind == 'bearing' then return M.bearing(a.corner, a.c) elseif a.kind == 'fluid' then return M.fluid(a.corner, a.c)
   elseif a.kind == 'master' then return M.master(a.c) elseif a.kind == 'bushing' then return M.bushing(a.corner, a.c) end
   if a.kind == 'gearbox' then return M.gearbox(a.c) elseif a.kind == 'diff' then return M.diff(a.corner, a.c) elseif a.kind == 'cv' then return M.cv(a.corner, a.c)
@@ -382,6 +406,7 @@ function M.clear()
   end
   for i, base in pairs(bearingBase) do local w = (wheels.wheelRotators or wheels.wheels)[i] if w then w.frictionTorque = base end end
   bearingTarget, bearingBase, fluidShift, masterTarget = {}, {}, {}, nil
+  extraCaps, batteryTarget = {}, nil
   barsScanned = false      -- (the next use looks at the car's torsionbars again)
   local eng0 = engine()
   if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
@@ -466,10 +491,13 @@ function M.updateGFX(dt)
     local cl = powertrain.getDevice('clutch')
     if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = clutchTarget.lock, clutchTarget.freePlay end
   end
-  if engineTarget or ignitionTarget or oilTarget then
+  if engineTarget or ignitionTarget or oilTarget or next(extraCaps) or batteryTarget then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
-      if engineTarget then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, engineTarget.cap) end
+      local cap = engineTarget and engineTarget.cap or 1
+      for _, f in pairs(extraCaps) do cap = cap * f end
+      if cap < 1 then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, cap) end
+      if batteryTarget then setField(eng, 'starterTorque', (fieldBase[eng] and fieldBase[eng].starterTorque or eng.starterTorque or 0) * batteryTarget) end
       if engineTarget or oilTarget then eng.wearDynamicFrictionCoef = (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1) end
       local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
       if mis > 0 then eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, mis) end

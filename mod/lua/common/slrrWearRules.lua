@@ -16,7 +16,7 @@ M.KINDS = {
   bearing = {life = 200000, group = 'suspension'},
   padF = {life = 40000, group = 'brakes'}, padR = {life = 80000, group = 'brakes'}, rotor = {life = 80000, group = 'brakes'},
   caliper = {life = 150000, group = 'brakes'}, fluid = {days = 1095, group = 'brakes'}, master = {life = 200000, days = 3650, group = 'brakes'},
-  engine = {life = 350000, group = 'engine'}, turbo = {life = 150000, group = 'engine'}, oil = {life = 15000, group = 'engine'}, filter = {life = 25000, group = 'engine'}, ignition = {life = 60000, group = 'engine'},
+  engine = {life = 350000, group = 'engine'}, turbo = {life = 150000, group = 'engine'}, fuel = {life = 150000, group = 'engine'}, intercooler = {life = 250000, group = 'engine'}, oil = {life = 15000, group = 'engine'}, filter = {life = 25000, group = 'engine'}, ignition = {life = 60000, group = 'engine'},
   exhaust = {days = 2920, group = 'engine'}, cat = {life = 200000, group = 'engine'}, radiator = {days = 3650, group = 'engine'},
   mounts = {life = 150000, group = 'drive'}, clutch = {life = 150000, group = 'drive'}, gearbox = {life = 250000, group = 'drive'},
   cv = {life = 200000, group = 'drive'}, diff = {life = 300000, group = 'drive'},
@@ -62,11 +62,12 @@ end
 -- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
 -- fully worn. mult is the garage's price multiplier.
 M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60,
-          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320}
+          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320, fuel = 380, cat = 350, intercooler = 450, battery = 160}
 M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
           clutch = 'clutch', paint = 'paint', gearbox = 'gearbox', diff = 'differential', cv = 'driveshafts', turbo = 'turbocharger', radiator = 'radiator',
           ignition = 'ignition', oil = 'engine oil',
-          swaybar = 'anti-roll bar', bushing = 'control arm bushes', bearing = 'wheel bearing', fluid = 'brake fluid', master = 'brake master cylinder'}
+          swaybar = 'anti-roll bar', bushing = 'control arm bushes', bearing = 'wheel bearing', fluid = 'brake fluid', master = 'brake master cylinder',
+          fuel = 'fuel pump and injectors', cat = 'catalytic converter', intercooler = 'intercooler', battery = 'battery'}
 function M.repairPrice(kind, c, mult)
   local base = M.PRICE[kind]
   if not base then return nil end
@@ -149,6 +150,8 @@ M.FAILURE = {
   gearbox = {level = 0.10, text = 'The gearbox is grinding'}, cv = {level = 0.10, text = 'A driveshaft joint is knocking'},
   turbo = {level = 0.10, text = 'The turbo has lost boost'}, radiator = {level = 0.10, text = 'The radiator is not cooling well'},
   ignition = {level = 0.10, text = 'The engine is misfiring'},
+  fuel = {level = 0.08, text = 'The engine is starving for fuel at high load'}, cat = {level = 0.08, text = 'The catalytic converter is blocked'},
+  intercooler = {level = 0.10, text = 'The intercooler is leaking boost'}, battery = {level = 0.05, text = 'The battery is nearly flat'},
   swaybar = {level = 0.05, text = 'An anti-roll bar link has broken'}, bushing = {level = 0.10, text = 'A control arm bush has worn out'},
   bearing = {level = 0.10, text = 'A wheel bearing is failing'}, fluid = {level = 0.08, text = 'The brake fluid has boiled'}, master = {level = 0.08, text = 'The brake pedal has gone soft'},
 }
@@ -229,6 +232,9 @@ function E.engine(c, s)
   return {cap = clamp(1 - s.enginePowerLoss * w, 0.7, 1), dynFriction = 1 + 0.5 * w, misfire = 0}      -- (the misfire is the ignition's now: kind 'ignition'; the field stays so old callers read 0)
 end
 function E.filter(c, s) return {cap = clamp(1 - 0.04 * eff(c, s), 0.96, 1)} end
+-- the fuel pump and injectors: a power cap at high load; the intercooler (cars with a turbo or supercharger only): less dense charge air (MODELLED, small on purpose)
+function E.fuel(c, s) return {cap = clamp(1 - 0.06 * eff(c, s), 0.94, 1)} end
+function E.intercooler(c, s) return {cap = clamp(1 - 0.05 * eff(c, s), 0.95, 1)} end
 function E.ignition(c, s) return {misfire = clamp(0.2 * math.max(0, eff(c, s) - 0.6), 0, 0.4)} end
 function E.exhaust(c, s) local w = eff(c, s) return {mufflingOffset = -0.3 * w, gainDb = 2 * w} end
 function E.cat(c, s) return {cap = clamp(1 - 0.3 * math.max(0, eff(c, s) - 0.5), 0.85, 1)} end
@@ -330,6 +336,10 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'cv', corners = a and { a } or { 'F', 'R' } }
   elseif low:find('_radiator', 1, true) then
     out[#out + 1] = { kind = 'radiator', corners = { 'all' } }
+  elseif low:find('exhaust', 1, true) and not low:find('tip', 1, true) and not low:find('exit', 1, true) or low:find('muffler', 1, true) then   -- the catalytic converter is part of the exhaust fitted with it
+    out[#out + 1] = { kind = 'cat', corners = { 'all' } }
+  elseif low:find('fueltank', 1, true) or low:find('fuelcell', 1, true) then            -- the fuel pump sits in the tank
+    out[#out + 1] = { kind = 'fuel', corners = { 'all' } }
   elseif low:find('swaybar', 1, true) then
     local a = axle('swaybar')
     if a then out[#out + 1] = { kind = 'swaybar', corners = { a } } end
