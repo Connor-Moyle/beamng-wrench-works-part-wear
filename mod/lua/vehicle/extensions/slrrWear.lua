@@ -12,6 +12,7 @@ local CORNERS = {
   damper = {'FL', 'FR', 'RL', 'RR'}, spring = {'FL', 'FR', 'RL', 'RR'}, rotor = {'FL', 'FR', 'RL', 'RR'},
   padF = {'F'}, padR = {'R'}, engine = {'all'}, filter = {'all'}, clutch = {'all'}, paint = {'all'},
   gearbox = {'all'}, diff = {'F', 'R', 'all'}, cv = {'F', 'R'}, turbo = {'all'}, radiator = {'all'}, ignition = {'all'}, oil = {'all'},
+  fuel = {'all'}, cat = {'all'}, intercooler = {'all'}, battery = {'all'},
   swaybar = {'F', 'R'}, bushing = {'FL', 'FR', 'RL', 'RR'}, bearing = {'FL', 'FR', 'RL', 'RR'}, fluid = {'F', 'R'}, master = {'all'},   -- paint: no apply here, the game side draws it
 }
 local TICK, REPORT, CHANGE, HARD_STOP, HARD_FROM = 0.5, 5, 0.01, 7, 15   -- s, s, smallest change handed on, m/s^2, m/s
@@ -59,7 +60,7 @@ local function push(force)
         elseif kind == 'engine' then ok = pcall(P.engine, c, get('filter', 'all'))
         elseif kind == 'clutch' then ok = P.clutch and pcall(P.clutch, c)
         elseif kind == 'diff' or kind == 'cv' or kind == 'swaybar' or kind == 'bushing' or kind == 'bearing' or kind == 'fluid' then ok = P[kind] and pcall(P[kind], corner, c)
-        elseif kind == 'gearbox' or kind == 'turbo' or kind == 'radiator' or kind == 'ignition' or kind == 'oil' or kind == 'master' then ok = P[kind] and pcall(P[kind], c) end
+        elseif kind == 'gearbox' or kind == 'turbo' or kind == 'radiator' or kind == 'ignition' or kind == 'oil' or kind == 'master' or kind == 'fuel' or kind == 'cat' or kind == 'intercooler' or kind == 'battery' then ok = P[kind] and pcall(P[kind], c) end
       end
     end
   end

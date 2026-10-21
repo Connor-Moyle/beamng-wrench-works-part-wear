@@ -53,7 +53,7 @@ def main():
              setBoundedBeamDamp = function(_, c, ...) calls[#calls + 1] = {'damp', c, ...} end,
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
-      dev = {name = 'mainEngine', outputTorqueState = 1}
+      dev = {name = 'mainEngine', outputTorqueState = 1, starterTorque = 100}
       clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
       -- the powertrain parts: a gearbox (the game gave it a wear coefficient from its odometer: 1.3), an automatic, two differentials, two shaft kinds, a turbo and a radiator on the engine
       gbox = {type = 'manualGearbox', name = 'gearbox', wearFrictionCoef = 1.3}
@@ -190,6 +190,26 @@ def main():
     assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1
     P.clutch(0.0)
     P.updateGFX(1 / 60)
+    # the engine split: one power cap from the internals, filter, cat, fuel and intercooler (a turbo is on the stand-in), and a weak battery lowers the starter's torque
+    P.clear()
+    P.cat(0.0)
+    P.fuel(0.0)
+    P.intercooler(0.0)
+    P.battery(0.0)
+    P.updateGFX(1 / 60)
+    capNow = lua.eval("dev.outputTorqueState")
+    assert abs(capNow - 0.85 * 0.94 * 0.95) < 0.01, ("the caps multiply", capNow)
+    assert abs(lua.eval("dev.starterTorque") - 100 * 0.6) < 1e-9, "a flat battery: 60 % of the starter torque"
+    P.clear()
+    lua.execute("dev.turbocharger.isExisting = false")
+    P.cat(0.0)
+    P.fuel(0.0)
+    P.intercooler(0.0)
+    P.updateGFX(1 / 60)
+    assert abs(lua.eval("dev.outputTorqueState") - 0.85 * 0.94) < 0.01, "no turbo: the intercooler counts for nothing"
+    lua.execute("dev.turbocharger.isExisting = true")
+    P.clear()
+    assert lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.starterTorque") == 100, "the engine's own values are back"
     # the chassis: arms and links (rate only, length stays), anti-roll bars (torsionbars), wheel bearings (drag next to the pads'), brake fluid and master cylinder (through the pads' torque)
     lua.execute("v.data.torsionbars = {[1] = {cid = 7, id1 = 1, spring = 900, damp = 5, vkTag = 'arb_F'}, [2] = {cid = 8, id1 = 3, spring = 700, damp = 5, vkTag = 'arb_R'}, [3] = {cid = 9, id1 = 1, spring = 150000, damp = 0, vkTag = 'rigidify'}}")
     P.clear()

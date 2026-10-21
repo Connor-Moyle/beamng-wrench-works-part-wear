@@ -18,6 +18,7 @@ DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
         "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"],
         "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"]}
+DOWN["fuel"], DOWN["intercooler"] = ["cap"], ["cap"]
 UP = {"spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
       "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "cv": ["friction"], "turbo": ["friction"], "oil": ["dynFriction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
@@ -87,6 +88,7 @@ def main():
     assert eff("padF", 0.09, real)["grind"] and eff("padF", 0.09, real)["torque"] == 0.6 and not eff("padF", 0.2, real)["grind"]
     # bearings drag only when failing
     assert eff("bearing", 0.5, real)["dragNm"] == 0 and eff("bearing", 0.1, real)["dragNm"] > 5
+    assert eff("bearing", 0.25, real)["dragNm"] == 0 and eff("bearing", 0.24, real)["dragNm"] < 3 and abs(eff("bearing", 0.0, real)["dragNm"] - 65) < 1e-9, "a bearing starts to drag from nothing at a quarter of its life, up to 65 Nm: no step"
     # paint: the four layers of the paint wear look follow the visualWear setting and the wear
     p0, p1, pm = eff("paint", 1.0, real), eff("paint", 0.0, real), eff("paint", 0.7, real)
     assert all(abs(p0[k]) < 1e-9 for k in p0) and all(0 < p1[k] <= 1 for k in p1), "new paint shows nothing, worn paint shows every layer"
@@ -158,6 +160,13 @@ def main():
     assert eff("swaybar", 0.0, real, {"linkBroken": True})["k"] == 0.2 and eff("swaybar", 0.5, real)["k"] > 0.8, "a broken bar link keeps a fifth of the rate, never zero"
     assert W.wornFade(300, 1.0, real, -80) < 1 and W.wornFade(300, 1.0, real) == 1 and abs(W.wornFade(900, 1.0, real, -80) - 1) < 1e-9, "old fluid fades the brakes earlier, only the extra loss"
     assert W.wornFade(500, 1.0, off, -80) == 1, "Off: no extra fade"
+    # the engine split and the battery: caps (one cap: the product of ours), a starter factor
+    for k in ("fuel", "cat", "intercooler", "battery"):
+        assert W.PRICE[k] > 0 and W.NAME[k], ("a price and a name", k)
+    for k in ("fuel", "cat", "intercooler", "battery"):
+        assert W.failureStep(k, 0.12 if k != "battery" else 0.1, 1, real, lambda: 0.0) is not None, ("a failure", k)
+    assert eff("fuel", 0.0, real)["cap"] >= 0.94 and eff("intercooler", 0.0, real)["cap"] >= 0.95 and eff("cat", 0.0, real)["cap"] >= 0.85 and eff("battery", 0.0, real)["crank"] >= 0.6, "the caps are small and bounded"
+    assert abs(W.torqueCap(1, eff("fuel", 0.0, real)["cap"], eff("cat", 0.0, real)["cap"], eff("intercooler", 0.0, real)["cap"]) - 0.94 * 0.85 * 0.95) < 0.02, "the caps multiply into one"
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99
@@ -181,11 +190,13 @@ def main():
     assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
     assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
     assert sw("covet_flywheel") == [("clutch", "all")]
+    assert sw("covet_exhaust") == [("cat", "all")] and sw("pickup_muffler") == [("cat", "all")] and sw("sunburst2_exhaust_turbo_race") == [("cat", "all")] and sw("vivace_exhaust_tips") == []
+    assert sw("vivace_fueltank") == [("fuel", "all")] and sw("sunburst2_fuelcell_race") == [("fuel", "all")]
     assert sw("covet_swaybar_F") == [("swaybar", "F")] and sw("pickup_desert_swaybar_SFA") == [("swaybar", "F")] and sw("bolide_swaybar_RR") == [("swaybar", "R")]
     assert sw("covet_hub_F") == [("bearing", "FL,FR")] and sw("covet_hub_R") == [("bearing", "RL,RR")] and sw("covet_3wheel_hub_gears") == [] and sw("bolide_hub_RF") == []
     assert sw("covet_transmission") == [("gearbox", "all")] and sw("covet_differential_F") == [("diff", "F")] and sw("bolide_v6_differential_M") == [("diff", "all")]
     assert sw("covet_halfshafts_R") == [("cv", "R")] and sw("vivace_driveshaft") == [("cv", "F,R")] and sw("covet_radiator") == [("radiator", "all")] and sw("vivace_turbo_i4_1.5_diesel") == [("turbo", "all")]
-    for none in ("covet_turbo_airbox", "covet_turbo_downpipe", "sunburst2_exhaust_turbo_race", "covet_oilpan", "covet_camshaft_race"):
+    for none in ("covet_turbo_airbox", "covet_turbo_downpipe", "vivace_exhaust_tips", "ardente_exhaust_exit", "covet_oilpan", "covet_camshaft_race", "covet_header"):
         assert sw(none) == [], ("holds no wear item", none)
     for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_taillight_L_tail_brake_bulb", "covet_boxutility_springs", ""):
         assert sw(none) == [], ("holds no wear item", none)

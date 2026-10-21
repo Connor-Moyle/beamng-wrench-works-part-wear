@@ -1,4 +1,13 @@
 {
+"ardente_exhaust": [
+[
+"cat",
+[
+"all"
+]
+]
+],
+"ardente_exhaust_exit": [],
 "ardente_strut_bar": [],
 "bolide_brake_F": [
 [
@@ -129,10 +138,33 @@
 ],
 "bolide_enginemounts": [],
 "bolide_enginemounts_v6": [],
-"bolide_exhaust_turbo": [],
+"bolide_exhaust_na": [
+[
+"cat",
+[
+"all"
+]
+]
+],
+"bolide_exhaust_turbo": [
+[
+"cat",
+[
+"all"
+]
+]
+],
 "bolide_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+]
+],
+"bolide_fueltank_L": [
+[
+"fuel",
 [
 "all"
 ]
@@ -504,7 +536,22 @@
 ],
 "covet_enginemounts": [],
 "covet_enginemounts_midengine": [],
-"covet_exhaust_midengine": [],
+"covet_exhaust": [
+[
+"cat",
+[
+"all"
+]
+]
+],
+"covet_exhaust_midengine": [
+[
+"cat",
+[
+"all"
+]
+]
+],
 "covet_flywheel": [
 [
 "clutch",
@@ -513,7 +560,22 @@
 ]
 ]
 ],
-"covet_fueltank_midengine": [],
+"covet_fueltank": [
+[
+"fuel",
+[
+"all"
+]
+]
+],
+"covet_fueltank_midengine": [
+[
+"fuel",
+[
+"all"
+]
+]
+],
 "covet_halfshaft_F": [
 [
 "cv",
@@ -532,6 +594,7 @@
 ],
 "covet_handbrake_padding": [],
 "covet_handbrake_race": [],
+"covet_header": [],
 "covet_hub_F": [
 [
 "bearing",
@@ -586,6 +649,7 @@
 ],
 "covet_rollcage_midengine": [],
 "covet_spoiler_midengine": [],
+"covet_steering": [],
 "covet_strut_bar_F": [],
 "covet_strut_bar_R": [],
 "covet_swaybar_F": [
@@ -660,6 +724,7 @@
 ]
 ]
 ],
+"etk800_exhausttips_i4": [],
 "etk800_halfshafts_F": [
 [
 "cv",
@@ -740,6 +805,14 @@
 "etk_engine": [
 [
 "engine",
+[
+"all"
+]
+]
+],
+"etk_exhaust_i4_2.0_petrol": [
+[
+"cat",
 [
 "all"
 ]
@@ -830,6 +903,22 @@
 ]
 ]
 ],
+"pickup_desert_fuelcell": [
+[
+"fuel",
+[
+"all"
+]
+]
+],
+"pickup_desert_muffler_crew": [
+[
+"cat",
+[
+"all"
+]
+]
+],
 "pickup_desert_shock_IFS": [
 [
 "damper",
@@ -893,6 +982,22 @@
 "pickup_engine": [
 [
 "engine",
+[
+"all"
+]
+]
+],
+"pickup_fueltank_flatbed": [
+[
+"fuel",
+[
+"all"
+]
+]
+],
+"pickup_muffler": [
+[
+"cat",
 [
 "all"
 ]
@@ -997,10 +1102,25 @@
 ]
 ],
 "sunburst2_enginemounts": [],
-"sunburst2_exhaust_turbo_race": [],
+"sunburst2_exhaust_turbo_race": [
+[
+"cat",
+[
+"all"
+]
+]
+],
 "sunburst2_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+]
+],
+"sunburst2_fuelcell_race": [
+[
+"fuel",
 [
 "all"
 ]
@@ -1231,9 +1351,26 @@
 ]
 ],
 "vivace_enginemounts": [],
+"vivace_exhaust": [
+[
+"cat",
+[
+"all"
+]
+]
+],
+"vivace_exhaust_tips": [],
 "vivace_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+]
+],
+"vivace_fueltank": [
+[
+"fuel",
 [
 "all"
 ]
