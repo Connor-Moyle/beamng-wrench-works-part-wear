@@ -23,4 +23,6 @@ Built and tested offline only (all off by default; switch on in ESC > Mods > Par
 - Wrench Works garage: worn parts are listed under Services with their condition and a price, and a click pays and sets the part back to new.
 - Worn brake disc look (switch: Worn look in the Mods page): brake discs show a surface bloom of rust and then heavy rust as the disc and pad condition falls, set when the car is spawned (it changes at the next spawn or garage visit; the red-hot brake glow is untouched); calipers and hubs change while driving. Only on cars spawned after part wear is switched on.
 - The metal look's rust strength: on the Vivace's black floor pan the full-strength patches read as glowing embers, so both stages are toned down (not yet seen).
+- Worn engine bay look (the same Worn look switch): on the Covet, the Vivace and the pickup the engine (block, head, headers, intake) takes a dust film with a little oil, then heavy oily grime in blotches that shine, as the engine's condition falls, set at spawn for the whole engine. Not rust. Parts of the bay on other materials (hoses, covers, the battery) stay as they are. Only on cars spawned after part wear is switched on.
+
 - Wear is kept per car and per career slot, so careers never share wear.

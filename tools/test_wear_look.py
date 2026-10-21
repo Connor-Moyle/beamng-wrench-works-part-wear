@@ -138,6 +138,17 @@ def main():
     gm = spawn("{damper = {FL = 0, FR = 0, RL = 0, RR = 0}}")
     assert gm["etk800_mechanical"] is None and gm["covet_mechanical"] is None, "a model outside the survey: nothing"
     lua.execute("car.JBeam = 'covet'")
+    # the engine bay: the model's engine material follows the engine condition, the metal row is untouched by it
+    gm = spawn("{engine = {all = 0.2}}")
+    assert gm["ibishu_engine"]["off"] == "slrr_ibishu_engine_rusty" and gm["ibishu_engine"]["on"] == gm["ibishu_engine"]["off"] and gm["covet_mechanical"] is None, "a worn-out engine: heavy oily grime on the bay, the suspension metal untouched"
+    assert spawn("{engine = {all = 0.5}}")["ibishu_engine"]["off"] == "slrr_ibishu_engine_worn", "a tired engine: dust with a little oil"
+    gm = spawn("{engine = {all = 0.2}, spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}, damper = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}")
+    assert gm["ibishu_engine"]["off"] == "slrr_ibishu_engine_rusty" and gm["covet_mechanical"]["off"] == "slrr_covet_mechanical_rusty", "both rows at once"
+    lua.execute("car.JBeam = 'pickup'")
+    lua.globals().KEY = G.carKey(7)          # (the record key carries the model: a pickup's record is its own)
+    assert spawn("{engine = {all = 0.1}}")["gavril_v8"]["off"] == "slrr_gavril_v8_rusty", "the pickup's bay material"
+    lua.execute("car.JBeam = 'covet'")
+    lua.globals().KEY = key
     lua.execute("files['/settings/slrrPartWear_state.json'] = {}")
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', visualWear = 0}")
     G.reload()

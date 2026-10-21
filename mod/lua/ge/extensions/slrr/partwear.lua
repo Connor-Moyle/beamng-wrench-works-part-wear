@@ -108,6 +108,9 @@ end
 local DISC = 'disc_brake'
 -- JBeam name -> the material of the model's suspension, frame and exhaust metal (read from the game's vehicle files and a probe of a spawned pickup); the worn and rusty variants are in the same stages file
 local MECH = { covet = 'covet_mechanical', vivace = 'vivace_mechanical', pickup = 'trucks_mechanical' }
+-- JBeam name -> the material of the model's engine (block, head, headers, intake; 82's survey); its 'rusty' variant is heavy oily grime, 'worn' dust with a little oil
+local BAY = { covet = 'ibishu_engine', vivace = 'vivace_engine', pickup = 'gavril_v8' }
+local ROWS = { { 'metal', MECH, rules.mechCondition }, { 'engine', BAY, rules.engineCondition } }      -- { name in the log, JBeam -> material, the condition the stage follows }
 function M.onJbeamLoadingPhase2(_, objID, vehicle)
   if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end
   vehicle.glowMap = vehicle.glowMap or {}
@@ -131,20 +134,25 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
       end
     end
   end
-  -- The suspension, frame and exhaust metal: the model's mechanical material gets one glowMap entry whose off target is the worn or rusty variant, from the car's spring and damper
-  -- conditions. One stage for the whole car (a glowMap entry is per material, and nothing switches these while driving); a mesh that mixes in another material (the pickup's exhaust with
-  -- the engine's, an alt shock) keeps that part as it is, and the engine-bay materials are not touched. An entry the car already has under that name is left alone.
+  -- The suspension, frame and exhaust metal, and the engine bay: the model's material (ROWS) gets one glowMap entry whose off target is the worn or rusty variant, from the car's spring
+  -- and damper conditions (the metal) or its engine condition (the bay). One stage for the whole car (a glowMap entry is per material, and nothing switches these while driving); a mesh
+  -- that mixes in another material (the pickup's exhaust with the engine's, an alt shock) keeps that part as it is. An entry the car already has under that name is left alone.
   local o = veh(objID)
-  local mat = o and MECH[tostring(o.JBeam)]
-  local mech = 0
-  if mat and vehicle.glowMap[mat] == nil then
-    mech = rules.lookStage(rules.mechCondition(rec), settings.visualWear)
-    if mech > 0 then
-      local look = 'slrr_' .. mat .. (mech == 2 and '_rusty' or '_worn')
-      vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
+  local jb = o and tostring(o.JBeam)
+  local stages = {}
+  for _, row in ipairs(ROWS) do
+    local mat = jb and row[2][jb]
+    local st = 0
+    if mat and vehicle.glowMap[mat] == nil then
+      st = rules.lookStage(row[3](rec), settings.visualWear)
+      if st > 0 then
+        local look = 'slrr_' .. mat .. (st == 2 and '_rusty' or '_worn')
+        vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
+      end
     end
+    stages[#stages + 1] = row[1] .. ' stage ' .. st
   end
-  say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, metal stage ' .. mech .. ', record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
+  say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, ' .. table.concat(stages, ', ') .. ', record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
 end
 local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }
 function M.look(id, wi, stage, list)       -- called by the car (slrrWearLook): a wheel's disc meshes to stage 0 (own), 1 (worn), 2 (rusty)

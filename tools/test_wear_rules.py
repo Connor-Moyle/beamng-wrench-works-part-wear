@@ -39,6 +39,7 @@ def main():
     assert W.mechCondition(lua.eval("{}")) == 1 and W.mechCondition(None) == 1, "no record: the metal is new"
     assert abs(W.mechCondition(lua.eval("{spring = {FL = 0.2}, rotor = {FL = 0}}")) - 0.9) < 1e-9, "the mean over the four corners of springs and dampers; a corner not stored is new; brakes do not count"
     assert abs(W.mechCondition(lua.eval("{spring = {FL = 0, FR = 0, RL = 0, RR = 0}, damper = {FL = 0, FR = 0, RL = 0, RR = 0}}"))) < 1e-9
+    assert W.engineCondition(lua.eval("{engine = {all = 0.25}}")) == 0.25 and W.engineCondition(lua.eval("{spring = {FL = 0}}")) == 1 and W.engineCondition(None) == 1, "the engine bay follows the engine internals; new when not stored"
 
     for preset in ("Realistic", "Light"):
         s = W.settings(preset)

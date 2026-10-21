@@ -15,8 +15,10 @@ ZIPS = ['common.zip', 'covet.zip', 'vivace.zip']
 # the strengths (colour, normal, roughness detail) per state are MODELLED: worn = a surface bloom (discs) or grime with a little rust (metal), rusty = pitted orange rust
 DISC = {'worn': (0.55, 0.5, 0.5), 'rusty': (1.0, 1.0, 0.8)}
 MECH = {'worn': (0.3, 0.35, 0.5), 'rusty': (0.45, 0.8, 0.7)}      # (the colour detail adds to the base: at 1.0 the patches glowed like embers on the Vivace's black floor pan, 80's frame)
+BAY = {'worn': (0.5, 0.25, 0.5), 'rusty': (1.0, 0.4, 1.0)}        # the engine bay: 'worn' = dust with a little oil, 'rusty' = heavy oily grime (the stage names are the file's, not rust)
 # (material, texture set, strengths, detail scale: the set tiles this many times across the material's own atlas)
-MATERIALS = [('disc_brake', 'disc_rust', DISC, 3), ('covet_mechanical', 'mech_rust', MECH, 4), ('vivace_mechanical', 'mech_rust', MECH, 4), ('trucks_mechanical', 'mech_rust', MECH, 4)]
+MATERIALS = [('disc_brake', 'disc_rust', DISC, 3), ('covet_mechanical', 'mech_rust', MECH, 4), ('vivace_mechanical', 'mech_rust', MECH, 4), ('trucks_mechanical', 'mech_rust', MECH, 4),
+             ('ibishu_engine', 'bay_grime', BAY, 4), ('vivace_engine', 'bay_grime', BAY, 4), ('gavril_v8', 'bay_grime', BAY, 4)]
 
 wanted = {m[0] for m in MATERIALS}
 src = {}

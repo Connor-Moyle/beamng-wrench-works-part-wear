@@ -87,6 +87,11 @@ function M.mechCondition(rec)
   end
   return sum / 8
 end
+-- the condition the engine bay look follows: the engine internals (one record, 'all'); new when not stored
+function M.engineCondition(rec)
+  local t = type(rec) == 'table' and type(rec.engine) == 'table' and rec.engine or {}
+  return clamp(tonumber(t.all) or 1, 0, 1)
+end
 
 -- 'Good' >= 75 %, 'Worn' 50-75, 'Bad' 25-50, 'Failing' < 25
 function M.stage(c)

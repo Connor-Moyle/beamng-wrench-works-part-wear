@@ -6,3 +6,5 @@ The worn brake disc look (`mod/art/slrr_partwear/disc_rust_*`, made by `tools/ma
 |---|---|---|---|---|---|
 | worn brake disc look | Rust005 | https://ambientcg.com/view?id=Rust005 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
 | worn suspension, frame and exhaust metal look (`mod/art/slrr_partwear/mech_rust_*`, `tools/make_mech_rust_textures.py`: the same maps, bigger rust areas and a grime darkening in the colour detail) | Rust005 | https://ambientcg.com/view?id=Rust005 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
+| worn engine bay look (`mod/art/slrr_partwear/bay_grime_*`, `tools/make_bay_grime_textures.py`: the oily grime's tone, grain and normal) | Asphalt033 | https://ambientcg.com/view?id=Asphalt033 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
+| worn engine bay look (the dust film's tint) | Ground080 | https://ambientcg.com/view?id=Ground080 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
