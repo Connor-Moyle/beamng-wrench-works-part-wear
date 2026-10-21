@@ -62,7 +62,7 @@ end
 -- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
 local remember          -- (defined below, with the parts tree helpers)
 local settleAt = {}     -- vehicle id -> the time before which the game's parts tree is not trusted: right after a spawn or a swap it still holds the car that was replaced
-local SETTLE, REFRESH = 3, 2
+local SETTLE, REFRESH = 3, 5       -- s: the settling time after a spawn or swap, and how often the player's parts are read again (getConfig hands out the game's own table, flatten walks about a few hundred slots)
 local refreshAt = 0
 local pendingNew = {}   -- vehicle id -> { {kind, corner}, ... } the parts a swap made new, until the old car's last report is past and the new car has them
 local chosen = {}       -- vehicle id -> { slot id -> chosen part name } as of its last spawn or parts change
@@ -221,8 +221,8 @@ end
 -- the parts the player's car carries now, for the next swap's comparison (a car that was spawned before part wear was switched on is seen here, when it is attached)
 remember = function(id)
   if not (be and id == be:getPlayerVehicleID(0)) then return end
-  local t = flatten(currentTree())
-  if next(t) then chosen[id] = t end
+  local ok, t = pcall(function() return flatten(currentTree()) end)
+  if ok and next(t) then chosen[id] = t end
 end
 -- the respawned car: the record holds the parts the swap made new (the old car's last report may have put the old wear back), then give(id) hands the record to the new car
 local function newAgain(id)

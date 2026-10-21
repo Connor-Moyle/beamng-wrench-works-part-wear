@@ -85,7 +85,7 @@ def main():
     G.attach(7)
     G.onUpdate(1)                                  # (inside the settling time: nothing is taken)
     lua.execute("treeNow = oldTree")
-    G.onUpdate(3)                                  # (the parts as the game reports them now)
+    G.onUpdate(6)                                  # (the parts as the game reports them now)
     lua.execute("treeNow = swapNew")      # (and by the time the swap is announced the game's own tree already holds the new parts)
     lua.execute("cmds = {}")
     G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
