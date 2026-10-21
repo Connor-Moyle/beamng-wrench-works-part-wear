@@ -21,6 +21,7 @@ def main():
       for _, k in ipairs({'damper', 'spring', 'rotor', 'pads', 'engine', 'clutch', 'setSettings', 'clear'}) do
         slrrWearProbe[k] = function(...) calls[#calls + 1] = {k, ...} end
       end
+      slrrWearProbe.detect = function() return 6, 4, 4 end
       extensions = {load = function() end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
     """.replace("@ROOT@", ROOT.replace("\\", "/")))
@@ -34,6 +35,7 @@ def main():
     W.setSettings(lua.table(wearEnabled=True, lifeScale=0.1, abuseScale=1, ageScale=1, effectStrength=1, springSagMax=25, springRateLoss=0.05, damperLossMax=0.8,
                             brakeTorqueLoss=0.08, enginePowerLoss=0.15, failures=False, failureRate=0, judder=1, visualWear=1))
     assert W.status().startswith("wear on")
+    assert any("6 springs, 4 dampers found" in m for m in lua.eval("logs").values()), "the found counts are in the log when part wear switches on"
     W.setCondition("damper", "FL", 0.4)
     lua.execute("calls = {}")
     lua.execute("run(1, 0)")
