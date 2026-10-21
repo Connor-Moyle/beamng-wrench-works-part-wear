@@ -216,6 +216,12 @@ def main():
     P.cat(1.0)
     P.updateGFX(1 / 60)
     assert lua.eval("dev.outputTorqueState") == 0.5, "and a repair does not repair the engine's damage"
+    P.ignition(0.0)      # a worn ignition raises the misfire chance; repaired, the game's own value is back
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.slowIgnitionErrorChance") > 0
+    P.ignition(1.0)
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.slowIgnitionErrorChance") == 0, "a repaired ignition: the misfire chance is back"
     P.clear()
     assert lua.eval("dev.outputTorqueState") == 0.5, "clear puts the game's value back, not 1"
     lua.execute("dev.outputTorqueState = 1")

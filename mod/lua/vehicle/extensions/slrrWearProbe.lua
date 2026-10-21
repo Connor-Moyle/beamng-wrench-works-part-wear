@@ -596,7 +596,8 @@ function M.updateGFX(dt)
       end
       if engineTarget or oilTarget then setField(eng, 'wearDynamicFrictionCoef', (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1)) end
       local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
-      if mis > 0 then setField(eng, 'slowIgnitionErrorChance', math.max(fieldBase[eng] and fieldBase[eng].slowIgnitionErrorChance or eng.slowIgnitionErrorChance or 0, mis)) end
+      local misBase = fieldBase[eng] and fieldBase[eng].slowIgnitionErrorChance
+      if mis > 0 or misBase ~= nil then setField(eng, 'slowIgnitionErrorChance', math.max(misBase or eng.slowIgnitionErrorChance or 0, mis)) end      -- (once we have touched it, a repaired ignition writes the game's own value back)
     end
   end
   -- the starter battery's charge (our own model, not persisted: a respawn starts full): the starter drains it, the alternator charges it while the engine runs, the lights drain it
