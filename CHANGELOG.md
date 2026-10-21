@@ -2,11 +2,11 @@
 
 ## 0.1.0 (not released)
 
-Nothing in this version has been proven in the game yet. This list is only filled in as 80 proves each item with screenshots and logs; until then nothing is published.
+This list is only filled in as 80 proves each item with screenshots and logs; until then nothing is published.
 
 Proven in the game:
 
-- (nothing yet)
+- Worn suspension, frame and exhaust metal look (the Worn look switch): on the Covet, the Vivace and the pickup the floor pan, suspension arms, axles, driveshaft, fuel tank and muffler take dark grime with rust patches when the car's springs and shock absorbers are worn, set at spawn for the whole car; a second spawn of the same car shows it too, and a car set back to new comes up clean. The exhaust pipes and the engine bay stay as they are (the pickup's exhaust is patchwork, as expected). Seen on the three cars on their sides (2026-10-21).
 
 Built and tested offline only (all off by default; switch on in ESC > Mods > Part wear):
 
@@ -16,5 +16,5 @@ Built and tested offline only (all off by default; switch on in ESC > Mods > Par
 - Worn paint look through Car Surface FX (needs its "Worn paint (test)" switch).
 - Wrench Works garage: worn parts are listed under Services with their condition and a price, and a click pays and sets the part back to new.
 - Worn brake disc look (switch: Worn look in the Mods page): brake discs show a surface bloom of rust and then heavy rust as the disc and pad condition falls, set when the car is spawned (it changes at the next spawn or garage visit; the red-hot brake glow is untouched); calipers and hubs change while driving. Only on cars spawned after part wear is switched on.
-- Worn suspension, frame and exhaust metal look (the same Worn look switch): on the Covet, the Vivace and the pickup the suspension, frame, hubs, driveline and exhaust pipes take road grime with a little rust, then heavy rust, as the car's springs and shock absorbers wear (the mean over the four corners), set when the car is spawned for the whole car at once. Engine-bay parts are untouched; a part that mixes in another material (the pickup's exhaust, an alternative shock) keeps that part as it is. Only on cars spawned after part wear is switched on.
+- The metal look's rust strength after 80's frames: on the Vivace's black floor pan the full-strength patches read as glowing embers, so both stages are toned down (not yet seen).
 - Wear is kept per car and per career slot, so careers never share wear.
