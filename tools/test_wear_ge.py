@@ -78,7 +78,8 @@ def main():
       core_vehicle_partmgmt = {getConfig = function() return {partsTree = treeNow} end}
       swapNew = {children = {covet_coilover_F = {chosenPartName = 'cf2'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = ''}}}
       cmds = {}""")
-    G.onVehicleSpawned(7)
+    G.attach(7)       # (a car spawned before part wear was on is seen when it is attached: the game edits its own parts tree in place, so a swap is only seen against what was remembered here)
+    lua.execute("treeNow = swapNew")      # (and by the time the swap is announced the game's own tree already holds the new parts)
     lua.execute("cmds = {}")
     G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))

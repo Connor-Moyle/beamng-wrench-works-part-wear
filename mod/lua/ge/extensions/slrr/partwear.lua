@@ -60,6 +60,7 @@ end
 -- The record a car's wear is kept under: setCarKey's key if a caller gave one; in Street Legal's career the player's car id (sl_fleet.carOfVehicle), in the game's career the inventory id
 -- (career_modules_inventory): two identical career cars never share wear. A career car that has no id yet (it is being registered) has no key: nothing is restored or stored for it until
 -- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
+local remember          -- (defined below, with the parts tree helpers)
 local pendingNew = {}   -- vehicle id -> { {kind, corner}, ... } the parts a swap made new, until the old car's last report is past and the new car has them
 local chosen = {}       -- vehicle id -> { slot id -> chosen part name } as of its last spawn or parts change
 local pinned = {}       -- vehicle id -> the freeroam key a part swap started from: the swap respawns the car with a changed part config, which is still the same car
@@ -180,6 +181,7 @@ end
 function M.attach(id)
   if not settings.wearEnabled then return end
   watched[id] = true
+  remember(id)
   give(id)
 end
 function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id], pendingNew[id] = nil, nil, nil, nil, nil, nil, nil end
@@ -213,6 +215,12 @@ local function swapped(id, old, new)
   end
   if n > 0 then say('car ' .. tostring(id) .. ': ' .. n .. ' worn part(s) are new after the parts swap') end
 end
+-- the parts the player's car carries now, for the next swap's comparison (a car that was spawned before part wear was switched on is seen here, when it is attached)
+remember = function(id)
+  if not (be and id == be:getPlayerVehicleID(0)) then return end
+  local t = flatten(currentTree())
+  if next(t) then chosen[id] = t end
+end
 -- the respawned car: the record holds the parts the swap made new (the old car's last report may have put the old wear back), then give(id) hands the record to the new car
 local function newAgain(id)
   local list = pendingNew[id]
@@ -245,7 +253,7 @@ function M.onVehicleSpawned(id)
   lookMsc[id] = nil
   newAgain(id)
   if settings.wearEnabled and watched[id] then give(id) end
-  if settings.wearEnabled and be and id == be:getPlayerVehicleID(0) then local t = flatten(currentTree()) if next(t) then chosen[id] = t end end
+  if settings.wearEnabled then remember(id) end
 end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
 
