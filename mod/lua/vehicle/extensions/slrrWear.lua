@@ -152,7 +152,8 @@ local function heat(ev, dt)
   end
   local el = electrics and electrics.values or {}
   if finite(el.watertemp, 0) > rules.OVERHEAT_C then ev.overheat_s = dt end
-  if el.revLimiterActive == true or finite(el.revLimiterActive, 0) > 0 then ev.limiter_s = dt end
+  local eng = powertrain and powertrain.getDevice and powertrain.getDevice('mainEngine')      -- the limiter flag is on the engine device, not in electrics
+  if eng and eng.revLimiterActive == true then ev.limiter_s = dt end
 end
 
 local function tick(dt)

@@ -87,7 +87,8 @@ def main():
       wheels = {wheels = {[1] = {node1 = 1, brakeSurfaceTemperature = 500}, [2] = {node1 = 2, brakeSurfaceTemperature = 20}}}
       v = {data = {nodes = {[1] = {pos = {x = 0.7, y = 0, z = 0}}, [2] = {pos = {x = 0.7, y = 2.5, z = 0}}}}}
       function landing() vz = -6 W_.updateGFX(0.016) vz = 1 W_.updateGFX(0.016) vz = 0 end''')
-    lua.execute("for _ = 1, 5 do landing() run(4, 0, 0.5) end")
+    lua.execute("powertrain = {getDevice = function() return {revLimiterActive = true} end} for _ = 1, 5 do landing() run(4, 0, 0.5) end")
+    assert W.getCondition("engine", "all") < 1, "time on the rev limiter wears the engine"
     assert W.getCondition("damper", "FL") < 1 - 0.0015 and W.getCondition("spring", "FR") < 1, "hard landings wear the dampers and springs"
     assert W.getCondition("padF", "F") < 1 - 0.001 and W.getCondition("padR", "R") == 1, ("hot front brakes wear the front pads, the cool rear ones not", W.getCondition("padF", "F"), W.getCondition("padR", "R"))
     assert W.getCondition("clutch", "all") == 1 and lua.eval("#msgs") == 0, "no failures with the setting off"
