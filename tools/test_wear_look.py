@@ -19,9 +19,10 @@ def main():
       wheels = {wheels = {[0] = {name = 'a', node1 = 1}, [1] = {name = 'b', node1 = 2}, [2] = {name = 'c', node1 = 3}, [3] = {name = 'd', node1 = 4}}}
       obj = {getMeshesContainingMaterial = function(_, m) return m == 'disc_brake' and 'disc_FL disc_FR disc_RL disc_RR' or '' end, getId = function() return 7 end,
              queueGameEngineLua = function(_, c) sent[#sent + 1] = c end}
+      package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
       conds = {}
       function get(kind, corner) return (conds[kind] or {})[corner] or 1 end
-    """)
+    """.replace("@ROOT@", ROOT.replace("\\", "/")))
     L = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearLook.lua"), encoding="utf8").read())
     lua.globals().L_ = L
     S = lua.table(visualWear=1)
@@ -93,6 +94,20 @@ def main():
     G.onJbeamLoadingPhase2(None, 7, veh)
     gm = veh["glowMap"]["disc_brake"]
     assert gm["on"] == "slrr_disc_brake_worn" and gm["on_intense"] == "slrr_disc_brake_rusty" and gm["off"] == "disc_brake", dict(gm)
+    # the discs themselves: the existing brake glow entries get their `off` target from the saved condition, at spawn
+    key = G.carKey(7)
+    lua.globals().KEY = key
+    lua.execute("files['/settings/slrrPartWear_state.json'] = {[KEY] = {rotor = {FL = 0.2, FR = 0.5, RL = 0.9}, padF = {F = 0.9}}}")
+    G2 = lua.execute(open(os.path.join(ROOT, "ge", "extensions", "slrr", "partwear.lua"), encoding="utf8").read())
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
+    G2.reload()
+    veh = lua.eval("{glowMap = {disc_brake_FL = {off = 'disc_brake', on = 'disc_brake_glow'}, disc_brake_FR = {off = 'disc_brake', on = 'disc_brake_glow'}, disc_brake_RL = {off = 'disc_brake', on = 'disc_brake_glow'}, headlight = {off = 'a', on = 'b'}}}")
+    G2.onJbeamLoadingPhase2(None, 7, veh)
+    gm = veh["glowMap"]
+    assert gm["disc_brake_FL"]["off"] == "slrr_disc_brake_rusty" and gm["disc_brake_FR"]["off"] == "slrr_disc_brake_worn", "worn discs: their off material is the worn look"
+    assert gm["disc_brake_FL"]["on"] == "disc_brake_glow" and gm["disc_brake_RL"]["off"] == "disc_brake" and gm["headlight"]["off"] == "a", "the glow stays, a good disc and other entries are untouched"
+    assert gm["disc_brake"]["on"] == "slrr_disc_brake_worn", "calipers and hubs: the runtime switch entry"
+    lua.execute("files['/settings/slrrPartWear_state.json'] = {}")
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', visualWear = 0}")
     G.reload()
     veh = lua.eval("{}")

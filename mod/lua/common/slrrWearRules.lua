@@ -69,6 +69,13 @@ function M.repairPrice(kind, c, mult)
   return math.floor(base * (0.3 + 0.7 * (1 - clamp(c, 0, 1))) * (mult or 1) + 0.5)
 end
 
+-- the stage of a worn brake disc look from the worse of the disc's and its pads' condition: 0 the car's own, 1 worn, 2 rusty (the limits are MODELLED); none when the worn look is 0
+M.DISC_WORN_BELOW, M.DISC_RUSTY_BELOW = 0.6, 0.3
+function M.discStage(c, visual)
+  if (visual or 0) <= 0 then return 0 end
+  return c < M.DISC_RUSTY_BELOW and 2 or (c < M.DISC_WORN_BELOW and 1 or 0)
+end
+
 -- 'Good' >= 75 %, 'Worn' 50-75, 'Bad' 25-50, 'Failing' < 25
 function M.stage(c)
   return c >= 0.75 and 'Good' or (c >= 0.5 and 'Worn' or (c >= 0.25 and 'Bad' or 'Failing'))

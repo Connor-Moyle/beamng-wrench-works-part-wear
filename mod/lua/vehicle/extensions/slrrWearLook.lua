@@ -5,7 +5,6 @@
 local M = {}
 
 local MATERIAL = 'disc_brake'
-local WORN_BELOW, RUSTY_BELOW = 0.6, 0.3        -- condition of the worse of disc and pads: MODELLED
 local sw                                         -- wheel index -> { {orig, mesh}, ... } once built
 local axle                                       -- wheel index -> 'F' / 'R', and corner 'FL' ..
 local corner = {}
@@ -37,10 +36,7 @@ local function build()
   end
 end
 
-local function stageFor(c, visual)
-  if (visual or 0) <= 0 then return 0 end
-  return c < RUSTY_BELOW and 2 or (c < WORN_BELOW and 1 or 0)
-end
+local stageFor = require('slrrWearRules').discStage
 M.stageFor = stageFor
 
 local function send(wi, stage)

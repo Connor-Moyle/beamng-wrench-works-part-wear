@@ -108,8 +108,27 @@ local DISC = 'disc_brake'
 function M.onJbeamLoadingPhase2(_, objID, vehicle)
   if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end
   vehicle.glowMap = vehicle.glowMap or {}
-  if not vehicle.glowMap[DISC] then vehicle.glowMap[DISC] = { off = DISC, on = 'slrr_disc_brake_worn', on_intense = 'slrr_disc_brake_rusty', simpleFunction = 'slrr_never' } end
-  say('worn disc look: glowMap entry added for car ' .. tostring(objID))
+  if not vehicle.glowMap[DISC] then vehicle.glowMap[DISC] = { off = DISC, on = 'slrr_disc_brake_worn', on_intense = 'slrr_disc_brake_rusty', simpleFunction = 'slrr_never' } end      -- calipers and hubs: switched while driving
+  -- The discs themselves are not plain disc_brake: brakepads.jbeam gives every wheel a brake glow entry (disc_brake_FR ... off = disc_brake, on = the glowing disc), which the engine switches
+  -- with the brake temperature. They are not switched by us while driving (we would fight the engine); their `off` material is set HERE, once, from the saved condition: the look of a disc changes at the
+  -- next spawn or garage visit, the red-hot glow is untouched. The wheel in the entry's name (FR, FL, RR, RL, or F / R for an axle) names the corner.
+  local key = carKey(objID)
+  local rec = key and loadStore()[key] or {}
+  local set = 0
+  for name, e in pairs(vehicle.glowMap) do
+    if type(e) == 'table' and e.off == DISC and name ~= DISC then
+      local corner = tostring(name):match('^disc_brake_(%u%u?)$')
+      if corner then
+        local axle = corner:sub(1, 1)
+        local rot = rec.rotor and tonumber(rec.rotor[corner]) or 1
+        local pad = rec[axle == 'F' and 'padF' or 'padR']
+        pad = pad and tonumber(pad[axle]) or 1
+        local st = rules.discStage(math.min(rot, pad), settings.visualWear)
+        if st > 0 then e.off = st == 2 and 'slrr_disc_brake_rusty' or 'slrr_disc_brake_worn' set = set + 1 end
+      end
+    end
+  end
+  say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn' .. (key and '' or ' (no record key yet)'))
 end
 local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }
 function M.look(id, wi, stage, list)       -- called by the car (slrrWearLook): a wheel's disc meshes to stage 0 (own), 1 (worn), 2 (rusty)
