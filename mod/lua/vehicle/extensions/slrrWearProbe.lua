@@ -7,6 +7,7 @@
 --   slrrWearProbe.spring('FL', 0.3)             sag and a softer rate on that corner's spring
 --   slrrWearProbe.pads('F', 0.05)               brake pads of the front axle at 5 %
 --   slrrWearProbe.engine(0.2, 0.5)              internals at 20 %, air filter at 50 % (power cap, friction, misfire)
+--   slrrWearProbe.gearbox(c) / diff(axle, c) / cv(axle, c) / turbo(c) / radiator(c) / ignition(c) / oil(c)    the powertrain parts (the game's own wear fields of each device)
 --   slrrWearProbe.preset('Realistic')           the strength of the effects (Realistic, Light, Off)
 --   slrrWearProbe.clear()                       every jbeam value back
 --   slrrWearProbe.status()                      what is applied now
@@ -19,6 +20,10 @@ local applied = {}     -- the effects asked for: {kind, corner, c}, in order, fo
 local brakes = {}      -- wheel index -> {base = {...}, target = {...}}
 local engineTarget
 local clutchTarget   -- {lock, freePlay} factors from the clutch condition
+local gearboxTarget, diffTarget, cvTarget = nil, {}, {}      -- {friction, shiftRate, lockTorque}; axle ('F', 'R', 'all') -> friction
+local turboTarget, radiatorTarget, ignitionTarget, oilTarget       -- {power, friction}; the game's radiator integrity; the misfire chance; the engine's dynamic friction factor
+local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
+local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
 local pending = 0      -- frames until the reapply after a reset
 local moving = false
@@ -134,6 +139,7 @@ local function want(kind, corner, cond)
   end
 end
 
+local function copyOf(t) local o = {} for i, x in ipairs(t) do o[i] = x end return o end
 local function remember(kind, corner, cond)
   for i = #applied, 1, -1 do
     if applied[i].kind == kind and applied[i].corner == corner then table.remove(applied, i) end
@@ -141,8 +147,8 @@ local function remember(kind, corner, cond)
   applied[#applied + 1] = {kind = kind, corner = corner, c = cond}
 end
 
-function M.setSettings(tbl) settings = tbl for _, a in ipairs(applied) do M.reapply(a) end say('settings set') end   -- the full table of rules.settings(..), from the Mods page
-function M.preset(name) settings = rules.settings(name) for _, a in ipairs(applied) do M.reapply(a) end say('preset ' .. tostring(name)) end
+function M.setSettings(tbl) settings = tbl for _, a in ipairs(copyOf(applied)) do M.reapply(a) end say('settings set') end   -- the full table of rules.settings(..), from the Mods page
+function M.preset(name) settings = rules.settings(name) for _, a in ipairs(copyOf(applied)) do M.reapply(a) end say('preset ' .. tostring(name)) end
 function M.damper(corner, cond) want('damper', corner, cond) remember('damper', corner, cond) say(string.format('damper %s condition %.2f', corner, cond)) end
 function M.spring(corner, cond) want('spring', corner, cond) remember('spring', corner, cond) say(string.format('spring %s condition %.2f', corner, cond)) end
 
@@ -187,7 +193,90 @@ function M.engine(cInternals, cFilter)
   say(string.format('engine: power cap %.3f, dynamic friction x%.2f, misfire %.3f', engineTarget.cap, engineTarget.dyn, engineTarget.misfire))
 end
 
+-- ---- the powertrain parts: the game's own wear fields of each device (docs/POWERTRAIN_GAME_VALUES.md). Never device:setPartCondition with a number: on a fuel tank it empties the tank, on the
+-- engine it blows the head gasket below 0.3, on a gearbox it can remove a gear. Devices are found by type through powertrain.getOrderedDevices().
+local GEARBOXES = {manualGearbox = true, automaticGearbox = true, cvtGearbox = true, dctGearbox = true, sequentialGearbox = true}
+local function devices(types)
+  local out = {}
+  local ok, list = pcall(function() return powertrain.getOrderedDevices() end)
+  for _, d in ipairs(ok and list or {}) do if types[d.type] then out[#out + 1] = d end end
+  return out
+end
+-- the axle of a device from its name ("differential_F", "halfshaft_FL", "driveshaftR"): 'F', 'R' or nil (a centre or single one)
+local function axleOfDevice(d)
+  local a = tostring(d.name or ''):match('[_%l](%u)%u?$')
+  return (a == 'F' or a == 'R') and a or nil
+end
+local function setField(d, field, value)
+  if d[field] == nil then return end
+  fieldBase[d] = fieldBase[d] or {}
+  if fieldBase[d][field] == nil then fieldBase[d][field] = d[field] end
+  d[field] = value
+end
+
+function M.gearbox(cond)
+  local e = rules.effects('gearbox', cond, settings)
+  if not e then return end
+  gearboxTarget = {friction = e.friction, shiftRate = e.shiftRate, lockTorque = e.lockTorque}
+  remember('gearbox', 'all', cond)
+  say(string.format('gearbox condition %.2f: friction x%.2f, shift rate x%.2f, DCT lock x%.2f', cond, e.friction, e.shiftRate, e.lockTorque))
+end
+function M.diff(axle, cond)
+  local e = rules.effects('diff', cond, settings)
+  if not e then return end
+  diffTarget[axle] = e.friction
+  remember('diff', axle, cond)
+  say(string.format('differential %s condition %.2f: friction x%.2f', axle, cond, e.friction))
+end
+function M.cv(axle, cond)
+  local e = rules.effects('cv', cond, settings)
+  if not e then return end
+  cvTarget[axle] = e.friction
+  remember('cv', axle, cond)
+  say(string.format('shafts %s condition %.2f: friction x%.2f', axle, cond, e.friction))
+end
+function M.ignition(cond)
+  local e = rules.effects('ignition', cond, settings)
+  if not e then return end
+  ignitionTarget = {misfire = e.misfire}
+  remember('ignition', 'all', cond)
+  say(string.format('ignition condition %.2f: misfire %.3f', cond, e.misfire))
+end
+function M.oil(cond)
+  local e = rules.effects('oil', cond, settings)
+  if not e then return end
+  oilTarget = {dyn = e.dynFriction}
+  remember('oil', 'all', cond)
+  say(string.format('oil condition %.2f: engine friction x%.2f', cond, e.dynFriction))
+end
+-- the turbocharger and the radiator keep the game's damage state inside the module, so they are set through the module's own call, once when the condition changes and again after a reset
+-- (the game's heat damage of a turbo then goes on from there)
+local function engine() return powertrain.getDevice('mainEngine') end
+function M.turbo(cond)
+  local e = rules.effects('turbo', cond, settings)
+  if not e then return end
+  local t = engine() and engine().turbocharger
+  if not (t and t.isExisting and t.setPartCondition and t.getPartCondition) then say('turbo: this car has none') return end
+  if not turboBase then local _, st = t.getPartCondition() turboBase = {damageFrictionCoef = st.damageFrictionCoef, damageExhaustPowerCoef = st.damageExhaustPowerCoef} end
+  turboTarget = {power = e.power, friction = e.friction}
+  t.setPartCondition(0, {damageFrictionCoef = e.friction, damageExhaustPowerCoef = e.power}, 1)
+  remember('turbo', 'all', cond)
+  say(string.format('turbo condition %.2f: power x%.2f, friction x%.2f', cond, e.power, e.friction))
+end
+function M.radiator(cond)
+  local e = rules.effects('radiator', cond, settings)
+  if not e then return end
+  local th = engine() and engine().thermals
+  if not (th and th.setPartConditionRadiator) then say('radiator: no thermals on this car') return end
+  radiatorTarget = e.integrity
+  th.setPartConditionRadiator(0, e.integrity, 1)
+  remember('radiator', 'all', cond)
+  say(string.format('radiator condition %.2f: the game radiator integrity %.2f', cond, e.integrity))
+end
+
 function M.reapply(a)
+  if a.kind == 'gearbox' then return M.gearbox(a.c) elseif a.kind == 'diff' then return M.diff(a.corner, a.c) elseif a.kind == 'cv' then return M.cv(a.corner, a.c)
+  elseif a.kind == 'turbo' then return M.turbo(a.c) elseif a.kind == 'radiator' then return M.radiator(a.c) elseif a.kind == 'ignition' then return M.ignition(a.c) elseif a.kind == 'oil' then return M.oil(a.c) end
   if a.kind == 'pads' then M.pads(a.corner, a.c) elseif a.kind == 'engine' then M.engine(a.c) elseif a.kind == 'rotor' then M.rotor(a.corner, a.c) elseif a.kind == 'clutch' then M.clutch(a.c) else want(a.kind, a.corner, a.c) end
 end
 
@@ -207,6 +296,12 @@ function M.clear()
     if w then w.brakeTorque, w.padGlazingFactor, w.squealCoefLowSpeed, w.frictionTorque = br.base[1], br.base[2], br.base[3], br.base[4] end
   end
   brakes, applied, engineTarget, clutchTarget, rotorCond, moving = {}, {}, nil, nil, {}, false
+  for d, fields in pairs(fieldBase) do for f, x in pairs(fields) do d[f] = x end end
+  fieldBase, gearboxTarget, diffTarget, cvTarget, ignitionTarget, oilTarget = {}, nil, {}, {}, nil, nil
+  local eng0 = engine()
+  if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
+  if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end
+  turboBase, turboTarget, radiatorTarget = nil, nil, nil
   local cl = powertrain.getDevice('clutch')
   if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = 1, 1 end
   local eng = powertrain.getDevice('mainEngine')
@@ -259,7 +354,7 @@ function M.updateGFX(dt)
     pending = pending - 1
     if pending == 0 then
       for _, r in pairs(beams) do r.curv = nil end   -- back at the jbeam values after the reset: start the steps from there
-      for _, a in ipairs(applied) do M.reapply(a) end
+      for _, a in ipairs(copyOf(applied)) do M.reapply(a) end      -- (a copy: each reapply goes through remember(), which replaces its entry in the list)
       say('reapplied after a reset: ' .. #applied .. ' effects')
     end
   end
@@ -268,12 +363,32 @@ function M.updateGFX(dt)
     local cl = powertrain.getDevice('clutch')
     if cl and cl.wearLockTorqueCoef then cl.wearLockTorqueCoef, cl.wearClutchFreePlayCoef = clutchTarget.lock, clutchTarget.freePlay end
   end
-  if engineTarget then
+  if engineTarget or ignitionTarget or oilTarget then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
-      eng.outputTorqueState = math.min(eng.outputTorqueState or 1, engineTarget.cap)
-      eng.wearDynamicFrictionCoef = engineTarget.dyn
-      eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, engineTarget.misfire)
+      if engineTarget then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, engineTarget.cap) end
+      if engineTarget or oilTarget then eng.wearDynamicFrictionCoef = (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1) end
+      local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
+      if mis > 0 then eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, mis) end
+    end
+  end
+  if gearboxTarget then
+    for _, d in ipairs(devices(GEARBOXES)) do
+      setField(d, 'wearFrictionCoef', gearboxTarget.friction)
+      setField(d, 'wearGearRatioChangeRateCoef', gearboxTarget.shiftRate)      -- automatic and CVT only: the field is nil on the others
+      if d.type == 'dctGearbox' then setField(d, 'wearLockTorqueCoef', gearboxTarget.lockTorque) end
+    end
+  end
+  if next(diffTarget) then
+    for _, d in ipairs(devices({differential = true})) do
+      local a = axleOfDevice(d)
+      setField(d, 'wearFrictionCoef', (a and diffTarget[a]) or diffTarget.all or 1)
+    end
+  end
+  if next(cvTarget) then
+    for _, d in ipairs(devices({shaft = true})) do
+      local a = axleOfDevice(d)
+      setField(d, 'wearFrictionCoef', a and (cvTarget[a] or cvTarget.all or 1) or cvTarget.all or math.max(cvTarget.F or 1, cvTarget.R or 1))      -- a single driveshaft: the worse of the two axles' shafts
     end
   end
 end

@@ -76,6 +76,22 @@
 ]
 ]
 ],
+"bolide_differential_R": [
+[
+"diff",
+[
+"R"
+]
+]
+],
+"bolide_differential_RR": [
+[
+"diff",
+[
+"R"
+]
+]
+],
 "bolide_engine": [
 [
 "engine",
@@ -113,11 +129,29 @@
 ],
 "bolide_enginemounts": [],
 "bolide_enginemounts_v6": [],
+"bolide_exhaust_turbo": [],
 "bolide_flywheel": [
 [
 "clutch",
 [
 "all"
+]
+]
+],
+"bolide_halfshafts_M": [
+[
+"cv",
+[
+"F",
+"R"
+]
+]
+],
+"bolide_halfshafts_R_race": [
+[
+"cv",
+[
+"R"
 ]
 ]
 ],
@@ -171,9 +205,25 @@
 ]
 ]
 ],
+"bolide_v6_differential_M": [
+[
+"diff",
+[
+"all"
+]
+]
+],
 "bolide_v6_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+]
+],
+"bolide_v6_transmission": [
+[
+"gearbox",
 [
 "all"
 ]
@@ -364,6 +414,31 @@
 ]
 ]
 ],
+"covet_differential_F": [
+[
+"diff",
+[
+"F"
+]
+]
+],
+"covet_differential_R": [
+[
+"diff",
+[
+"R"
+]
+]
+],
+"covet_driveshaft_3wheel": [
+[
+"cv",
+[
+"F",
+"R"
+]
+]
+],
 "covet_engcover_midengine": [],
 "covet_engine": [
 [
@@ -411,6 +486,22 @@
 ]
 ],
 "covet_fueltank_midengine": [],
+"covet_halfshaft_F": [
+[
+"cv",
+[
+"F"
+]
+]
+],
+"covet_halfshafts_R": [
+[
+"cv",
+[
+"R"
+]
+]
+],
 "covet_handbrake_padding": [],
 "covet_handbrake_race": [],
 "covet_hub_R_midengine": [],
@@ -419,17 +510,43 @@
 "covet_licenseplate_R_midengine": [],
 "covet_lip_F_midengine_rally": [],
 "covet_oilcooler_midengine": [],
+"covet_oilpan": [],
 "covet_oilpan_midengine": [],
 "covet_pedalbox_clutch": [],
 "covet_pedalbox_pad_clutch": [],
-"covet_radiator_midengine": [],
+"covet_radiator": [
+[
+"radiator",
+[
+"all"
+]
+]
+],
+"covet_radiator_midengine": [
+[
+"radiator",
+[
+"all"
+]
+]
+],
 "covet_rollcage_midengine": [],
 "covet_spoiler_midengine": [],
 "covet_strut_bar_F": [],
 "covet_strut_bar_R": [],
 "covet_swaybar_R_midengine": [],
 "covet_towhitch_midengine": [],
+"covet_transmission": [
+[
+"gearbox",
+[
+"all"
+]
+]
+],
 "covet_trim_midengine": [],
+"covet_turbo_airbox": [],
+"covet_turbo_downpipe": [],
 "covet_wheeldata_R_midengine": [],
 "etk800_brake_F": [
 [
@@ -446,6 +563,30 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"etk800_differential_R": [
+[
+"diff",
+[
+"R"
+]
+]
+],
+"etk800_driveshaft_F": [
+[
+"cv",
+[
+"F"
+]
+]
+],
+"etk800_halfshafts_F": [
+[
+"cv",
+[
+"F"
 ]
 ]
 ],
@@ -587,6 +728,30 @@
 ]
 ]
 ],
+"pickup_desert_differential_IFS": [
+[
+"diff",
+[
+"F"
+]
+]
+],
+"pickup_desert_driveshaft_R_crew": [
+[
+"cv",
+[
+"R"
+]
+]
+],
+"pickup_desert_driveshaft_SFA": [
+[
+"cv",
+[
+"F"
+]
+]
+],
 "pickup_desert_shock_IFS": [
 [
 "damper",
@@ -631,6 +796,14 @@
 ]
 ]
 ],
+"pickup_radiator": [
+[
+"radiator",
+[
+"all"
+]
+]
+],
 "sunburst2_brake_F": [
 [
 "rotor",
@@ -664,6 +837,22 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"sunburst2_differential_R_carrier": [
+[
+"diff",
+[
+"R"
+]
+]
+],
+"sunburst2_differential_R_rally": [
+[
+"diff",
+[
+"R"
 ]
 ]
 ],
@@ -706,6 +895,7 @@
 ]
 ],
 "sunburst2_enginemounts": [],
+"sunburst2_exhaust_turbo_race": [],
 "sunburst2_flywheel": [
 [
 "clutch",
@@ -851,6 +1041,31 @@
 ]
 ]
 ],
+"vivace_differential_F_electric": [
+[
+"diff",
+[
+"F"
+]
+]
+],
+"vivace_differential_R": [
+[
+"diff",
+[
+"R"
+]
+]
+],
+"vivace_driveshaft": [
+[
+"cv",
+[
+"F",
+"R"
+]
+]
+],
 "vivace_engine": [
 [
 "engine",
@@ -922,10 +1137,26 @@
 ]
 ]
 ],
+"vivace_halfshaft_R_electric": [
+[
+"cv",
+[
+"R"
+]
+]
+],
 "vivace_handbrake_padding": [],
 "vivace_handbrake_race": [],
 "vivace_pedalbox_clutch": [],
 "vivace_pedalbox_pad_clutch": [],
+"vivace_radiator": [
+[
+"radiator",
+[
+"all"
+]
+]
+],
 "vivace_rally_coilover_F": [
 [
 "damper",
@@ -1026,5 +1257,21 @@
 ]
 ]
 ],
-"vivace_strut_bar": []
+"vivace_strut_bar": [],
+"vivace_transmission": [
+[
+"gearbox",
+[
+"all"
+]
+]
+],
+"vivace_turbo_i4_1.5_diesel": [
+[
+"turbo",
+[
+"all"
+]
+]
+]
 }

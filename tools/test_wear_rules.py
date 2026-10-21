@@ -16,9 +16,10 @@ T = lambda d: {k: v for k, v in d.items()}  # noqa: E731
 # (kind, state, "goodness" key: a field that only gets worse as c falls: factors down, amounts up)
 DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["k"], "bushing": ["k", "d"], "balljoint": ["strength"], "steering": ["k", "powerCoef"],
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
-        "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"]}
+        "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"],
+        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"]}
 UP = {"spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
-      "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
+      "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "cv": ["friction"], "turbo": ["friction"], "oil": ["dynFriction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
 
 
@@ -133,6 +134,19 @@ def main():
     assert W.failureStep("damper", 0.1, 1, light, lambda: 0.0) is None, "Light has no breakdowns"
     assert W.failureStep("diff", 0.01, 1, real, lambda: 0.0) is None, "a kind with no failure never fails"
     assert all(0 < W.FAILURE[k]["level"] < 0.15 for k in W.FAILURE.keys()), "a failed part is below the roll threshold"
+    # the powertrain kinds: rows, price and name, failures, events; the misfire is the ignition's and not the engine's
+    for k in ("gearbox", "diff", "cv", "turbo", "radiator", "ignition", "oil"):
+        assert W.KINDS[k] is not None and W.PRICE[k] > 0 and W.NAME[k], ("a powertrain kind has a row, a price and a name", k)
+    assert W.KINDS["turbo"].group == "engine" and W.KINDS["oil"].group == "engine" and W.KINDS["oil"].life == 15000
+    assert eff("engine", 0.0, real)["misfire"] == 0 and eff("ignition", 0.0, real)["misfire"] > 0, "the engine's misfire moved to the ignition"
+    assert eff("gearbox", 0.0, real)["friction"] <= 2.0001 and eff("cv", 0.0, real)["friction"] <= 1.5001, "gearbox and shaft friction stay inside the game's own wear range"
+    assert eff("turbo", 0.0, real)["power"] >= 0.6 and eff("turbo", 0.0, real)["friction"] <= 4.0001 and eff("radiator", 0.0, real)["integrity"] >= 0.5
+    assert eff("oil", 0.0, real)["dynFriction"] <= 1.1501 and eff("oil", 1.0, real)["dynFriction"] == 1
+    for k in ("gearbox", "cv", "turbo", "radiator", "ignition"):
+        assert W.failureStep(k, 0.12, 1, real, lambda: 0.0) is not None and W.failureStep(k, 0.12, 1, real, lambda: 0.0)[0] == W.FAILURE[k]["level"], ("a failure", k)
+    assert dict(W.eventsFor("oil", "all", ev)) == {"overheat_s": 5, "limiter_s": 6} and dict(W.eventsFor("turbo", "all", ev)) == {"overheat_s": 5, "limiter_s": 6}
+    assert W.wearStep("oil", 1.0, inp(km=300), s) < W.wearStep("gearbox", 1.0, inp(km=300), s), "oil wears much faster than a gearbox"
+    assert W.wearStep("radiator", 1.0, inp(km=1000), s) == 1.0 and W.wearStep("radiator", 1.0, inp(days=365), s) < 1, "a radiator ages by days"
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99
@@ -156,6 +170,10 @@ def main():
     assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
     assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
     assert sw("covet_flywheel") == [("clutch", "all")]
+    assert sw("covet_transmission") == [("gearbox", "all")] and sw("covet_differential_F") == [("diff", "F")] and sw("bolide_v6_differential_M") == [("diff", "all")]
+    assert sw("covet_halfshafts_R") == [("cv", "R")] and sw("vivace_driveshaft") == [("cv", "F,R")] and sw("covet_radiator") == [("radiator", "all")] and sw("vivace_turbo_i4_1.5_diesel") == [("turbo", "all")]
+    for none in ("covet_turbo_airbox", "covet_turbo_downpipe", "sunburst2_exhaust_turbo_race", "covet_oilpan", "covet_camshaft_race"):
+        assert sw(none) == [], ("holds no wear item", none)
     for none in ("covet_hood", "etk800_strutbrace_F", "covet_strut_bar_F", "vivace_handbrake_race", "covet_pedalbox_clutch", "covet_enginemounts", "sunburst2_engine_1_6_intake", "covet_engine_ecu", "covet_taillight_L_tail_brake_bulb", "covet_boxutility_springs", ""):
         assert sw(none) == [], ("holds no wear item", none)
     # the slot names of the stock cars (covet, vivace, pickup, etk800, sunburst2, bolide) with the kinds and corners each holds: the table does not regress without the game's files

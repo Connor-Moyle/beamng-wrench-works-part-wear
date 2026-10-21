@@ -16,7 +16,7 @@ M.KINDS = {
   bearing = {life = 200000, group = 'suspension'},
   padF = {life = 40000, group = 'brakes'}, padR = {life = 80000, group = 'brakes'}, rotor = {life = 80000, group = 'brakes'},
   caliper = {life = 150000, group = 'brakes'}, fluid = {days = 1095, group = 'brakes'},
-  engine = {life = 350000, group = 'engine'}, filter = {life = 25000, group = 'engine'}, ignition = {life = 60000, group = 'engine'},
+  engine = {life = 350000, group = 'engine'}, turbo = {life = 150000, group = 'engine'}, oil = {life = 15000, group = 'engine'}, filter = {life = 25000, group = 'engine'}, ignition = {life = 60000, group = 'engine'},
   exhaust = {days = 2920, group = 'engine'}, cat = {life = 200000, group = 'engine'}, radiator = {days = 3650, group = 'engine'},
   mounts = {life = 150000, group = 'drive'}, clutch = {life = 150000, group = 'drive'}, gearbox = {life = 250000, group = 'drive'},
   cv = {life = 200000, group = 'drive'}, diff = {life = 300000, group = 'drive'},
@@ -26,6 +26,7 @@ M.KINDS = {
 
 -- extra kilometres of wear one event costs, per kind (Street Legal's abuse counters feed these)
 M.ABUSE_KM = {
+  oil = {overheat_s = 2, limiter_s = 0.5}, turbo = {overheat_s = 1, limiter_s = 0.5},
   engine = {limiter_s = 1.5, overheat_s = 3, coldrev_s = 1},
   clutch = {launch = 3, slip_s = 0.5},
   damper = {landing = 4, kerb = 0.5},
@@ -60,9 +61,10 @@ end
 
 -- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
 -- fully worn. mult is the garage's price multiplier.
-M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900}
+M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60}
 M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
-          clutch = 'clutch', paint = 'paint'}
+          clutch = 'clutch', paint = 'paint', gearbox = 'gearbox', diff = 'differential', cv = 'driveshafts', turbo = 'turbocharger', radiator = 'radiator',
+          ignition = 'ignition', oil = 'engine oil'}
 function M.repairPrice(kind, c, mult)
   local base = M.PRICE[kind]
   if not base then return nil end
@@ -124,7 +126,8 @@ function M.eventsFor(kind, corner, ev)
   if kind == 'padF' then return {hardstop = ev.hardstop, hot_s = ev.hotF_s} end
   if kind == 'padR' then return {hardstop = ev.hardstop, hot_s = ev.hotR_s} end
   if kind == 'rotor' then return {hardstop = ev.hardstop, hot_s = (tostring(corner):sub(1, 1) == 'R') and ev.hotR_s or ev.hotF_s} end
-  if kind == 'engine' then return {overheat_s = ev.overheat_s, limiter_s = ev.limiter_s} end
+  if kind == 'engine' or kind == 'oil' then return {overheat_s = ev.overheat_s, limiter_s = ev.limiter_s} end
+  if kind == 'turbo' then return {overheat_s = ev.overheat_s, limiter_s = ev.limiter_s} end
   if kind == 'damper' or kind == 'spring' then return {landing = ev.landing} end
   return {}
 end
@@ -141,6 +144,9 @@ M.FAILURE = {
   padR = {level = 0.06, text = 'The rear brakes have gone soft'},
   clutch = {level = 0.08, text = 'The clutch is slipping'},
   engine = {level = 0.12, text = 'The engine is running rough'},
+  gearbox = {level = 0.10, text = 'The gearbox is grinding'}, cv = {level = 0.10, text = 'A driveshaft joint is knocking'},
+  turbo = {level = 0.10, text = 'The turbo has lost boost'}, radiator = {level = 0.10, text = 'The radiator is not cooling well'},
+  ignition = {level = 0.10, text = 'The engine is misfiring'},
 }
 -- a failure roll for one part over dtHours: the new condition and the text, or nil. Only a part still above its failure level can fail (a failed part stays failed until repaired).
 function M.failureStep(kind, c, dtHours, s, rand)
@@ -211,7 +217,7 @@ end
 
 function E.engine(c, s)
   local w = eff(c, s)
-  return {cap = clamp(1 - s.enginePowerLoss * w, 0.7, 1), dynFriction = 1 + 0.5 * w, misfire = clamp(0.15 * math.max(0, w - 0.5), 0, 0.4)}
+  return {cap = clamp(1 - s.enginePowerLoss * w, 0.7, 1), dynFriction = 1 + 0.5 * w, misfire = 0}      -- (the misfire is the ignition's now: kind 'ignition'; the field stays so old callers read 0)
 end
 function E.filter(c, s) return {cap = clamp(1 - 0.04 * eff(c, s), 0.96, 1)} end
 function E.ignition(c, s) return {misfire = clamp(0.2 * math.max(0, eff(c, s) - 0.6), 0, 0.4)} end
@@ -219,8 +225,15 @@ function E.exhaust(c, s) local w = eff(c, s) return {mufflingOffset = -0.3 * w, 
 function E.cat(c, s) return {cap = clamp(1 - 0.3 * math.max(0, eff(c, s) - 0.5), 0.85, 1)} end
 function E.mounts(c, s) local w = eff(c, s) return {k = clamp(1 - 0.5 * w, 0.5, 1), d = clamp(1 - 0.3 * w, 0.7, 1)} end
 function E.clutch(c, s) local w = eff(c, s) return {lockTorque = clamp(1 - 0.55 * w, 0.45, 1), freePlay = 1 + 6 * w} end
-function E.gearbox(c, s) return {friction = 1 + eff(c, s)} end
+-- the powertrain parts write the game's own wear fields of their device (the game's range at a million km: gearbox friction x2, shift rate x0.2, DCT lock x0.7, shaft friction x1.5, turbo power x0.2,
+-- friction x20; ours stay well inside it; MODELLED, none is proven in the game)
+function E.gearbox(c, s) local w = eff(c, s) return {friction = 1 + w, shiftRate = clamp(1 - 0.5 * w, 0.5, 1), lockTorque = clamp(1 - 0.3 * w, 0.7, 1)} end   -- shiftRate: automatic and CVT; lockTorque: DCT
 function E.diff(c, s) return {friction = 1 + eff(c, s)} end
+function E.cv(c, s) return {friction = 1 + 0.5 * eff(c, s)} end
+function E.turbo(c, s) local w = eff(c, s) return {power = clamp(1 - 0.4 * w, 0.6, 1), friction = 1 + 3 * w} end
+-- `integrity` is the game's own 0..1 scale for the radiator (1 new): at 0 it gives the game's radiator damage 0.1 and the coolant mass down to 10 %; half of that is the worst here
+function E.radiator(c, s) return {integrity = clamp(1 - 0.5 * eff(c, s), 0.5, 1)} end
+function E.oil(c, s) return {dynFriction = 1 + 0.15 * eff(c, s)} end
 -- the paint wear look: four layers 0..1 for the paint canvas of Car Surface FX (carSurfaceFx.setPaintWear); they follow the visualWear setting, not effectStrength.
 -- fade grows with wear, grime with it more slowly, scuffs a little later, rust only from 40 % worn (MODELLED shapes: no source gives these curves)
 function E.paint(c, s)
@@ -268,7 +281,7 @@ end
 -- "covet_coilover_F" the front shock absorbers and springs together, "brakepad_F" the front pads, "etk800_brake_F" the front discs, "*_engine" and "*_engine_internals*" the engine,
 -- "*_flywheel" the clutch (the clutch kit is sold and fitted with the flywheel: MODELLED). Returns a list of { kind =, corners = { ... } }, empty for a slot that holds no wear item.
 local NOT_WEAR = { strutbrace = true, strutbar = true, bar = true, towerbar = true, cover = true, covers = true, bulb = true, handbrake = true, pedalbox = true, mount = true, mounts = true,
-                   ecu = true, intake = true, bay = true, light = true, lights = true }      -- whole words of the slot name (split at '_'): a slot like "..._flywheel_lightweight" is not dropped
+                   ecu = true, intake = true, bay = true, light = true, lights = true, airbox = true, downpipe = true }      -- whole words of the slot name (split at '_'): a slot like "..._flywheel_lightweight" is not dropped
 local AXLE = { F = 'F', IFS = 'F', SFA = 'F', R = 'R', RR = 'R', RL = 'R', RRL = 'R', RRR = 'R' }     -- the slot name's axle word
 function M.slotWear(slot)
   slot = tostring(slot or '')
@@ -296,6 +309,18 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'engine', corners = { 'all' } }
   elseif low:find('_flywheel') then
     out[#out + 1] = { kind = 'clutch', corners = { 'all' } }
+  elseif low:find('transmission', 1, true) then
+    out[#out + 1] = { kind = 'gearbox', corners = { 'all' } }
+  elseif low:find('_differential', 1, true) then
+    local a = axle('differential')
+    out[#out + 1] = { kind = 'diff', corners = { a or 'all' } }                      -- (a mid-engine or single diff, no axle letter: the one for the car)
+  elseif low:find('driveshaft', 1, true) or low:find('halfshaft', 1, true) then       -- driveshafts and halfshafts, "..._halfshafts_R", "vivace_driveshaft"
+    local a = axle(low:find('halfshaft', 1, true) and 'halfshafts?' or 'driveshaft')
+    out[#out + 1] = { kind = 'cv', corners = a and { a } or { 'F', 'R' } }
+  elseif low:find('_radiator', 1, true) then
+    out[#out + 1] = { kind = 'radiator', corners = { 'all' } }
+  elseif low:find('_turbo_', 1, true) and not low:find('exhaust', 1, true) then       -- the turbo unit ("vivace_turbo_i4_1.5_diesel"); airbox and downpipe are pipes, "exhaust_turbo" is an exhaust
+    out[#out + 1] = { kind = 'turbo', corners = { 'all' } }
   end
   return out
 end

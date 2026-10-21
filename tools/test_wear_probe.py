@@ -46,7 +46,18 @@ def main():
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
       dev = {name = 'mainEngine', outputTorqueState = 1}
       clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
-      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or (n == 'clutch' and clutchDev or nil) end}
+      -- the powertrain parts: a gearbox (the game gave it a wear coefficient from its odometer: 1.3), an automatic, two differentials, two shaft kinds, a turbo and a radiator on the engine
+      gbox = {type = 'manualGearbox', name = 'gearbox', wearFrictionCoef = 1.3}
+      auto = {type = 'automaticGearbox', name = 'gearbox2', wearFrictionCoef = 1, wearGearRatioChangeRateCoef = 1}
+      diffF, diffR = {type = 'differential', name = 'differential_F', wearFrictionCoef = 1}, {type = 'differential', name = 'differential_R', wearFrictionCoef = 1}
+      shaftF, shaftR, shaftC = {type = 'shaft', name = 'halfshaft_FL', wearFrictionCoef = 1}, {type = 'shaft', name = 'halfshaft_RL', wearFrictionCoef = 1}, {type = 'shaft', name = 'driveshaft', wearFrictionCoef = 1}
+      turboState = {damageFrictionCoef = 1.5, damageExhaustPowerCoef = 0.9}
+      turboCalls, radCalls = {}, {}
+      dev.turbocharger = {isExisting = true, getPartCondition = function() return 1, {damageFrictionCoef = turboState.damageFrictionCoef, damageExhaustPowerCoef = turboState.damageExhaustPowerCoef} end,
+                          setPartCondition = function(odo, st, vis) turboCalls[#turboCalls + 1] = {odo, st.damageFrictionCoef, st.damageExhaustPowerCoef, vis} end}
+      dev.thermals = {setPartConditionRadiator = function(odo, integrity, vis) radCalls[#radCalls + 1] = {odo, integrity, vis} end}
+      powertrain = {getDevice = function(n) return n == 'mainEngine' and dev or (n == 'clutch' and clutchDev or nil) end,
+                    getOrderedDevices = function() return {gbox, auto, diffF, diffR, shaftF, shaftR, shaftC, dev, clutchDev} end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
     """.replace("@ROOT@", ROOT.replace("\\", "/")))
     P = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearProbe.lua"), encoding="utf8").read())
@@ -122,6 +133,37 @@ def main():
     lua.execute("wheels.wheels[1].brakeSurfaceTemperature = 500")
     for _ in range(60): P.updateGFX(1 / 60)
     assert lua.eval("wheels.wheels[1].brakeTorque") < cold, "worn pad and rotor fade more when hot"
+    # the powertrain parts: the game's own wear fields of the devices, by type and axle, put back by clear(); the fuel tank and the number form of setPartCondition are never touched
+    P.gearbox(0.0)
+    P.diff("R", 0.0)
+    P.cv("F", 0.0)
+    P.turbo(0.0)
+    P.radiator(0.0)
+    P.ignition(0.0)
+    P.oil(0.0)
+    P.engine(0.2, 0.5)
+    P.updateGFX(1 / 60)
+    assert lua.eval("gbox.wearFrictionCoef") == 2 and lua.eval("auto.wearFrictionCoef") == 2 and abs(lua.eval("auto.wearGearRatioChangeRateCoef") - 0.5) < 1e-9, "every gearbox: friction, and the shift rate on the automatic"
+    assert lua.eval("gbox.wearGearRatioChangeRateCoef") is None, "a manual box has no shift rate field: none is made"
+    assert lua.eval("diffR.wearFrictionCoef") == 2 and lua.eval("diffF.wearFrictionCoef") == 1, "only the rear differential"
+    assert abs(lua.eval("shaftF.wearFrictionCoef") - 1.5) < 1e-9 and lua.eval("shaftR.wearFrictionCoef") == 1 and abs(lua.eval("shaftC.wearFrictionCoef") - 1.5) < 1e-9, "front shafts; a single driveshaft takes the worse axle; rear shafts untouched"
+    last = lua.eval("turboCalls[#turboCalls]")
+    assert last[1] == 0 and abs(last[2] - 4) < 1e-9 and abs(last[3] - 0.6) < 1e-9 and last[4] == 1, "the turbo through its own call with a table, never a number"
+    assert lua.eval("radCalls[#radCalls][1]") == 0 and abs(lua.eval("radCalls[#radCalls][2]") - 0.5) < 1e-9, "the radiator integrity through the module's call"
+    assert lua.eval("dev.slowIgnitionErrorChance") > 0.07, "the ignition misfire"
+    assert abs(lua.eval("dev.wearDynamicFrictionCoef") - 1.4 * 1.15) < 1e-9, "engine and oil friction multiply"
+    lua.execute("turboCalls, radCalls = {}, {}")
+    P.onReset()
+    for _ in range(4): P.updateGFX(1 / 60)
+    assert lua.eval("#turboCalls") >= 1 and lua.eval("#radCalls") >= 1 and lua.eval("diffR.wearFrictionCoef") == 2, "reapplied after a reset"
+    P.clear()
+    assert lua.eval("gbox.wearFrictionCoef") == 1.3 and lua.eval("auto.wearGearRatioChangeRateCoef") == 1 and lua.eval("diffR.wearFrictionCoef") == 1 and lua.eval("shaftC.wearFrictionCoef") == 1, "the game's own values are back, not 1"
+    back2 = lua.eval("turboCalls[#turboCalls]")
+    assert abs(back2[2] - 1.5) < 1e-9 and abs(back2[3] - 0.9) < 1e-9, "the turbo's own damage state is back"
+    assert lua.eval("radCalls[#radCalls][2]") == 1, "the radiator is new again"
+    assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1
+    P.clutch(0.0)
+    P.updateGFX(1 / 60)
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()
