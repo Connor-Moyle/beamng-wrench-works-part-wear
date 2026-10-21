@@ -26,6 +26,7 @@ local turboTarget, radiatorTarget, ignitionTarget, oilTarget       -- {power, fr
 local bars, barsScanned = {}, false     -- the anti-roll bars: torsionbars tagged arb / swaybar: {cid, axle, spring, damp, cur, target}
 local bearingTarget, bearingBase, wheelCorner = {}, {}, {}      -- corner -> drag (Nm); wheel index -> the frictionTorque it had; wheel index -> corner
 local fluidShift, masterTarget = {}, nil                       -- axle -> shift of the fade onset (C, negative); the pedal's torque factor
+local capBase, capWritten     -- the engine's outputTorqueState as the game (or Street Legal) had it, and the value we wrote: a change of it by someone else is the new base
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
 local rotorCond = {}   -- corner or axle -> rotor condition (it lowers the fade onset with the pads)
@@ -247,6 +248,17 @@ local function axleOfDevice(d)
   local a = tostring(d.name or ''):match('[_%l](%u)%u?$')
   return (a == 'F' or a == 'R') and a or nil
 end
+-- the engine's power cap is written as min(the game's own state, our cap) every frame and the game's own state is written back when no cap is wanted any more (a repair) or at clear()
+local function writeCap(eng, cap)
+  local cur = eng.outputTorqueState or 1
+  if capWritten == nil or cur ~= capWritten then capBase = cur end
+  capWritten = math.min(capBase, cap)
+  eng.outputTorqueState = capWritten
+end
+local function releaseCap(eng)
+  if capWritten ~= nil and eng.outputTorqueState == capWritten then eng.outputTorqueState = capBase end
+  capBase, capWritten = nil, nil
+end
 local function setField(d, field, value)
   if d[field] == nil then return end
   fieldBase[d] = fieldBase[d] or {}
@@ -404,7 +416,7 @@ function M.clear()
   if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end
   turboBase, turboTarget, radiatorTarget = nil, nil, nil
   local eng = powertrain.getDevice('mainEngine')
-  if eng then eng.outputTorqueState, eng.wearDynamicFrictionCoef, eng.slowIgnitionErrorChance, eng.fastIgnitionErrorChance = 1, 1, 0, 0 end
+  if eng then releaseCap(eng) end      -- (the dynamic friction and the misfire chance went back with fieldBase)
   say('cleared: every jbeam value back')
 end
 
@@ -483,13 +495,13 @@ function M.updateGFX(dt)
       setField(d, 'wearLockupClutchTorqueCoef', clutchTarget.lock)      -- (setField keeps the game's own value for clear(): its mileage wear is not lost)
     end
   end
-  if engineTarget or ignitionTarget or oilTarget then
+  if engineTarget or ignitionTarget or oilTarget or capWritten ~= nil then
     local eng = powertrain.getDevice('mainEngine')
     if eng then
-      if engineTarget then eng.outputTorqueState = math.min(eng.outputTorqueState or 1, engineTarget.cap) end
-      if engineTarget or oilTarget then eng.wearDynamicFrictionCoef = (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1) end
+      if engineTarget then writeCap(eng, engineTarget.cap) elseif capWritten ~= nil then releaseCap(eng) end
+      if engineTarget or oilTarget then setField(eng, 'wearDynamicFrictionCoef', (engineTarget and engineTarget.dyn or 1) * (oilTarget and oilTarget.dyn or 1)) end
       local mis = math.max(engineTarget and engineTarget.misfire or 0, ignitionTarget and ignitionTarget.misfire or 0)
-      if mis > 0 then eng.slowIgnitionErrorChance = math.max(eng.slowIgnitionErrorChance or 0, mis) end
+      if mis > 0 then setField(eng, 'slowIgnitionErrorChance', math.max(fieldBase[eng] and fieldBase[eng].slowIgnitionErrorChance or eng.slowIgnitionErrorChance or 0, mis)) end
     end
   end
   if gearboxTarget then

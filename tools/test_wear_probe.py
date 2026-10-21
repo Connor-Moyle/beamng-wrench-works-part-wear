@@ -53,7 +53,7 @@ def main():
              setBoundedBeamDamp = function(_, c, ...) calls[#calls + 1] = {'damp', c, ...} end,
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
-      dev = {name = 'mainEngine', outputTorqueState = 1}
+      dev = {name = 'mainEngine', outputTorqueState = 1, wearDynamicFrictionCoef = 1.2, slowIgnitionErrorChance = 0}      -- (the game's own mileage wear of the engine: 1.2)
       clutchDev = {wearLockTorqueCoef = 1, wearClutchFreePlayCoef = 1}
       -- the powertrain parts: a gearbox (the game gave it a wear coefficient from its odometer: 1.3), an automatic, two differentials, two shaft kinds, a turbo and a radiator on the engine
       gbox = {type = 'manualGearbox', name = 'gearbox', wearFrictionCoef = 1.3}
@@ -143,7 +143,19 @@ def main():
     assert lua.eval("wheels.wheels[1].brakeTorque") < 1000 * 0.7 and lua.eval("wheels.wheels[3].brakeTorque") == 1000, "front pads only"
     P.engine(0.2, 0.5)
     P.updateGFX(1 / 60)
-    assert 0.8 < lua.eval("dev.outputTorqueState") < 1 and lua.eval("dev.wearDynamicFrictionCoef") > 1
+    assert 0.8 < lua.eval("dev.outputTorqueState") < 1 and lua.eval("dev.wearDynamicFrictionCoef") > 1.2
+    P.engine(1.0, 1.0)      # a repair: the power comes back (it stayed at the worn value before), and engine damage by someone else stays
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") == 1, "a repaired engine has its power back"
+    P.engine(0.2, 0.5)
+    lua.execute("dev.outputTorqueState = 0.5")      # the game's own damage lowers the state: that is the new base
+    P.updateGFX(1 / 60)
+    P.engine(1.0, 1.0)
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.outputTorqueState") == 0.5, "engine damage stays after a repair"
+    lua.execute("dev.outputTorqueState = 1")
+    P.engine(0.2, 0.5)
+    P.updateGFX(1 / 60)
     # settings table, clutch, rotor and the extra fade of a worn pad when the brake is hot
     P.setSettings(lua.eval("require('slrrWearRules').settings('Realistic')"))
     P.clutch(0.0)
@@ -187,7 +199,7 @@ def main():
     back2 = lua.eval("turboCalls[#turboCalls]")
     assert abs(back2[2] - 1.5) < 1e-9 and abs(back2[3] - 0.9) < 1e-9, "the turbo's own damage state is back"
     assert lua.eval("radCalls[#radCalls][2]") == 1, "the radiator is new again"
-    assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1
+    assert lua.eval("dev.slowIgnitionErrorChance") == 0 and lua.eval("dev.wearDynamicFrictionCoef") == 1.2
     P.clutch(0.0)
     P.updateGFX(1 / 60)
     # the chassis: arms and links (rate only, length stays), anti-roll bars (torsionbars), wheel bearings (drag next to the pads'), brake fluid and master cylinder (through the pads' torque)
@@ -226,7 +238,7 @@ def main():
     lua.execute("calls = {}")
     P.clear()
     assert lua.eval("clutchDev.wearLockTorqueCoef") == 1 and lua.eval("dctDev.wearLockTorqueCoef") == 1 and lua.eval("tcDev.wearLockupClutchTorqueCoef") == 0.8
-    assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1
+    assert lua.eval("wheels.wheels[1].brakeTorque") == 1000 and lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.wearDynamicFrictionCoef") == 1.2, "clear gives the game its own engine values back"
     back = [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))]
     assert any(c[1] == "damp" and abs(c[4] - 5000) < 1e-9 for c in back), "the damper is back at its jbeam value"
     print("wear probe ok: found %d springs and %d dampers, steps within 10 %%, nothing above jbeam, reapplied after a reset, cleared" % (springs, dampers))
