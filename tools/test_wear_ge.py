@@ -93,6 +93,7 @@ def main():
     sent = " ".join(cmds(lua))
     for want in ('("damper", "FL", 1)', '("damper", "FR", 1)', '("spring", "FL", 1)', '("spring", "FR", 1)'):
         assert want in sent, ("the swapped front coilovers are new", want, sent)
+    assert any("slots changed: covet_coilover_F" in m for m in lua.eval("logs").values()) and any("parts remembered: 4 slots" in m for m in lua.eval("logs").values()), "the log says what the snapshot saw and which slots the swap changed"
     for no in ('"RL"', '"RR"', 'padF'):
         assert no not in sent, ("the rest of the car keeps its wear", no, sent)
     # the old car reports its old wear once more before it is replaced: the swapped corners stay new in the record, the rest keeps its wear

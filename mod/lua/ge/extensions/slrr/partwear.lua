@@ -203,9 +203,10 @@ local function currentTree()
 end
 -- A new part in a slot is new: only the wear kinds and corners that slot holds (rules.slotWear) go back to 1.0, the rest of the car keeps its wear.
 local function swapped(id, old, new)
-  local n = 0
+  local n, changed = 0, {}
   for slot, part in pairs(new) do
     if old[slot] ~= nil and old[slot] ~= part then
+      if #changed < 6 then changed[#changed + 1] = slot end
       for _, w in ipairs(rules.slotWear(slot)) do
         for _, corner in ipairs(w.corners) do
           M.repair(id, w.kind, corner)
@@ -216,13 +217,20 @@ local function swapped(id, old, new)
       end
     end
   end
-  if n > 0 then say('car ' .. tostring(id) .. ': ' .. n .. ' worn part(s) are new after the parts swap') end
+  if n > 0 then say('car ' .. tostring(id) .. ': ' .. n .. ' worn part(s) are new after the parts swap (slots changed: ' .. table.concat(changed, ', ') .. ')') end
 end
 -- the parts the player's car carries now, for the next swap's comparison (a car that was spawned before part wear was switched on is seen here, when it is attached)
 remember = function(id)
   if not (be and id == be:getPlayerVehicleID(0)) then return end
   local ok, t = pcall(function() return flatten(currentTree()) end)
-  if ok and next(t) then chosen[id] = t end
+  if ok and next(t) then
+    if not chosen[id] then      -- (said once per car: how many slots the snapshot saw and how long after the spawn, to tell a stale snapshot from a wrong compare in a bad run)
+      local n = 0
+      for _ in pairs(t) do n = n + 1 end
+      say(string.format('car %s parts remembered: %d slots, %.1f s after the spawn or attach', tostring(id), n, clock - ((settleAt[id] or clock) - SETTLE)))
+    end
+    chosen[id] = t
+  end
 end
 -- the respawned car: the record holds the parts the swap made new (the old car's last report may have put the old wear back), then give(id) hands the record to the new car
 local function newAgain(id)
