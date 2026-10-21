@@ -13,7 +13,6 @@ local STATE_FILE = '/settings/slrrPartWear_state.json'
 local SAVE_EVERY = 10
 local settings = rules.settings('Off')
 local watched, keyOf, givenKey, store = {}, {}, {}, nil
-local idKey = {}                  -- vehicle id -> the key its record was last read or written under (a respawn keeps the id; the car's config may not be readable yet while its jbeam loads)
 local dirtyAt, clock = nil, 0
 local storeScope = 'free'
 
@@ -98,7 +97,7 @@ local function give(id)       -- the extensions, the settings, then the car's sa
   send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
   local key = carKey(id)
   givenKey[id] = key or false
-  if key then idKey[id] = key say('car ' .. tostring(id) .. ' record key ' .. key) end
+  if key then say('car ' .. tostring(id) .. ' record key ' .. key) end
   local blob = key and loadStore()[key]
   if blob then send(id, 'slrrWear.restoreSnapshot(' .. lit(blob) .. ')') end
   paint(id)
@@ -114,7 +113,7 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
   -- The discs themselves are not plain disc_brake: brakepads.jbeam gives every wheel a brake glow entry (disc_brake_FR ... off = disc_brake, on = the glowing disc), which the engine switches
   -- with the brake temperature. They are not switched by us while driving (we would fight the engine); their `off` material is set HERE, once, from the saved condition: the look of a disc changes at the
   -- next spawn or garage visit, the red-hot glow is untouched. The wheel in the entry's name (FR, FL, RR, RL, or F / R for an axle) names the corner.
-  local key = idKey[objID] or carKey(objID)
+  local key = carKey(objID)      -- (a respawn with another config is another car: its record is another one; the same config finds its record)
   local rec = key and loadStore()[key] or {}
   local set = 0
   for name, e in pairs(vehicle.glowMap) do
@@ -156,7 +155,7 @@ function M.attach(id)
   watched[id] = true
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], idKey[id] = nil, nil, nil, nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id] = nil, nil, nil, nil end
 M.onVehicleDestroyed = M.forget
 function M.onVehicleSpawned(id) lookMsc[id] = nil if settings.wearEnabled and watched[id] then give(id) end end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
@@ -166,7 +165,6 @@ function M.onReport(id, blob)
   local key = watched[id] and type(blob) == 'table' and carKey(id)
   if not key then return end
   loadStore()[key] = next(blob) and blob or nil
-  idKey[id] = key
   paint(id)
   dirtyAt = dirtyAt or clock
 end
