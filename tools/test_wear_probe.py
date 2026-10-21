@@ -207,6 +207,83 @@ def main():
     lua.execute("dev.turbocharger.isExisting = true")
     P.clear()
     assert lua.eval("dev.outputTorqueState") == 1 and lua.eval("dev.starterTorque") == 100, "the engine's own values are back"
+    # the last five: steering play (a dead zone and a slack on the input, not on a gamepad, not under the AI), the flywheel's inertia, the bulbs' filament values, the starter battery
+    # fed by the alternator, and the exhaust sound parameters
+    lua.execute("""
+      electrics = {values = {steering_input = 0.03, rpm = 0, lowbeam = 0, lowhighBrake_filament = 1.0, signal_L = 1.0}}
+      input = {lastFilterType = 0}
+      v.data.props = {[0] = {func = 'lowhighBrake_filament'}, [1] = {func = 'signal_L'}}
+      dev.initialInertia, dev.inertia, dev.invEngInertia, dev.starterEngagedCoef = 0.2, 0.2, 5, 0
+      expCalls = {}
+      dev.soundConfiguration = {exhaust = {params = {mufflingOffset = 0.1, gainOffset = 0.5}}}
+      dev.setExhaustGainMufflingOffset = function(self, m, g) expCalls[#expCalls + 1] = {m, g} end
+    """)
+    P.clear()
+    P.steering(0.0)
+    P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.steering_input") == 0, "inside the dead zone nothing is steered"
+    lua.execute("electrics.values.steering_input = 1.0")
+    P.updateGFX(1 / 60)
+    assert 0.05 < lua.eval("electrics.values.steering_input") < 0.5, "the slack: a sudden full lock arrives late"
+    for _ in range(300):
+        lua.execute("electrics.values.steering_input = 1.0")
+        P.updateGFX(1 / 60)
+    assert abs(lua.eval("electrics.values.steering_input") - 1.0) < 0.02, "and it still reaches full lock"
+    P.clear()
+    P.steering(0.0)
+    lua.execute("input.lastFilterType = 1")
+    for _ in range(300):
+        lua.execute("electrics.values.steering_input = 0.03")
+        P.updateGFX(1 / 60)
+    assert abs(lua.eval("electrics.values.steering_input") - 0.03) < 0.005, "a gamepad has its own dead zone: none added"
+    lua.execute("input.lastFilterType = 0 ai = {isDriving = function() return true end}")
+    lua.execute("electrics.values.steering_input = 0.03")
+    P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.steering_input") == 0.03, "the AI's steering is not touched"
+    lua.execute("ai = nil")
+    P.clear()
+    lua.execute("electrics.values.steering_input = 0.03")
+    P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.steering_input") == 0.03, "cleared: no play"
+    P.flywheel(0.0)
+    P.updateGFX(1 / 60)
+    assert abs(lua.eval("dev.inertia") - 0.2 * 1.08) < 1e-9 and abs(lua.eval("dev.invEngInertia") - 1 / (0.2 * 1.08)) < 1e-9, "a worn flywheel carries 8 % more inertia"
+    P.clear()
+    assert lua.eval("dev.inertia") == 0.2 and lua.eval("dev.invEngInertia") == 5, "the engine's own inertia is back"
+    P.lights(0.0)
+    seen = set()
+    for _ in range(200):
+        lua.execute("electrics.values.lowhighBrake_filament = 1.0 electrics.values.signal_L = 1.0")
+        P.updateGFX(1 / 60)
+        seen.add(round(lua.eval("electrics.values.lowhighBrake_filament"), 3))
+    assert seen <= {0.6, 0.198} and 0.6 in seen and 0.198 in seen, ("dim, and flickering from 70 % worn", seen)
+    assert lua.eval("electrics.values.signal_L") < 1.0, "every bulb value is dimmed, the indicators too"
+    P.clear()
+    lua.execute("electrics.values.lowhighBrake_filament = 1.0")
+    P.updateGFX(1 / 60)
+    assert lua.eval("electrics.values.lowhighBrake_filament") == 1.0, "cleared: the bulbs are as they were"
+    # the starter battery: a weak alternator cannot keep up with the lights, and the starter turns slower after
+    P.alternator(0.0)
+    lua.execute("electrics.values.rpm = 800 electrics.values.lowbeam = 1")
+    for _ in range(100): P.updateGFX(10)
+    lua.execute("electrics.values.rpm = 0")
+    for _ in range(100): P.updateGFX(10)
+    weak = lua.eval("dev.starterTorque")
+    assert 40 <= weak < 75, ("a flat battery turns the starter slower, never under 40 %", weak)
+    P.clear()
+    P.alternator(1.0)
+    lua.execute("electrics.values.rpm = 800 electrics.values.lowbeam = 1")
+    for _ in range(100): P.updateGFX(10)
+    assert lua.eval("dev.starterTorque") == 100, "a new alternator keeps the battery full"
+    P.clear()
+    assert lua.eval("dev.starterTorque") == 100
+    lua.execute("electrics.values.rpm = 0 electrics.values.lowbeam = 0")
+    P.exhaust(0.0)
+    last = lua.eval("expCalls[#expCalls]")
+    assert abs(last[1] - (0.1 - 0.2)) < 1e-9 and abs(last[2] - (0.5 + 1.5)) < 1e-9, "the exhaust is louder and less muffled, from the car's own values"
+    P.clear()
+    last = lua.eval("expCalls[#expCalls]")
+    assert abs(last[1] - 0.1) < 1e-9 and abs(last[2] - 0.5) < 1e-9, "the car's own exhaust sound is back"
     # the chassis: arms and links (rate only, length stays), anti-roll bars (torsionbars), wheel bearings (drag next to the pads'), brake fluid and master cylinder (through the pads' torque)
     lua.execute("v.data.torsionbars = {[1] = {cid = 7, id1 = 1, spring = 900, damp = 5, vkTag = 'arb_F'}, [2] = {cid = 8, id1 = 3, spring = 700, damp = 5, vkTag = 'arb_R'}, [3] = {cid = 9, id1 = 1, spring = 150000, damp = 0, vkTag = 'rigidify'}}")
     P.clear()

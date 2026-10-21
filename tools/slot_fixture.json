@@ -5,6 +5,12 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "ardente_exhaust_exit": [],
@@ -144,6 +150,12 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "bolide_exhaust_turbo": [
@@ -152,11 +164,23 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "bolide_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+],
+[
+"flywheel",
 [
 "all"
 ]
@@ -256,6 +280,22 @@
 ]
 ]
 ],
+"bolide_race_steering": [
+[
+"steering",
+[
+"all"
+]
+]
+],
+"bolide_steering": [
+[
+"steering",
+[
+"all"
+]
+]
+],
 "bolide_swaybar_RR": [
 [
 "swaybar",
@@ -275,6 +315,12 @@
 "bolide_v6_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+],
+[
+"flywheel",
 [
 "all"
 ]
@@ -542,6 +588,12 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "covet_exhaust_midengine": [
@@ -550,11 +602,23 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "covet_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+],
+[
+"flywheel",
 [
 "all"
 ]
@@ -631,6 +695,7 @@
 "covet_oilpan_midengine": [],
 "covet_pedalbox_clutch": [],
 "covet_pedalbox_pad_clutch": [],
+"covet_power_steering": [],
 "covet_radiator": [
 [
 "radiator",
@@ -649,7 +714,15 @@
 ],
 "covet_rollcage_midengine": [],
 "covet_spoiler_midengine": [],
-"covet_steering": [],
+"covet_steer": [],
+"covet_steering": [
+[
+"steering",
+[
+"all"
+]
+]
+],
 "covet_strut_bar_F": [],
 "covet_strut_bar_R": [],
 "covet_swaybar_F": [
@@ -673,6 +746,22 @@
 "swaybar",
 [
 "R"
+]
+]
+],
+"covet_taillight_R_reverse_bulb": [
+[
+"lights",
+[
+"all"
+]
+]
+],
+"covet_taillight_R_tail_brake_bulb": [
+[
+"lights",
+[
+"all"
 ]
 ]
 ],
@@ -769,6 +858,14 @@
 ]
 ]
 ],
+"etk800_steering": [
+[
+"steering",
+[
+"all"
+]
+]
+],
 "etk800_strut_F": [
 [
 "damper",
@@ -813,6 +910,12 @@
 "etk_exhaust_i4_2.0_petrol": [
 [
 "cat",
+[
+"all"
+]
+],
+[
+"exhaust",
 [
 "all"
 ]
@@ -917,6 +1020,12 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "pickup_desert_shock_IFS": [
@@ -952,6 +1061,14 @@
 [
 "FL",
 "FR"
+]
+]
+],
+"pickup_desert_steering_IFS": [
+[
+"steering",
+[
+"all"
 ]
 ]
 ],
@@ -998,6 +1115,12 @@
 "pickup_muffler": [
 [
 "cat",
+[
+"all"
+]
+],
+[
+"exhaust",
 [
 "all"
 ]
@@ -1108,11 +1231,23 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "sunburst2_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+],
+[
+"flywheel",
 [
 "all"
 ]
@@ -1159,6 +1294,14 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"sunburst2_steering": [
+[
+"steering",
+[
+"all"
 ]
 ]
 ],
@@ -1357,12 +1500,24 @@
 [
 "all"
 ]
+],
+[
+"exhaust",
+[
+"all"
+]
 ]
 ],
 "vivace_exhaust_tips": [],
 "vivace_flywheel": [
 [
 "clutch",
+[
+"all"
+]
+],
+[
+"flywheel",
 [
 "all"
 ]
@@ -1388,6 +1543,7 @@
 "vivace_handbrake_race": [],
 "vivace_pedalbox_clutch": [],
 "vivace_pedalbox_pad_clutch": [],
+"vivace_power_steering": [],
 "vivace_radiator": [
 [
 "radiator",
@@ -1425,6 +1581,14 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"vivace_rally_steering": [
+[
+"steering",
+[
+"all"
 ]
 ]
 ],
@@ -1469,6 +1633,14 @@
 [
 "RL",
 "RR"
+]
+]
+],
+"vivace_steering": [
+[
+"steering",
+[
+"all"
 ]
 ]
 ],
