@@ -125,6 +125,9 @@ def main():
     assert G.recondition(7, "covet_coilover_F", 0.95) is True
     r = G.recordOf(7, "covet_coilover_F")
     assert abs(r["condition"] - 0.95) < 1e-9 and any('setCondition("damper", "FL", 0.95)' in x for x in cmds(lua)), "recondition raised the pairs and told the car"
+    assert G.recondition(7, "covet_coilover_F", 7) is True and G.recordOf(7, "covet_coilover_F")["condition"] == 1, "a condition above 1 is held to 1: the part is new"
+    assert G.recondition(7, "covet_coilover_F", "x") is False and G.recondition(7, "covet_coilover_F", 0/0 if False else float("nan")) is False and G.recondition(7, "covet_hood", 0.9) is False, "not a number, not a wear slot"
+    G.restore(7, "covet_coilover_F", lua.eval("{parts = {{kind = 'damper', corner = 'FL', c = 0.95}, {kind = 'damper', corner = 'FR', c = 0.95}, {kind = 'spring', corner = 'FL', c = 0.95}}}"))
     assert G.recondition(7, "covet_coilover_F", 0.5) is True and abs(G.recordOf(7, "covet_coilover_F")["condition"] - 0.95) < 1e-9, "never worse"
     rec = lua.eval("{condition = 0.4, parts = {{kind = 'damper', corner = 'FL', c = 0.4}, {kind = 'padF', corner = 'F', c = 0.1}, {kind = 'damper', corner = 'ZZ', c = 0.1}}}")
     assert G.restore(7, "covet_coilover_F", rec) is True

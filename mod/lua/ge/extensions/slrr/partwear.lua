@@ -296,6 +296,7 @@ local function setPair(vehId, key, kind, corner, c)
     st[key][kind][corner] = c
   end
   if not next(st[key]) then st[key] = nil end
+  if st.__seen then st.__seen[key] = st[key] and math.floor(os.time() / 86400) or nil end      -- a record we touch is in use
   for i = #(pendingNew[vehId] or {}), 1, -1 do      -- a swap's "new" mark no longer applies to what we now set by hand
     local p = pendingNew[vehId][i]
     if p[1] == kind and p[2] == corner then table.remove(pendingNew[vehId], i) end
