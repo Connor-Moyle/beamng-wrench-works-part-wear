@@ -227,12 +227,33 @@ local function currentTree()
   local ok, cfg = pcall(function() return pm and pm.getConfig and pm.getConfig() end)
   return ok and type(cfg) == 'table' and cfg.partsTree or nil
 end
+-- The stored wear of one slot's part, for other mods (Wrench Works' shelf): { condition = the worst of its pairs, parts = { {kind, corner, c}, ... } } with only the pairs that have wear
+-- stored (none: condition 1, new); nil when the slot covers no wear kind at all.
+local function recordFor(rec, slot)
+  local cover = rules.slotWear(slot)
+  if #cover == 0 then return nil end
+  local parts, worst = {}, 1
+  for _, w in ipairs(cover) do
+    for _, corner in ipairs(w.corners) do
+      local c = rec and rec[w.kind] and rec[w.kind][corner]
+      if type(c) == 'number' and c == c and c < 0.999 then
+        parts[#parts + 1] = { kind = w.kind, corner = corner, c = c }
+        if c < worst then worst = c end
+      end
+    end
+  end
+  return { condition = worst, parts = parts }
+end
 -- A new part in a slot is new: only the wear kinds and corners that slot holds (rules.slotWear) go back to 1.0, the rest of the car keeps its wear.
 local function swapped(id, old, new)
-  local n, changed = 0, {}
+  local n, changed, announce = 0, {}, {}
+  local key = carKey(id)
+  local rec = key and loadStore()[key]
   for slot, part in pairs(new) do
     if old[slot] ~= nil and old[slot] ~= part then
       if #changed < 6 then changed[#changed + 1] = slot end
+      local record = recordFor(rec, slot)      -- the old part's wear, before it is set back to new
+      if record then announce[#announce + 1] = { slot = slot, oldPart = old[slot], newPart = part, record = record } end
       for _, w in ipairs(rules.slotWear(slot)) do
         for _, corner in ipairs(w.corners) do
           M.repair(id, w.kind, corner)
@@ -243,6 +264,7 @@ local function swapped(id, old, new)
       end
     end
   end
+  if #announce > 0 and rawget(_G, 'extensions') and extensions.hook then pcall(extensions.hook, 'onSlrrPartWearSwapped', id, announce) end
   if n > 0 then say('car ' .. tostring(id) .. ': ' .. n .. ' worn part(s) are new after the parts swap (slots changed: ' .. table.concat(changed, ', ') .. ')') end
 end
 -- the parts the player's car carries now, for the next swap's comparison (a car that was spawned before part wear was switched on is seen here, when it is attached)
@@ -257,6 +279,59 @@ remember = function(id)
     end
     chosen[id] = t
   end
+end
+-- Wrench Works' shelf: the wear of the part in a slot (recordOf), handed back when a shelf part is fitted (restore), or raised by the garage's recondition. Conditions 0..1, 1 = new.
+function M.recordOf(vehId, slotId)
+  local key = settings.wearEnabled and carKey(vehId)
+  if not key or type(slotId) ~= 'string' then return nil end
+  return recordFor(loadStore()[key], slotId)
+end
+local function setPair(vehId, key, kind, corner, c)
+  local st = loadStore()
+  st[key] = st[key] or {}
+  if c >= 0.999 then
+    if st[key][kind] then st[key][kind][corner] = nil if not next(st[key][kind]) then st[key][kind] = nil end end
+  else
+    st[key][kind] = st[key][kind] or {}
+    st[key][kind][corner] = c
+  end
+  if not next(st[key]) then st[key] = nil end
+  for i = #(pendingNew[vehId] or {}), 1, -1 do      -- a swap's "new" mark no longer applies to what we now set by hand
+    local p = pendingNew[vehId][i]
+    if p[1] == kind and p[2] == corner then table.remove(pendingNew[vehId], i) end
+  end
+  send(vehId, string.format('if slrrWear then slrrWear.setCondition(%q, %q, %g) end', kind, corner, c))
+  dirtyAt = dirtyAt or clock
+end
+local function covers(slotId, kind, corner)
+  for _, w in ipairs(rules.slotWear(slotId)) do
+    if w.kind == kind then for _, cn in ipairs(w.corners) do if cn == corner then return true end end end
+  end
+  return false
+end
+function M.restore(vehId, slotId, record)
+  local key = settings.wearEnabled and carKey(vehId)
+  if not key or type(slotId) ~= 'string' or type(record) ~= 'table' or type(record.parts) ~= 'table' then return false end
+  local n = 0
+  for _, p in ipairs(record.parts) do
+    local c = type(p) == 'table' and tonumber(p.c)
+    if c and c == c and covers(slotId, p.kind, p.corner) then
+      setPair(vehId, key, p.kind, p.corner, rules.clamp(c, 0, 1))
+      n = n + 1
+    end
+  end
+  return n > 0
+end
+-- raises every worn pair of the slot to at least `condition` (a recondition never makes a part worse)
+function M.recondition(vehId, slotId, condition)
+  local key = settings.wearEnabled and carKey(vehId)
+  condition = tonumber(condition)
+  if not key or type(slotId) ~= 'string' or not condition or condition ~= condition then return false end
+  condition = rules.clamp(condition, 0, 1)
+  local r = recordFor(loadStore()[key], slotId)
+  if not r then return false end
+  for _, p in ipairs(r.parts) do if p.c < condition then setPair(vehId, key, p.kind, p.corner, condition) end end
+  return true
 end
 -- the respawned car: the record holds the parts the swap made new (the old car's last report may have put the old wear back), then give(id) hands the record to the new car
 local function newAgain(id)

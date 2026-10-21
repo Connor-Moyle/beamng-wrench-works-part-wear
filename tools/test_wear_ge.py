@@ -89,7 +89,13 @@ def main():
     lua.execute("treeNow = swapNew")      # (and by the time the swap is announced the game's own tree already holds the new parts)
     lua.execute("cmds = {}")
     G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
+    lua.execute("shelfHooks = {} extensions = {hook = function(n, ...) shelfHooks[#shelfHooks + 1] = {n, ...} end}")
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))
+    h = lua.eval("shelfHooks")
+    assert len(h) == 1 and h[1][1] == "onSlrrPartWearSwapped", "the swap announces the parts that came off"
+    ch = h[1][3][1]
+    assert ch["slot"] == "covet_coilover_F" and ch["oldPart"] == "cf1" and ch["newPart"] == "cf2", dict(ch)
+    assert abs(ch["record"]["condition"] - 0.3) < 1e-9 and len(ch["record"]["parts"]) == 2, "the old part's damper wear, before it was set back to new"
     sent = " ".join(cmds(lua))
     for want in ('("damper", "FL", 1)', '("damper", "FR", 1)', '("spring", "FL", 1)', '("spring", "FR", 1)'):
         assert want in sent, ("the swapped front coilovers are new", want, sent)
@@ -109,6 +115,22 @@ def main():
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))
     assert not cmds(lua), "the same parts again change nothing"
     G.onVehicleReplaced(7)      # (the pin of the swap ends)
+    # the shelf: recordOf reads the wear of one slot's part (nil for a slot with no wear kind), restore writes it back, recondition only raises
+    G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.4}, spring = {FL = 0.5}, padF = {F = 0.2}}"))
+    r = G.recordOf(7, "covet_coilover_F")
+    assert abs(r["condition"] - 0.3) < 1e-9 and len(r["parts"]) == 3, "worst of its pairs, only stored ones"
+    assert G.recordOf(7, "covet_hood") is None and G.recordOf(7, 5) is None
+    assert G.recordOf(7, "covet_coilover_R")["condition"] == 1 and len(G.recordOf(7, "covet_coilover_R")["parts"]) == 0, "nothing stored: new"
+    lua.execute("cmds = {}")
+    assert G.recondition(7, "covet_coilover_F", 0.95) is True
+    r = G.recordOf(7, "covet_coilover_F")
+    assert abs(r["condition"] - 0.95) < 1e-9 and any('setCondition("damper", "FL", 0.95)' in x for x in cmds(lua)), "recondition raised the pairs and told the car"
+    assert G.recondition(7, "covet_coilover_F", 0.5) is True and abs(G.recordOf(7, "covet_coilover_F")["condition"] - 0.95) < 1e-9, "never worse"
+    rec = lua.eval("{condition = 0.4, parts = {{kind = 'damper', corner = 'FL', c = 0.4}, {kind = 'padF', corner = 'F', c = 0.1}, {kind = 'damper', corner = 'ZZ', c = 0.1}}}")
+    assert G.restore(7, "covet_coilover_F", rec) is True
+    r = G.recordOf(7, "covet_coilover_F")
+    assert abs(r["condition"] - 0.4) < 1e-9 and len(r["parts"]) == 3, "restored; the front pads and the made-up corner are not this slot's: ignored"
+    assert G.restore(7, "covet_coilover_F", lua.eval("{}")) is False and G.restore(7, "covet_coilover_F", None) is False
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} cmds = {}")
     G.reload()
     assert "wearEnabled=false" in cmds(lua)[0] and "off" in G.status()
