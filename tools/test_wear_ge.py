@@ -199,6 +199,8 @@ def main():
     lua.execute("cmds = {}")
     G.attach(7)
     assert any("[\"wearRate\"]=20," in x.replace(" ", "") for x in cmds(lua)), "a car spawned later gets the rate"
+    G.onUpdate(100)      # (the store is written)
+    assert lua.eval("files['/settings/slrrPartWear.json'].wearRate") is None and not lua.eval("(function() for _, f in pairs(files) do if type(f) == 'table' and f.wearRate ~= nil then return true end end end)()"), "the rate is never saved"
     G.setWearRate(1)
     # a record handed to a car at spawn counts as used, even before the car has reported
     lua.execute("files['/settings/slrrPartWear_state.json'].nodate.damper = {FL = 0.4} files['/settings/slrrPartWear_state.json'].__seen.nodate = math.floor(os.time() / 86400) - 29")
