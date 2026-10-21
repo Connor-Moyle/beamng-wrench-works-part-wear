@@ -1,0 +1,174 @@
+{
+ "slrr_disc_brake_worn": {
+  "class": "Material",
+  "activeLayers": 2,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_disc_brake_worn",
+  "mapTo": "slrr_disc_brake_worn",
+  "persistentId": "acd09699-691b-5f79-9fd6-62881645ea97",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/disc_brake_ao.data.png",
+    "baseColorFactor": null,
+    "baseColorMap": "/vehicles/common/disc_brake_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/disc_brake_m.data.png",
+    "normalMap": "/vehicles/common/disc_brake_n.normal.png",
+    "opacityFactor": 0,
+    "opacityMapUseUV": null,
+    "pixelSpecular": true,
+    "roughnessFactor": null,
+    "roughnessMap": "/vehicles/common/disc_brake_r.data.png",
+    "vertColor": null,
+    "detailMap": "/art/slrr_partwear/disc_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.55,
+    "detailNormalMap": "/art/slrr_partwear/disc_rust_n.normal.png",
+    "detailNormalMapStrength": 0.5,
+    "roughnessDetailMap": "/art/slrr_partwear/disc_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     3,
+     3
+    ]
+   },
+   {
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/common/disc_brake_b.color.png",
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "normalMap": "/vehicles/common/disc_brake_n.normal.png",
+    "opacityFactor": null,
+    "opacityMap": "/vehicles/common/disc_brake_o.data.png",
+    "opacityMapUseUV": 1,
+    "pixelSpecular": null,
+    "roughnessFactor": 0.375,
+    "vertColor": true,
+    "detailMap": "/art/slrr_partwear/disc_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.55,
+    "detailNormalMap": "/art/slrr_partwear/disc_rust_n.normal.png",
+    "detailNormalMapStrength": 0.5,
+    "roughnessDetailMap": "/art/slrr_partwear/disc_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     3,
+     3
+    ]
+   },
+   {
+    "baseColorFactor": null,
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "opacityMapUseUV": null,
+    "pixelSpecular": null,
+    "roughnessFactor": null,
+    "vertColor": null
+   },
+   {
+    "baseColorFactor": null,
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "opacityMapUseUV": null,
+    "pixelSpecular": null,
+    "roughnessFactor": null,
+    "vertColor": null
+   }
+  ]
+ },
+ "slrr_disc_brake_rusty": {
+  "class": "Material",
+  "activeLayers": 2,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_disc_brake_rusty",
+  "mapTo": "slrr_disc_brake_rusty",
+  "persistentId": "957dea6a-952e-5165-a68f-ea883ebd35e3",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/disc_brake_ao.data.png",
+    "baseColorFactor": null,
+    "baseColorMap": "/vehicles/common/disc_brake_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/disc_brake_m.data.png",
+    "normalMap": "/vehicles/common/disc_brake_n.normal.png",
+    "opacityFactor": 0,
+    "opacityMapUseUV": null,
+    "pixelSpecular": true,
+    "roughnessFactor": null,
+    "roughnessMap": "/vehicles/common/disc_brake_r.data.png",
+    "vertColor": null,
+    "detailMap": "/art/slrr_partwear/disc_rust_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/disc_rust_n.normal.png",
+    "detailNormalMapStrength": 1.0,
+    "roughnessDetailMap": "/art/slrr_partwear/disc_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.8,
+    "detailScale": [
+     3,
+     3
+    ]
+   },
+   {
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/common/disc_brake_b.color.png",
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "normalMap": "/vehicles/common/disc_brake_n.normal.png",
+    "opacityFactor": null,
+    "opacityMap": "/vehicles/common/disc_brake_o.data.png",
+    "opacityMapUseUV": 1,
+    "pixelSpecular": null,
+    "roughnessFactor": 0.375,
+    "vertColor": true,
+    "detailMap": "/art/slrr_partwear/disc_rust_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/disc_rust_n.normal.png",
+    "detailNormalMapStrength": 1.0,
+    "roughnessDetailMap": "/art/slrr_partwear/disc_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.8,
+    "detailScale": [
+     3,
+     3
+    ]
+   },
+   {
+    "baseColorFactor": null,
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "opacityMapUseUV": null,
+    "pixelSpecular": null,
+    "roughnessFactor": null,
+    "vertColor": null
+   },
+   {
+    "baseColorFactor": null,
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "opacityMapUseUV": null,
+    "pixelSpecular": null,
+    "roughnessFactor": null,
+    "vertColor": null
+   }
+  ]
+ }
+}

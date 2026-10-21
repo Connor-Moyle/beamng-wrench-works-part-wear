@@ -93,7 +93,7 @@ end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
-  send(id, "setExtensionUnloadMode('slrrWearProbe','manual') extensions.load('slrrWearProbe') setExtensionUnloadMode('slrrWear','manual') extensions.load('slrrWear')")
+  send(id, "setExtensionUnloadMode('slrrWearProbe','manual') extensions.load('slrrWearProbe') setExtensionUnloadMode('slrrWearLook','manual') extensions.load('slrrWearLook') setExtensionUnloadMode('slrrWear','manual') extensions.load('slrrWear')")
   send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
   local key = carKey(id)
   givenKey[id] = key or false
@@ -102,14 +102,38 @@ local function give(id)       -- the extensions, the settings, then the car's sa
   paint(id)
 end
 
+-- The worn brake disc look: the car must carry the worn and rusty variants of disc_brake from spawn, so they go in its glowMap while part wear and its worn look are on
+-- (the variants are in vehicles/common/slrrPartWear/stages.materials.json, loaded with the first car; made by tools/make_disc_stage_materials.py). Cars spawned earlier keep their own discs.
+local DISC = 'disc_brake'
+function M.onJbeamLoadingPhase2(_, objID, vehicle)
+  if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end
+  vehicle.glowMap = vehicle.glowMap or {}
+  if not vehicle.glowMap[DISC] then vehicle.glowMap[DISC] = { off = DISC, on = 'slrr_disc_brake_worn', on_intense = 'slrr_disc_brake_rusty', simpleFunction = 'slrr_never' } end
+  say('worn disc look: glowMap entry added for car ' .. tostring(objID))
+end
+local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }
+function M.look(id, wi, stage, list)       -- called by the car (slrrWearLook): a wheel's disc meshes to stage 0 (own), 1 (worn), 2 (rusty)
+  local o = veh(id)
+  if not o then return end
+  lookMsc[id] = lookMsc[id] or {}
+  for _, p in ipairs(list or {}) do
+    local key = p[1] .. '|' .. p[2]
+    local msc = lookMsc[id][key]
+    if not msc then msc = o:getSwitchableMaterial(p[1], p[1], p[2]) lookMsc[id][key] = msc end
+    if msc and msc >= 0 then
+      if stage < 1 then o:resetMaterials(msc) else o:switchMaterial(msc, 'slrr_' .. p[1] .. (stage >= 2 and '_rusty' or '_worn')) end
+    end
+  end
+end
+
 function M.attach(id)
   if not settings.wearEnabled then return end
   watched[id] = true
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id] = nil, nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id] = nil, nil, nil, nil end
 M.onVehicleDestroyed = M.forget
-function M.onVehicleSpawned(id) if settings.wearEnabled and watched[id] then give(id) end end
+function M.onVehicleSpawned(id) lookMsc[id] = nil if settings.wearEnabled and watched[id] then give(id) end end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
 
 -- the vehicle's report: its snapshot of the parts below new

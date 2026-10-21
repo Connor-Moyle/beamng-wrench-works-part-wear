@@ -27,6 +27,7 @@ function M.setRandom(f) rand = f end
 
 local function say(m) log('I', 'slrrWear', m) end
 local function layer() return rawget(_G, 'slrrWearProbe') end
+local function look() return rawget(_G, 'slrrWearLook') end
 
 local function finite(x, d) x = tonumber(x) if x == nil or x ~= x or x == math.huge or x == -math.huge then return d end return x end   -- no NaN or inf in a condition, a snapshot or a report
 
@@ -73,6 +74,7 @@ function M.setSettings(s)
   elseif active and not want then
     active, given = false, {}
     if layer() then pcall(layer().clear) end
+    if look() then pcall(look().restore) end
     say('off: every jbeam value back')
   elseif active then
     if layer() and layer().setSettings then pcall(layer().setSettings, settings) end
@@ -170,6 +172,7 @@ local function tick(dt)
     wear(speed * timer / 1000, events, timer)
     lastV, timer = speed, 0
     push(false)
+    if look() then pcall(look().update, get, settings) end      -- the worn disc look: nothing happens in a car spawned without the glowMap entry
   end
   if dirty and report >= REPORT then report = 0 send() end
 end
@@ -191,6 +194,6 @@ function M.status()
 end
 
 function M.onReset() lastV, braking, pending, lastVz, acc, landCool = 0, false, 3, nil, {}, 0 end      -- no false landing from the speed before the reset, and no events carried over
-function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end end
+function M.onExtensionUnloaded() if active and layer() then pcall(layer().clear) end if look() then pcall(look().restore) end end
 
 return M

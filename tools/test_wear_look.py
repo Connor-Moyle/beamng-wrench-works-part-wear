@@ -1,0 +1,99 @@
+"""The worn brake disc look: the vehicle side (slrrWearLook.lua) against a stand-in car, and the game side's glowMap hook and switch (slr/partwear.lua).
+
+    python tools/test_wear_look.py
+"""
+import os
+from lupa.luajit21 import LuaRuntime
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.join(HERE, "..", "mod", "lua")
+
+
+def main():
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    lua.execute("""
+      sent = {}
+      v = {data = {nodes = {[1] = {pos = {x = 0.7, y = 0, z = 0}}, [2] = {pos = {x = -0.7, y = 0, z = 0}}, [3] = {pos = {x = 0.7, y = 2.5, z = 0}}, [4] = {pos = {x = -0.7, y = 2.5, z = 0}}},
+                   -- the flexbody order is the reverse of the wheel order on purpose
+                   flexbodies = {{mesh = 'disc_RR', _group_nodes = {4}}, {mesh = 'disc_RL', _group_nodes = {3}}, {mesh = 'disc_FR', _group_nodes = {2}}, {mesh = 'disc_FL', _group_nodes = {1}}, {mesh = 'body', _group_nodes = {9}}}}}
+      wheels = {wheels = {[0] = {name = 'a', node1 = 1}, [1] = {name = 'b', node1 = 2}, [2] = {name = 'c', node1 = 3}, [3] = {name = 'd', node1 = 4}}}
+      obj = {getMeshesContainingMaterial = function(_, m) return m == 'disc_brake' and 'disc_FL disc_FR disc_RL disc_RR' or '' end, getId = function() return 7 end,
+             queueGameEngineLua = function(_, c) sent[#sent + 1] = c end}
+      conds = {}
+      function get(kind, corner) return (conds[kind] or {})[corner] or 1 end
+    """)
+    L = lua.execute(open(os.path.join(ROOT, "vehicle", "extensions", "slrrWearLook.lua"), encoding="utf8").read())
+    lua.globals().L_ = L
+    S = lua.table(visualWear=1)
+    L.update(lua.globals().get, S)
+    assert lua.eval("#sent") == 0, "new discs: nothing to send"
+    lua.execute("sent = {}")
+    lua.execute("conds = {rotor = {FL = 0.5}, padF = {F = 0.8}}")
+    L.update(lua.globals().get, S)
+    s = [lua.eval("sent")[i + 1] for i in range(lua.eval("#sent"))]
+    assert any("look(7,0,1,{{\"disc_brake\",\"disc_FL\"}})" in x for x in s), s
+    assert not any("look(7,1,1" in x for x in s), "the front right disc is fine"
+    lua.execute("sent = {} conds = {rotor = {FL = 0.2}, padF = {F = 0.8}}")
+    L.update(lua.globals().get, S)
+    assert "look(7,0,2,{{\"disc_brake\",\"disc_FL\"}})" in lua.eval("sent[1]") and lua.eval("#sent") == 1, "rusty below 30 %"
+    lua.execute("sent = {}")
+    L.update(lua.globals().get, S)
+    assert lua.eval("#sent") == 0, "no repeat while the stage is the same"
+    # worn pads make both discs of the axle look worn (the worse of disc and pads)
+    lua.execute("sent = {} conds = {padR = {R = 0.4}}")
+    L.update(lua.globals().get, S)
+    s = [lua.eval("sent")[i + 1] for i in range(lua.eval("#sent"))]
+    assert any("look(7,2,1,{{\"disc_brake\",\"disc_RL\"}})" in x for x in s) and any("look(7,3,1,{{\"disc_brake\",\"disc_RR\"}})" in x for x in s), s
+    # a reset: every material switch is put back by the game, so the stages go out again
+    lua.execute("sent = {}")
+    L.onReset()
+    L.update(lua.globals().get, S)
+    assert lua.eval("#sent") >= 2, "after a reset the worn discs are switched again"
+    # the worn look at 0: no change; restore puts every disc back
+    lua.execute("sent = {}")
+    L.update(lua.globals().get, lua.table(visualWear=0))
+    assert all("look(7,%d,0" % wi in "".join(lua.eval("sent")[i + 1] for i in range(lua.eval("#sent"))) for wi in (2, 3)), "visualWear 0: back to the car's own"
+    lua.execute("sent = {}")
+    L.update(lua.globals().get, S)
+    L.restore()
+    assert any("look(7,2,0" in lua.eval("sent")[i + 1] for i in range(lua.eval("#sent"))), "restore"
+    # game side: glowMap entry only while part wear and its worn look are on; the switch per mesh
+    lua.execute("""
+      logs, files, cmds = {}, {}, {}
+      function log(l, t, m) logs[#logs + 1] = m end
+      jsonReadFile = function(f) return files[f] end
+      jsonWriteFile = function(f, t) files[f] = t end
+      switched, resets, made = {}, {}, 0
+      car = {JBeam = 'covet', partConfig = 'x', queueLuaCommand = function(_, c) cmds[#cmds + 1] = c end,
+             getSwitchableMaterial = function(_, o, o2, mesh) made = made + 1 return made end,
+             switchMaterial = function(_, msc, name) switched[#switched + 1] = {msc, name} end, resetMaterials = function(_, msc) resets[#resets + 1] = msc end}
+      be = {getObjectByID = function(_, id) return id == 7 and car or nil end, getPlayerVehicleID = function() return 7 end}
+      package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
+      package.preload['slrr/partwearSchema'] = function() return assert(loadfile('@ROOT@/ge/extensions/slrr/partwearSchema.lua'))() end
+    """.replace("@ROOT@", ROOT.replace("\\", "/")))
+    G = lua.execute(open(os.path.join(ROOT, "ge", "extensions", "slrr", "partwear.lua"), encoding="utf8").read())
+    G.onExtensionLoaded()
+    veh = lua.eval("{}")
+    G.onJbeamLoadingPhase2(None, 7, veh)
+    assert veh["glowMap"] is None, "part wear off: the car is untouched"
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
+    G.reload()
+    veh = lua.eval("{}")
+    G.onJbeamLoadingPhase2(None, 7, veh)
+    gm = veh["glowMap"]["disc_brake"]
+    assert gm["on"] == "slrr_disc_brake_worn" and gm["on_intense"] == "slrr_disc_brake_rusty" and gm["off"] == "disc_brake", dict(gm)
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', visualWear = 0}")
+    G.reload()
+    veh = lua.eval("{}")
+    G.onJbeamLoadingPhase2(None, 7, veh)
+    assert veh["glowMap"] is None, "worn look at 0: no glowMap entry"
+    G.look(7, 0, 1, lua.eval("{{'disc_brake', 'disc_FL'}}"))
+    G.look(7, 0, 2, lua.eval("{{'disc_brake', 'disc_FL'}}"))
+    G.look(7, 0, 0, lua.eval("{{'disc_brake', 'disc_FL'}}"))
+    sw = [lua.eval("switched")[i + 1] for i in range(3 - 1)]
+    assert sw[0][2] == "slrr_disc_brake_worn" and sw[1][2] == "slrr_disc_brake_rusty" and lua.eval("made") == 1 and lua.eval("#resets") == 1, "one switch per mesh, stages worn, rusty, own"
+    print("wear disc look ok: stages from disc and pads, per wheel by node, no repeat, reset, restore; glowMap only while on; switch per mesh")
+
+
+if __name__ == "__main__":
+    main()
