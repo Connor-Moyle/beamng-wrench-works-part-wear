@@ -46,6 +46,7 @@ def main():
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
     G.reload()
     c = cmds(lua)
+    assert not any("setExtensionUnloadMode" in x for x in c), "the car's Lua has no setExtensionUnloadMode (game side only): the whole command would stop there (found in the game)"
     assert any("extensions.load('slrrWear')" in x for x in c) and any("setSettings" in x and "[\"wearEnabled\"]=true" in x for x in c), c
     assert any("restoreSnapshot" in x and '"damper"' in x and "0.4" in x for x in c), "the saved condition goes to the car"
     # a report is stored and saved after a while

@@ -93,7 +93,7 @@ end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
-  send(id, "setExtensionUnloadMode('slrrWearProbe','manual') extensions.load('slrrWearProbe') setExtensionUnloadMode('slrrWearLook','manual') extensions.load('slrrWearLook') setExtensionUnloadMode('slrrWear','manual') extensions.load('slrrWear')")
+  send(id, "extensions.load('slrrWearProbe') extensions.load('slrrWearLook') extensions.load('slrrWear')")
   send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
   local key = carKey(id)
   givenKey[id] = key or false
