@@ -110,9 +110,21 @@ local function paint(id, off)
 end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 
+local wearRate = 1       -- the wear rate another mod asked for this session (Street Legal's 'Wear rate' setting); not saved: the caller sends it again
+function M.sentSettings() local t = {} for k, v in pairs(settings) do t[k] = v end t.wearRate = wearRate return t end
+-- k = a number above 0 (1 = as the player set the wear speed): every part's wear from now on is k times as fast, the stored conditions are not touched. Returns the rate in force.
+function M.setWearRate(k)
+  if type(k) == 'number' and k == k and k > 0 and k < math.huge then
+    wearRate = rules.clamp(k, rules.RANGES.wearRate[1], rules.RANGES.wearRate[2])
+    if settings.wearEnabled then for id in pairs(watched) do send(id, 'if slrrWear then slrrWear.setSettings(' .. lit(M.sentSettings()) .. ') end') end end
+  end
+  return wearRate
+end
+function M.getWearRate() return wearRate end
+
 local function give(id)       -- the extensions, the settings, then the car's saved conditions
   send(id, "extensions.load('slrrWearProbe') extensions.load('slrrWearLook') extensions.load('slrrWear')")
-  send(id, 'slrrWear.setSettings(' .. lit(settings) .. ')')
+  send(id, 'slrrWear.setSettings(' .. lit(M.sentSettings()) .. ')')
   local key = carKey(id)
   givenKey[id] = key or false
   if key then say('car ' .. tostring(id) .. ' record key ' .. key) end

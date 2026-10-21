@@ -102,6 +102,9 @@ def main():
     c2 = W.wearStep("padF", c, inp(km=100), s)
     assert 0 < 1 - c2 < 0.5 and c2 < c
     assert abs((1 - c2) - 100 / (40000 * 0.1)) < 1e-9, "100 km at lifeScale 0.1: 2.5 % of a 4000 km pad set"
+    s2 = W.settings("Realistic", lua.table_from({"wearRate": 2}))
+    assert abs((1 - W.wearStep("padF", c, inp(km=100), s2)) - 2 * (1 - c2)) < 1e-12, "wearRate 2: twice the wear, from km, events and age alike"
+    assert abs((1 - W.wearStep("padF", c, inp(km=100), W.settings("Realistic", lua.table_from({"wearRate": 99})))) - 20 * (1 - c2)) < 1e-12, "the rate is held to 20"
     c3 = W.wearStep("padF", c, inp(km=100, events=lua.table_from({"hardstop": 5})), s)
     assert c3 < c2, "hard stops wear pads faster"
     assert W.wearStep("padF", 0.5, inp(km=0), s) == 0.5

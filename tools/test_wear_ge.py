@@ -190,6 +190,16 @@ def main():
     assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.gone") is None and lua.eval("files['/settings/slrrPartWear_state.json'].__seen.nodate") is not None
     G.onReport(7, lua.eval("{damper = {FL = 0.1}}"))
     assert lua.eval("files['/settings/slrrPartWear_state.json'].__seen.fresh") >= lua.eval("math.floor(os.time() / 86400)")
+    # the career's wear rate: sent with the settings to cars that exist and cars that come later; not a number above 0: ignored; not touching stored conditions
+    lua.execute("cmds = {}")
+    assert G.getWearRate() == 1 and G.setWearRate(2) == 2 and G.getWearRate() == 2
+    assert any("[\"wearRate\"]=2," in x.replace(" ", "") for x in cmds(lua)), cmds(lua)
+    assert G.setWearRate(0) == 2 and G.setWearRate(-1) == 2 and G.setWearRate("x") == 2 and G.setWearRate(0/0 if False else float("nan")) == 2
+    assert G.setWearRate(1000) == 20
+    lua.execute("cmds = {}")
+    G.attach(7)
+    assert any("[\"wearRate\"]=20," in x.replace(" ", "") for x in cmds(lua)), "a car spawned later gets the rate"
+    G.setWearRate(1)
     # a record handed to a car at spawn counts as used, even before the car has reported
     lua.execute("files['/settings/slrrPartWear_state.json'].nodate.damper = {FL = 0.4} files['/settings/slrrPartWear_state.json'].__seen.nodate = math.floor(os.time() / 86400) - 29")
     G.setCarKey(7, "nodate")
