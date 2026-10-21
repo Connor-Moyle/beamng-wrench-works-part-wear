@@ -6,10 +6,10 @@ Proven in the game since 0.1.0:
 
 - Breakdowns (with "Parts can break" on): a shock absorber at 10 % blew within two seconds of a roll and dropped to 5 % with the message "A shock absorber has blown" on screen; the engine at 14 % gave "The engine is running rough" and dropped to 12 %. Only a part between its failure level and 15 % can break.
 - Worn paint through Car Surface FX (its "Worn paint (test)" switch on): a white Covet at 20 % paint condition showed faded, dull paint, a grimy film on the roof and bonnet, scuff lines on the door and orange rust spots along the sill and arches; at 100 % only light dirt.
+- Worn clutch: at a hard launch on the Covet with the clutch at 10 %, the rpm stays pinned at the top while the wheels lag (2.4 m/s after one second against 5.8 to 6.7 with a new clutch, 7 against 8.5 m/s after three seconds); in steady driving it holds. Cars with an automatic or double-clutch gearbox, like the Vivace, have no clutch device: it does nothing there.
 
 Seen with no effect yet:
 
-- Worn clutch: the values reach the clutch (lock torque about half, free play 6 times) but no slip showed in a 5 s full-throttle run on the Covet (it gained 3.9 m/s in 5 s against 4.9 m/s with a new one). Cars with an automatic or double-clutch gearbox, like the Vivace, have no clutch device: it does nothing there.
 - Rust on brake calipers and hubs while driving: no change was visible through the wheels.
 
 Still built and tested offline only: breakdowns of the other parts (soft brakes, a slipping clutch, a spring gone soft).

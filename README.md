@@ -11,7 +11,7 @@ Every part has a condition from 100 % (new) down to 0 %. Conditions go down with
 - **Shock absorbers**: less damping, so the car floats and bounces more.
 - **Springs**: the corner sinks a little and the spring gets slightly softer.
 - **Brake pads and discs**: pads lose bite; discs fade earlier when hot; pads worn to the metal grind.
-- **Engine**: less power, rougher running; **clutch**: slips when worn.
+- **Engine**: less power, rougher running; **clutch**: slips when worn (cars with a manual gearbox; automatic and double-clutch cars have no clutch to wear).
 - **Breakdowns** (the "Parts can break" setting): a badly worn part can fail, with a message on screen: a blown shock absorber, soft brakes, a slipping clutch.
 - **Looks** (the "Worn look" setting): brake discs and calipers rust, the suspension, frame and exhaust metal get grime and rust, and the paint fades and rusts (paint needs Car Surface FX). The look of the discs and the metal is set when the car is spawned, so it changes at the next spawn or garage visit.
 - **Repairs**: in the Wrench Works garage, worn parts are listed under Services with their condition and a price. Pay, and the part is new again.
@@ -30,7 +30,7 @@ Presets: **Off**, **Light** (slow wear, small effects, no breakdowns) and **Real
 
 ## What has been tested in the game
 
-Seen working in the game (Covet, Vivace, pickup): the worn metal look on the floor pan, arms, axles and fuel tank; the rust on brake discs at spawn; the detection of springs and dampers on the Vivace; the shortening of the spring beams; worn pads (longer stops) and worn shock absorbers (more bounce); the loss of power of a worn engine; breakdowns of a shock absorber and the engine; the worn paint look; the dirty look of the engine bay; wear kept when you swap a part; the repairs in the Wrench Works garage. The garage's power curve does not show a worn engine's lost power; the car's acceleration does. Built and tested only offline so far (the unit tests in `tools/`): the slipping of a worn clutch (there is none on cars with an automatic gearbox) and the rust on brake calipers and hubs. The full list is in `CHANGELOG.md`; tell us if one of them does not work for you.
+Seen working in the game (Covet, Vivace, pickup): the worn metal look on the floor pan, arms, axles and fuel tank; the rust on brake discs at spawn; the detection of springs and dampers on the Vivace; the shortening of the spring beams; worn pads (longer stops) and worn shock absorbers (more bounce); the loss of power of a worn engine; breakdowns of a shock absorber and the engine; the worn paint look; the dirty look of the engine bay; wear kept when you swap a part; the repairs in the Wrench Works garage. The garage's power curve does not show a worn engine's lost power; the car's acceleration does. Built and tested only offline so far (the unit tests in `tools/`): the rust on brake calipers and hubs. The full list is in `CHANGELOG.md`; tell us if one of them does not work for you.
 
 ## For testers and modders
 
