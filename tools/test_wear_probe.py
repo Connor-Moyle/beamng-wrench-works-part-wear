@@ -147,6 +147,12 @@ def main():
     P.engine(1.0, 1.0)      # a repair: the power comes back (it stayed at the worn value before), and engine damage by someone else stays
     for _ in range(3): P.updateGFX(1 / 60)
     assert lua.eval("dev.outputTorqueState") == 1, "a repaired engine has its power back"
+    P.ignition(0.0)      # a worn ignition raises the misfire chance; repaired, the game's own value is back
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.slowIgnitionErrorChance") > 0
+    P.ignition(1.0)
+    for _ in range(3): P.updateGFX(1 / 60)
+    assert lua.eval("dev.slowIgnitionErrorChance") == 0, "a repaired ignition: the misfire chance is back"
     P.engine(0.2, 0.5)
     lua.execute("dev.outputTorqueState = 0.5")      # the game's own damage lowers the state: that is the new base
     P.updateGFX(1 / 60)
