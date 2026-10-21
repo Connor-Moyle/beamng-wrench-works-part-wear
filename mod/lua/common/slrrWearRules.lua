@@ -36,14 +36,14 @@ M.ABUSE_KM = {
 }
 
 M.PRESETS = {
-  Realistic = {wearEnabled = true, lifeScale = 0.1, abuseScale = 1.5, ageScale = 1, effectStrength = 1, springSagMax = 15, springRateLoss = 0.10,
+  Realistic = {wearEnabled = true, lifeScale = 0.1, abuseScale = 1.5, ageScale = 1, effectStrength = 1, springSagMax = 25, springRateLoss = 0.05,
                damperLossMax = 0.8, brakeTorqueLoss = 0.08, enginePowerLoss = 0.15, failures = true, failureRate = 1, judder = 1, visualWear = 1},
-  Light = {wearEnabled = true, lifeScale = 0.03, abuseScale = 0.5, ageScale = 0.3, effectStrength = 0.5, springSagMax = 8, springRateLoss = 0.05,
+  Light = {wearEnabled = true, lifeScale = 0.03, abuseScale = 0.5, ageScale = 0.3, effectStrength = 0.5, springSagMax = 12, springRateLoss = 0.02,
            damperLossMax = 0.5, brakeTorqueLoss = 0.04, enginePowerLoss = 0.08, failures = false, failureRate = 0, judder = 1, visualWear = 0.6},
   Off = {wearEnabled = false, lifeScale = 0.1, abuseScale = 0, ageScale = 0, effectStrength = 0, springSagMax = 0, springRateLoss = 0,
          damperLossMax = 0, brakeTorqueLoss = 0, enginePowerLoss = 0, failures = false, failureRate = 0, judder = 0, visualWear = 0},
 }
-M.RANGES = {lifeScale = {0.01, 1}, abuseScale = {0, 3}, ageScale = {0, 3}, effectStrength = {0, 2}, springSagMax = {0, 40}, springRateLoss = {0, 0.4},
+M.RANGES = {lifeScale = {0.01, 1}, abuseScale = {0, 3}, ageScale = {0, 3}, effectStrength = {0, 2}, springSagMax = {0, 40}, springRateLoss = {0, 0.2},
             damperLossMax = {0, 0.9}, brakeTorqueLoss = {0, 0.3}, enginePowerLoss = {0, 0.3}, failureRate = {0, 3}, judder = {0, 2}, visualWear = {0, 1}}
 
 -- the settings of a preset, as a fresh table; a value in `over` replaces the preset's (clamped to its range)
@@ -155,6 +155,16 @@ function E.gearbox(c, s) return {friction = 1 + eff(c, s)} end
 function E.diff(c, s) return {friction = 1 + eff(c, s)} end
 function E.battery(c, s) return {crank = clamp(1 - 0.4 * eff(c, s), 0.6, 1)} end
 function E.alternator(c, s) return {charge = clamp(1 - eff(c, s), 0.15, 1)} end   -- (a dead alternator still charges a little: no stranding)
+
+-- Brake fade (0f, handling side). Pad friction holds to an onset temperature, then falls linearly to 40 % less over FADE_SPAN degrees C.
+-- Numbers: OEM pads fade from about 350 C; measured pads lost 0.41-0.48 -> 0.25-0.28 mu at 510-573 C (about 40 %). The span and the lower onset of a worn pad are MODELLED, not sourced.
+-- Returns a factor on brake torque, 0.6..1; strength 0 or wear off = 1.
+M.FADE_ONSET, M.FADE_SPAN, M.FADE_LOSS = 350, 200, 0.4
+function M.brakeFade(tempC, padC, s)
+  if not s.wearEnabled or s.effectStrength <= 0 then return 1 end
+  local onset = M.FADE_ONSET - 50 * eff(padC or 1, s)   -- (worn pads and rotors carry less heat away: fade starts earlier)
+  return 1 - M.FADE_LOSS * clamp(((tempC or 0) - onset) / M.FADE_SPAN, 0, 1)
+end
 
 function M.effects(kind, c, s, st)
   local f = E[kind]
