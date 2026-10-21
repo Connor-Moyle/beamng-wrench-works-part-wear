@@ -61,6 +61,9 @@ end
 -- (career_modules_inventory): two identical career cars never share wear. A career car that has no id yet (it is being registered) has no key: nothing is restored or stored for it until
 -- it does. Freeroam cars of one model and config share one record (model + hash of the whole part config).
 local remember          -- (defined below, with the parts tree helpers)
+local settleAt = {}     -- vehicle id -> the time before which the game's parts tree is not trusted: right after a spawn or a swap it still holds the car that was replaced
+local SETTLE, REFRESH = 3, 2
+local refreshAt = 0
 local pendingNew = {}   -- vehicle id -> { {kind, corner}, ... } the parts a swap made new, until the old car's last report is past and the new car has them
 local chosen = {}       -- vehicle id -> { slot id -> chosen part name } as of its last spawn or parts change
 local pinned = {}       -- vehicle id -> the freeroam key a part swap started from: the swap respawns the car with a changed part config, which is still the same car
@@ -181,10 +184,10 @@ end
 function M.attach(id)
   if not settings.wearEnabled then return end
   watched[id] = true
-  remember(id)
+  chosen[id], settleAt[id] = nil, clock + SETTLE      -- (the parts are taken a moment later, see onUpdate)
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id], pendingNew[id] = nil, nil, nil, nil, nil, nil, nil end
+function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id], pendingNew[id], settleAt[id] = nil, nil, nil, nil, nil, nil, nil, nil end
 -- The parts the car carries, by slot, to tell which slot a swap changed: slot id -> chosen part name, from the parts tree (nodes keyed by slot id under `children`).
 local function flatten(tree, out)
   out = out or {}
@@ -244,16 +247,16 @@ function M.onPartsTreeConfigChanged(tree)
   if next(new) then
     local old = chosen[id] or flatten(currentTree())
     if next(old) then swapped(id, old, new) end
-    chosen[id] = new
+    chosen[id], settleAt[id] = new, clock + SETTLE
   end
 end
-function M.onVehicleReplaced(id) pinned[id] = nil end
+function M.onVehicleReplaced(id) pinned[id], chosen[id] = nil, nil end
 M.onVehicleDestroyed = M.forget
 function M.onVehicleSpawned(id)
   lookMsc[id] = nil
   newAgain(id)
   if settings.wearEnabled and watched[id] then give(id) end
-  if settings.wearEnabled then remember(id) end
+  settleAt[id] = clock + SETTLE      -- (what was remembered stays: after a swap's respawn it is the new parts)
 end
 function M.onVehicleSwitched(_, newId) if settings.wearEnabled and newId and newId >= 0 and not watched[newId] then M.attach(newId) end end
 
@@ -364,6 +367,11 @@ function M.onUpdate(dtReal)
       local k = carKey(id) or false
       if k ~= givenKey[id] then give(id) end
     end
+  end
+  if settings.wearEnabled and clock >= refreshAt then      -- the player's parts as the game reports them, once they have settled (a swap is judged against these)
+    refreshAt = clock + REFRESH
+    local id = be and be:getPlayerVehicleID(0)
+    if id and watched[id] and clock >= (settleAt[id] or 0) then remember(id) end
   end
   if dirtyAt and clock - dirtyAt >= SAVE_EVERY then saveStore() end
 end

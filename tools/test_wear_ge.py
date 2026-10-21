@@ -74,11 +74,18 @@ def main():
     # a new part in a slot is new, and only that slot's kinds and corners: swap the front coilovers, the rear dampers and the front pads keep their wear
     lua.execute("""
       local old = {children = {covet_coilover_F = {chosenPartName = 'cf1'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = 'h1'}}}
+      oldTree = old
       treeNow = old
       core_vehicle_partmgmt = {getConfig = function() return {partsTree = treeNow} end}
       swapNew = {children = {covet_coilover_F = {chosenPartName = 'cf2'}, covet_coilover_R = {chosenPartName = 'cr1'}, brakepad_F = {chosenPartName = 'pf1'}, covet_hood = {chosenPartName = ''}}}
       cmds = {}""")
-    G.attach(7)       # (a car spawned before part wear was on is seen when it is attached: the game edits its own parts tree in place, so a swap is only seen against what was remembered here)
+    # the game's parts tree is not the new car's right after a spawn (80's run: it still held the car that was replaced, and a swap then reset the wrong parts): the parts are taken a few
+    # seconds after the attach, and the game edits its own tree in place, so a swap is only seen against what was remembered then
+    lua.execute("treeNow = {children = {covet_coilover_F = {chosenPartName = 'stale'}, brakepad_F = {chosenPartName = 'stale'}}}")
+    G.attach(7)
+    G.onUpdate(1)                                  # (inside the settling time: nothing is taken)
+    lua.execute("treeNow = oldTree")
+    G.onUpdate(3)                                  # (the parts as the game reports them now)
     lua.execute("treeNow = swapNew")      # (and by the time the swap is announced the game's own tree already holds the new parts)
     lua.execute("cmds = {}")
     G.onReport(7, lua.eval("{damper = {FL = 0.3, FR = 0.3, RL = 0.25, RR = 0.3}, padF = {F = 0.2}}"))
