@@ -42,17 +42,29 @@ local function cornerOf(node)
   return (best.pos.y < ymid and 'F' or 'R') .. (best.pos.x > 0 and 'L' or 'R')
 end
 
--- every spring and damper of the car, by the game's own tests (partCondition.lua:161 for the damper)
+-- A suspension beam is told by the part it belongs to: the game's own shape tests alone also catch the door hinges (bounded beams with a spring and a precompression) and the steering
+-- (bounded beams with damping), found on the vivace (80, 2026-10-21). Its springs are NORMAL beams with a precompression, named spring_RL in their part path, not bounded beams.
+local NOT_SUSPENSION = {'door', 'hood', 'trunk', 'tailgate', 'steering', 'steer', 'seat', 'latch', 'hinge', 'wiper', 'mirror'}
+local SUSPENSION = {'suspension', 'spring', 'shock', 'strut', 'coilover', 'damper'}
+local function suspensionPart(path)
+  local p = tostring(path or ''):lower()
+  for _, w in ipairs(NOT_SUSPENSION) do if p:find(w, 1, true) then return false end end
+  for _, w in ipairs(SUSPENSION) do if p:find(w, 1, true) then return true end end
+  return false
+end
+M.suspensionPart = suspensionPart
+
+-- every spring and damper of the car, by the game's own tests (partCondition.lua:161 for the damper) and the part they belong to
 local function scan()
   beams = {}
   local springs, dampers, stops = 0, 0, 0
   for cid, b in pairs(v.data.beams) do
-    if b.beamType == 2 then   -- BOUNDED
+    if (b.beamType == 2 or b.beamType == 0) and suspensionPart(b.partPath) then   -- BOUNDED, or NORMAL (the vivace's springs)
       local node = v.data.nodes[b.id1]
       if (b.beamSpring or 0) > 0 and (b.beamPrecompression or 1) > 1 then
         springs = springs + 1
         beams[cid] = {kind = 'spring', corner = node and cornerOf(node) or '?', part = b.partPath, base = {b.beamSpring, b.beamDamp or 0}}
-      elseif (b.beamSpring or 0) == 0 and (b.beamDamp or 0) > 0 and b.beamDampRebound and (b.beamDampVelocitySplit or math.huge) < math.huge then
+      elseif b.beamType == 2 and (b.beamSpring or 0) == 0 and (b.beamDamp or 0) > 0 and b.beamDampRebound and (b.beamDampVelocitySplit or math.huge) < math.huge then
         if (b.beamDampRebound or 0) == 0 then   -- (a bump stop: no rebound damping, a split of about 2)
           stops = stops + 1   -- a bump stop, not a damper
         else
