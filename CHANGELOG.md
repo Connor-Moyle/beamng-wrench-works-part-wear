@@ -1,0 +1,18 @@
+# Changelog
+
+## 0.1.0 (not released)
+
+Nothing in this version has been proven in the game yet. This list is only filled in as 80 proves each item with screenshots and logs; until then nothing is published.
+
+Proven in the game:
+
+- (nothing yet)
+
+Built and tested offline only (all off by default; switch on in ESC > Mods > Part wear):
+
+- A condition per part (shock absorbers, springs, brake pads and discs, engine, clutch, paint) that wears by distance, hard stops, heat, hard landings and age.
+- Effects of worn parts: shocks bounce more, springs sit lower and a little softer, pads and discs fade earlier, the engine loses power, the clutch slips (the numbers are from the research notes; the ones with no source are labelled as modelled in the rules file).
+- Breakdowns (off with the "Parts can break" setting): a badly worn part can fail, with a message on screen: a blown shock, soft brakes, a slipping clutch.
+- Worn paint look through Car Surface FX (needs its "Worn paint (test)" switch).
+- Wrench Works garage: worn parts are listed under Services with their condition and a price, and a click pays and sets the part back to new.
+- Wear is kept per car and per career slot, so careers never share wear.
