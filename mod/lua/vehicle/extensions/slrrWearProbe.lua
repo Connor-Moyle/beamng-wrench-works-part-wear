@@ -34,6 +34,7 @@ local lightsTarget, lightFuncs      -- {brightness, flicker}; the electrics fila
 local lightBase, lightWritten = {}, {}   -- per bulb value: the value the game gave it, and the dimmed value we wrote (a value the game does not rewrite each frame is not dimmed twice)
 local altTarget, soc = nil, 1       -- the alternator's charge rate factor; the starter battery's charge (our own model: the game has none), 1 full
 local exhaustTarget, exhaustBase    -- {mufflingOffset, gainOffset} added to the car's own exhaust sound; the car's own values
+local structure, structureScanned = {}, false     -- cid -> {kind, corner, str, def, spring, damp, type}: the beams of the body, glass, doors and seats
 local capBase, capWritten     -- the engine's outputTorqueState as the game (or Street Legal) had it, and the value we wrote: a change of it by someone else is the new base
 local fieldBase = {}       -- device -> field -> the value the game gave it, put back by clear()
 local turboBase            -- the turbocharger's own damage state, put back by clear()
@@ -456,7 +457,76 @@ function M.exhaust(cond)
   say(string.format('exhaust condition %.2f: muffling %+.2f, gain %+.1f', cond, e.mufflingOffset, e.gainDb))
 end
 
+-- ---- the body (0.2.0-e): the strength and deform limits of the body and frame, the glass, the door hinges and the seat mounts. The beams are told by the words of their OWN part name (the last name of
+-- the path), first match: glass, then door (a door part's BOUNDED beams: the hinge and latch springs the suspension finder skips), then seat, then body. A beam with no limit (FLT_MAX, the
+-- unbreakable body rails) keeps none: we never make one breakable. Weakening the body changes how the whole car crashes: it is off until 80 has compared crashes (docs: the caution in the design).
+local function finite(x) return type(x) == 'number' and x > 0 and x < 1e30 end
+local DOOR_WORDS = {door = true, doordetent = true, hinge = true, latch = true}
+local BODY_WORDS = {body = true, frame = true, framerails = true, subframe = true, chassis = true, floor = true, firewall = true, pillar = true, pillars = true}
+local function structureKind(path, beamType)
+  local own = tostring(path or ''):lower():match('([^/]+)/*$') or ''
+  if own:find('glass', 1, true) or own:find('windshield', 1, true) then return 'glass' end
+  local words, tail = {}, false
+  for w in own:gmatch('[a-z0-9]+') do
+    words[w] = true
+    if w == 'tailgate' or w == 'trunk' then tail = true end
+  end
+  for w in pairs(DOOR_WORDS) do if words[w] then return beamType == 2 and 'door' or nil, tail end end
+  if tail and (words.hinge or words.latch) then return 'door', true end
+  if words.seat or words.seats then return 'seat' end
+  if words.hood or words.steering or words.steer or words.tailgate or words.trunk then return nil end
+  for w in pairs(BODY_WORDS) do if words[w] then return 'body' end end
+end
+function M.scanStructure()
+  if structureScanned then return structure end
+  structureScanned, structure = true, {}
+  for cid, b in pairs(v.data.beams) do
+    local kind, tail = structureKind(b.partPath, b.beamType)
+    if kind and (finite(b.beamStrength) or finite(b.beamDeform) or (kind == 'seat' and b.beamType == 0 and (b.beamSpring or 0) > 0)) then
+      local node = v.data.nodes[b.id1]
+      structure[cid] = {kind = kind, corner = tail and 'T' or (node and cornerOf(node) or '?'), part = b.partPath, str = finite(b.beamStrength) and b.beamStrength or nil,
+                        def = finite(b.beamDeform) and b.beamDeform or nil, spring = (kind == 'seat' and b.beamType == 0 and (b.beamSpring or 0) > 0) and b.beamSpring or nil, damp = b.beamDamp or 0}
+    end
+  end
+  return structure
+end
+-- what the finder sees on this car, for a dump before this ships: the count per kind and corner, and the first three part paths of each
+function M.dumpStructure()
+  local counts, samples = {}, {}
+  for _, r in pairs(M.scanStructure()) do
+    local k = r.kind .. ' ' .. r.corner
+    counts[k] = (counts[k] or 0) + 1
+    samples[r.kind] = samples[r.kind] or {}
+    if #samples[r.kind] < 3 then samples[r.kind][#samples[r.kind] + 1] = tostring(r.part) end
+  end
+  local keys = {} for k in pairs(counts) do keys[#keys + 1] = k end table.sort(keys)
+  for _, k in ipairs(keys) do say(string.format('  structure %s: %d beams', k, counts[k])) end
+  for kind, list in pairs(samples) do say('  ' .. kind .. ' e.g. ' .. table.concat(list, ' | ')) end
+  return counts
+end
+local function applyStructure(kind, corner, cond)
+  local e = rules.effects(kind, cond, settings)
+  if not e then return end
+  local n = 0
+  for cid, r in pairs(M.scanStructure()) do
+    if r.kind == kind and (corner == 'all' or r.corner == corner) then
+      n = n + 1
+      r.touched = true
+      if r.def and e.deform then pcall(obj.setBeamDeform, obj, cid, r.def * e.deform) end
+      if r.str and e.strength then pcall(obj.setBeamStrength, obj, cid, r.str * e.strength) end
+      if r.spring and e.k then pcall(obj.setBeamSpringDamp, obj, cid, r.spring * e.k, r.damp, -1, -1) end
+    end
+  end
+  remember(kind, corner, cond)
+  say(string.format('%s %s condition %.2f: %d beams', kind, corner, cond, n))
+end
+function M.body(cond) applyStructure('body', 'all', cond) end
+function M.glass(cond) applyStructure('glass', 'all', cond) end
+function M.seat(cond) applyStructure('seat', 'all', cond) end
+function M.door(corner, cond) applyStructure('door', corner, cond) end
+
 function M.reapply(a)
+  if a.kind == 'body' then return M.body(a.c) elseif a.kind == 'glass' then return M.glass(a.c) elseif a.kind == 'seat' then return M.seat(a.c) elseif a.kind == 'door' then return M.door(a.corner, a.c) end
   if a.kind == 'steering' then return M.steering(a.c) elseif a.kind == 'flywheel' then return M.flywheel(a.c) elseif a.kind == 'lights' then return M.lights(a.c)
   elseif a.kind == 'alternator' then return M.alternator(a.c) elseif a.kind == 'exhaust' then return M.exhaust(a.c) end
   if a.kind == 'fuel' then return M.fuel(a.c) elseif a.kind == 'cat' then return M.cat(a.c) elseif a.kind == 'intercooler' then return M.intercooler(a.c) elseif a.kind == 'battery' then return M.battery(a.c) end
@@ -501,6 +571,14 @@ function M.clear()
   if exhaustBase and engC and engC.setExhaustGainMufflingOffset then pcall(engC.setExhaustGainMufflingOffset, engC, exhaustBase[1], exhaustBase[2]) end
   exhaustTarget, exhaustBase, lightFuncs = nil, nil, nil
   barsScanned = false      -- (the next use looks at the car's torsionbars again)
+  for cid, r in pairs(structure) do
+    if r.touched then
+      if r.def then pcall(obj.setBeamDeform, obj, cid, r.def) end
+      if r.str then pcall(obj.setBeamStrength, obj, cid, r.str) end
+      if r.spring then pcall(obj.setBeamSpringDamp, obj, cid, r.spring, r.damp, -1, -1) end
+    end
+  end
+  structure, structureScanned = {}, false
   local eng0 = engine()
   if turboBase and eng0 and eng0.turbocharger and eng0.turbocharger.setPartCondition then pcall(eng0.turbocharger.setPartCondition, 0, turboBase, 1) end
   if radiatorTarget and eng0 and eng0.thermals and eng0.thermals.setPartConditionRadiator then pcall(eng0.thermals.setPartConditionRadiator, 0, 1, 1) end

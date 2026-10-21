@@ -17,9 +17,10 @@ T = lambda d: {k: v for k, v in d.items()}  # noqa: E731
 DOWN = {"damper": ["rebound", "comp", "fast"], "spring": ["rate"], "swaybar": ["k"], "bushing": ["k", "d"], "balljoint": ["strength"], "steering": ["k", "powerCoef"],
         "padF": ["torque"], "padR": ["torque"], "rotor": ["massCoef"], "engine": ["cap"], "filter": ["cap"], "cat": ["cap"], "mounts": ["k", "d"],
         "clutch": ["lockTorque"], "battery": ["crank"], "alternator": ["charge"],
-        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"], "lights": ["brightness"]}
+        "gearbox": ["shiftRate", "lockTorque"], "turbo": ["power"], "radiator": ["integrity"], "master": ["torque"], "lights": ["brightness"],
+        "body": ["strength", "deform"], "glass": ["strength", "deform"], "wipers": ["factor"], "door": ["strength", "deform"], "seat": ["k", "strength"]}
 DOWN["fuel"], DOWN["intercooler"] = ["cap"], ["cap"]
-UP = {"steering": ["deadZone", "lagS"], "lights": ["flicker"], "flywheel": ["inertia"], "spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
+UP = {"glass": ["pits", "haze"], "steering": ["deadZone", "lagS"], "lights": ["flicker"], "flywheel": ["inertia"], "spring": ["sagMm"], "bearing": ["humVolume"], "padF": ["squealLow", "glazing"], "engine": ["dynFriction", "misfire"], "ignition": ["misfire"],
       "clutch": ["freePlay"], "gearbox": ["friction"], "diff": ["friction"], "cv": ["friction"], "turbo": ["friction"], "oil": ["dynFriction"], "exhaust": ["gainDb"], "paint": ["fade", "grime", "scuffs", "rust"]}
 KINDS = list(W.KINDS.keys())
 
@@ -174,6 +175,14 @@ def main():
     assert eff("flywheel", 0.0, real)["inertia"] <= 1.0801 and eff("lights", 0.0, real)["brightness"] >= 0.6 and eff("lights", 0.5, real)["flicker"] == 0 and eff("lights", 0.0, real)["flicker"] <= 0.25
     assert eff("exhaust", 0.0, real)["mufflingOffset"] >= -0.2001 and eff("exhaust", 0.0, real)["gainDb"] <= 1.501, "inside the game's own sport-exhaust range"
     assert W.failureStep("alternator", 0.1, 1, real, lambda: 0.0) is not None and W.failureStep("steering", 0.12, 1, real, lambda: 0.0) is not None
+    # the body (0.2.0-e): only deform and strength limits, never below x0.6; glass pits and haze follow the worn look setting; the wipers keep half
+    for k in ("body", "glass", "wipers", "door", "seat"):
+        assert W.PRICE[k] > 0 and W.NAME[k], ("a price and a name", k)
+    assert eff("body", 0.0, real)["strength"] == 0.6 and eff("body", 0.0, real)["deform"] == 0.6 and eff("body", 1.0, real)["strength"] == 1, "the body at worst x0.6"
+    g0, g1 = eff("glass", 0.0, real), eff("glass", 0.0, W.settings("Realistic", lua.table_from({"visualWear": 0})))
+    assert g0["pits"] > 0.5 and g0["haze"] > 0.3 and g1["pits"] == 0 and g1["haze"] == 0 and g0["strength"] >= 0.7, "glass: pits and haze follow the worn look; the strength does not"
+    assert eff("wipers", 0.0, real)["factor"] == 0.5 and eff("wipers", 1.0, real)["factor"] == 1
+    assert eff("door", 0.0, real)["strength"] >= 0.7 and eff("door", 0.0, real)["deform"] >= 0.8 and eff("seat", 0.0, real)["k"] >= 0.85 and eff("seat", 0.0, real)["strength"] >= 0.8
     # one engine cap
     assert W.torqueCap(0.99, 0.95, 0.99) == 0.95 * 0.99 or abs(W.torqueCap(0.99, 0.95, 0.99) - 0.9405) < 1e-9
     assert W.torqueCap(1, 0.95, 0.99) == 0.95 * 0.99
@@ -197,6 +206,10 @@ def main():
     assert sw("etk800_brake_F") == [("rotor", "FL,FR")] and sw("bolide_brake_RR") == [("rotor", "RL,RR")]
     assert sw("vivace_engine_internals_i4_2.0_petrol") == [("engine", "all")] and sw("covet_engine") == [("engine", "all")] and sw("sunburst2_engine_2_0_internals") == [("engine", "all")]
     assert sw("covet_flywheel") == [("clutch", "all"), ("flywheel", "all")]
+    assert sw("covet_body") == [("body", "all")] and sw("pickup_body_crew") == [("body", "all")] and sw("vivace_body") == [("body", "all")] and sw("bolide_rearbody") == []
+    assert sw("covet_door_L") == [("door", "FL")] and sw("covet_door_R") == [("door", "FR")] and sw("vivace_door_RL") == [("door", "RL")] and sw("pickup_doordetent_RR") == [("door", "RR")]
+    assert sw("covet_doorglass_L") == [("glass", "all")] and sw("covet_windshield") == [("glass", "all")] and sw("covet_tailgateglass") == [("glass", "all")] and sw("covet_doorpanel_L") == [] and sw("pickup_doorhandle_FL") == []
+    assert sw("covet_seat_FL") == [("seat", "all")] and sw("covet_seats_R") == [("seat", "all")] and sw("covet_hood") == []
     assert sw("covet_steering") == [("steering", "all")] and sw("covet_power_steering") == [] and sw("covet_taillight_R_reverse_bulb") == [("lights", "all")]
     assert sw("covet_exhaust") == [("cat", "all"), ("exhaust", "all")] and sw("pickup_muffler") == [("cat", "all"), ("exhaust", "all")] and sw("sunburst2_exhaust_turbo_race") == [("cat", "all"), ("exhaust", "all")] and sw("vivace_exhaust_tips") == []
     assert sw("vivace_fueltank") == [("fuel", "all")] and sw("sunburst2_fuelcell_race") == [("fuel", "all")]
