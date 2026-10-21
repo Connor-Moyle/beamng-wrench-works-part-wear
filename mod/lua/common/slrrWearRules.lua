@@ -22,6 +22,8 @@ M.KINDS = {
   cv = {life = 200000, group = 'drive'}, diff = {life = 300000, group = 'drive'},
   battery = {days = 1460, group = 'electrics'}, alternator = {life = 200000, group = 'electrics'}, lights = {life = 200000, days = 5475, group = 'electrics'},
   flywheel = {life = 300000, group = 'drive'},
+  body = {life = 400000, days = 7300, group = 'body'}, glass = {life = 300000, days = 7300, group = 'body'}, wipers = {life = 60000, days = 730, group = 'body'},
+  door = {life = 200000, days = 7300, group = 'body'}, seat = {life = 300000, days = 9125, group = 'body'},
   paint = {life = 300000, days = 4380, group = 'body'},        -- the car's paint as a whole (clearcoat 8-15 years in the research; the split between km and age is MODELLED)
 }
 
@@ -63,12 +65,14 @@ end
 -- What a garage charges to put a part back to new (MODELLED, round numbers for a mid-priced car): the price of the part at 0.3 of it for a part that is only a little worn, all of it when
 -- fully worn. mult is the garage's price multiplier.
 M.PRICE = {damper = 150, spring = 130, rotor = 140, padF = 90, padR = 70, engine = 2500, filter = 40, clutch = 600, paint = 900, gearbox = 900, diff = 500, cv = 350, turbo = 1100, radiator = 300, ignition = 120, oil = 60,
-          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320, fuel = 380, cat = 350, intercooler = 450, battery = 160, alternator = 260, exhaust = 280, steering = 340, lights = 40, flywheel = 400}
+          swaybar = 180, bushing = 260, bearing = 220, fluid = 80, master = 320, fuel = 380, cat = 350, intercooler = 450, battery = 160, alternator = 260, exhaust = 280, steering = 340, lights = 40, flywheel = 400,
+          body = 1500, glass = 400, wipers = 30, door = 250, seat = 300}
 M.NAME = {damper = 'shock absorber', spring = 'spring', rotor = 'brake disc', padF = 'front brake pads', padR = 'rear brake pads', engine = 'engine internals', filter = 'air filter',
           clutch = 'clutch', paint = 'paint', gearbox = 'gearbox', diff = 'differential', cv = 'driveshafts', turbo = 'turbocharger', radiator = 'radiator',
           ignition = 'ignition', oil = 'engine oil',
           swaybar = 'anti-roll bar', bushing = 'control arm bushes', bearing = 'wheel bearing', fluid = 'brake fluid', master = 'brake master cylinder',
-          fuel = 'fuel pump and injectors', cat = 'catalytic converter', intercooler = 'intercooler', battery = 'battery', alternator = 'alternator', exhaust = 'exhaust system', steering = 'steering rack and tie rods', lights = 'bulbs', flywheel = 'flywheel'}
+          fuel = 'fuel pump and injectors', cat = 'catalytic converter', intercooler = 'intercooler', battery = 'battery', alternator = 'alternator', exhaust = 'exhaust system', steering = 'steering rack and tie rods', lights = 'bulbs', flywheel = 'flywheel',
+          body = 'body and frame', glass = 'glass', wipers = 'wiper blades', door = 'door hinges and latches', seat = 'seat mounts'}
 function M.repairPrice(kind, c, mult)
   local base = M.PRICE[kind]
   if not base then return nil end
@@ -256,6 +260,21 @@ function E.turbo(c, s) local w = eff(c, s) return {power = clamp(1 - 0.4 * w, 0.
 M.RADIATOR_WORST = 0.86
 function E.radiator(c, s) return {integrity = clamp(1 - (1 - M.RADIATOR_WORST) * eff(c, s), M.RADIATOR_WORST, 1)} end
 function E.oil(c, s) return {dynFriction = 1 + 0.15 * eff(c, s)} end
+-- the body (section B of docs/PART_WEAR_ALL_PARTS.md): rust thins the metal, so the beams of the body and frame crumple sooner. Factors on the beam's deform and strength limits only (never its
+-- spring rate: the car could fold), down to x0.6 at worst; a beam with no strength limit (FLT_MAX) keeps it. MODELLED: no source gives the loss of a rusted panel's strength.
+function E.body(c, s) local f = clamp(1 - 0.4 * eff(c, s), 0.6, 1) return {strength = f, deform = f} end
+-- glass: chips and pitting break it on a smaller hit (x0.7 at worst); pits and haze 0..1 are for Car Surface FX's setGlassWear, following the visualWear setting like the paint
+function E.glass(c, s)
+  local w, v = 1 - clamp(c, 0, 1), clamp(s.visualWear or 0, 0, 1)
+  local f = clamp(1 - 0.3 * eff(c, s), 0.7, 1)
+  return {strength = f, deform = f, pits = clamp(0.9 * w * v, 0, 1), haze = clamp(0.6 * w * v, 0, 1)}
+end
+-- wiper blades: the share of the drops a sweep clears (Car Surface FX's setWiperWear, 1 = new), down to half
+function E.wipers(c, s) return {factor = clamp(1 - 0.5 * eff(c, s), 0.5, 1)} end
+-- door hinges and latches (the bounded beams of a door part): they tear sooner and the door pops open on a smaller hit
+function E.door(c, s) local w = eff(c, s) return {strength = clamp(1 - 0.3 * w, 0.7, 1), deform = clamp(1 - 0.2 * w, 0.8, 1)} end
+-- the seat mounts: softer (the seat nodes move, a slightly lower, wobblier driver) and weaker
+function E.seat(c, s) local w = eff(c, s) return {k = clamp(1 - 0.15 * w, 0.85, 1), strength = clamp(1 - 0.2 * w, 0.8, 1)} end
 -- the paint wear look: four layers 0..1 for the paint canvas of Car Surface FX (carSurfaceFx.setPaintWear); they follow the visualWear setting, not effectStrength.
 -- fade grows with wear, grime with it more slowly, scuffs a little later, rust only from 40 % worn (MODELLED shapes: no source gives these curves)
 function E.paint(c, s)
@@ -351,6 +370,16 @@ function M.slotWear(slot)
     out[#out + 1] = { kind = 'exhaust', corners = { 'all' } }
   elseif low:find('fueltank', 1, true) or low:find('fuelcell', 1, true) then            -- the fuel pump sits in the tank
     out[#out + 1] = { kind = 'fuel', corners = { 'all' } }
+  elseif low:find('glass', 1, true) or low:find('windshield', 1, true) then
+    out[#out + 1] = { kind = 'glass', corners = { 'all' } }
+  elseif low:find('_door_', 1, true) or low:find('_doordetent_', 1, true) then           -- a door ("covet_door_L" is the coupe's front left, "vivace_door_RL" the rear left); panels, glass and handles are not the hinge
+    local k = slot:match('_door[a-z]*_(%u%u?)')
+    local corner = ({ L = 'FL', R = 'FR', FL = 'FL', FR = 'FR', RL = 'RL', RR = 'RR' })[k or '']
+    if corner then out[#out + 1] = { kind = 'door', corners = { corner } } end
+  elseif low:find('_seat_', 1, true) or low:find('_seats_', 1, true) then
+    out[#out + 1] = { kind = 'seat', corners = { 'all' } }
+  elseif low:find('_body$') or low:find('_body_%a') then
+    out[#out + 1] = { kind = 'body', corners = { 'all' } }
   elseif low:find('_steering', 1, true) then                                           -- the steering rack ("covet_steering"; the power steering pump has the word power)
     out[#out + 1] = { kind = 'steering', corners = { 'all' } }
   elseif low:find('bulb', 1, true) then
