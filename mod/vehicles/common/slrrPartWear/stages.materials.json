@@ -623,6 +623,1112 @@
    {}
   ]
  },
+ "slrr_covet_interior_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_covet_interior_worn",
+  "mapTo": "slrr_covet_interior_worn",
+  "persistentId": "fb14a070-e2bc-59f2-8bd3-7a63a7cbf14d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_interior_ao.data.png",
+    "baseColorMap": "/vehicles/covet/covet_interior_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/covet/covet_interior_m.data.png",
+    "normalMap": "/vehicles/covet/covet_interior_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/covet/covet_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_covet_interior_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_covet_interior_rusty",
+  "mapTo": "slrr_covet_interior_rusty",
+  "persistentId": "13733d10-67c4-52a0-ba2e-3f089969168b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_interior_ao.data.png",
+    "baseColorMap": "/vehicles/covet/covet_interior_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/covet/covet_interior_m.data.png",
+    "normalMap": "/vehicles/covet/covet_interior_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/covet/covet_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_covet_interior_flocked_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_covet_interior_flocked_worn",
+  "mapTo": "slrr_covet_interior_flocked_worn",
+  "persistentId": "bdb366ff-cbf9-51e5-9ffd-90fa7484448d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_interior_ao.data.png",
+    "baseColorMap": "/vehicles/common/rally/flocked_dash_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "diffuseMapUseUV": 1,
+    "metallicMap": "/vehicles/covet/covet_interior_m.data.png",
+    "normalMap": "/vehicles/covet/covet_interior_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/rally/flocked_dash_r.data.png",
+    "roughnessMapUseUV": 1,
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_covet_interior_flocked_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_covet_interior_flocked_rusty",
+  "mapTo": "slrr_covet_interior_flocked_rusty",
+  "persistentId": "1efc975a-42a7-59d8-a9e4-fdcb6a4aa98e",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/covet/covet_interior_ao.data.png",
+    "baseColorMap": "/vehicles/common/rally/flocked_dash_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "diffuseMapUseUV": 1,
+    "metallicMap": "/vehicles/covet/covet_interior_m.data.png",
+    "normalMap": "/vehicles/covet/covet_interior_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/rally/flocked_dash_r.data.png",
+    "roughnessMapUseUV": 1,
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vivace_interior_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_vivace_interior_worn",
+  "mapTo": "slrr_vivace_interior_worn",
+  "persistentId": "b739e2fa-ed93-57cc-9f0f-2df541737dc5",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/vivace/vivace_interior_ao.data.png",
+    "baseColorMap": "vehicles/vivace/vivace_interior_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/vivace/vivace_interior_m.data.png",
+    "normalMap": "vehicles/vivace/vivace_interior_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/vivace/vivace_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vivace_interior_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_vivace_interior_rusty",
+  "mapTo": "slrr_vivace_interior_rusty",
+  "persistentId": "c25af024-dc47-507e-bc67-e527ea47b676",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/vivace/vivace_interior_ao.data.png",
+    "baseColorMap": "vehicles/vivace/vivace_interior_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/vivace/vivace_interior_m.data.png",
+    "normalMap": "vehicles/vivace/vivace_interior_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/vivace/vivace_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_pickup_interior_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_pickup_interior_worn",
+  "mapTo": "slrr_pickup_interior_worn",
+  "persistentId": "55933cb5-0a86-5d74-866d-46cabeb1092e",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/common/pickup/pickup_interior_ao.data.png",
+    "baseColorMap": "vehicles/common/pickup/pickup_interior_grey_d.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/common/pickup/pickup_interior_m.data.png",
+    "normalMap": "vehicles/common/pickup/pickup_interior_leather_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/common/pickup/pickup_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_pickup_interior_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_pickup_interior_rusty",
+  "mapTo": "slrr_pickup_interior_rusty",
+  "persistentId": "a3c03221-4ecb-5063-a9e1-0a437258385f",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/common/pickup/pickup_interior_ao.data.png",
+    "baseColorMap": "vehicles/common/pickup/pickup_interior_grey_d.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/common/pickup/pickup_interior_m.data.png",
+    "normalMap": "vehicles/common/pickup/pickup_interior_leather_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/common/pickup/pickup_interior_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_worn",
+  "mapTo": "slrr_racing_seat_worn",
+  "persistentId": "49714f8b-8e82-52c1-a4f2-ff0727fdbcab",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_rusty",
+  "mapTo": "slrr_racing_seat_rusty",
+  "persistentId": "f35deec3-d7d1-5140-b826-d8ac654ede35",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_blue_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_blue_worn",
+  "mapTo": "slrr_racing_seat_blue_worn",
+  "persistentId": "d03fe3dc-1ca8-5fa3-a60d-3719009d7375",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_blue_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_blue_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_blue_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_blue_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_blue_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_blue_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_blue_rusty",
+  "mapTo": "slrr_racing_seat_blue_rusty",
+  "persistentId": "7a098f3b-ae17-5f9a-82fe-f6e61540bbb0",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_blue_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_blue_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_blue_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_blue_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_blue_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_green_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_green_worn",
+  "mapTo": "slrr_racing_seat_green_worn",
+  "persistentId": "1d1689b6-e8e4-5deb-8cb2-af521296344f",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_green_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_green_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_green_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_green_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_green_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_green_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_green_rusty",
+  "mapTo": "slrr_racing_seat_green_rusty",
+  "persistentId": "0f74a276-ee51-5115-adb7-934860ae5509",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_green_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_green_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_green_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_green_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_green_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_red_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_red_worn",
+  "mapTo": "slrr_racing_seat_red_worn",
+  "persistentId": "eeff117e-bc77-5b5a-9d33-6993ec865574",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_red_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_red_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_red_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_red_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_red_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racing_seat_red_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_racing_seat_red_rusty",
+  "mapTo": "slrr_racing_seat_red_rusty",
+  "persistentId": "3968bbfa-92fd-5809-8374-254edc07201d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/racing_seat_red_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/racing_seat_red_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/racing_seat_red_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/racing_seat_red_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/racing_seat_red_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_racingseat_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_racingseat_worn",
+  "mapTo": "slrr_racingseat_worn",
+  "persistentId": "d21898e5-6c40-5e58-9a36-f58195e81843",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/common/racingseat/racingseat_b.color.png",
+    "metallicFactor": 0.753000021,
+    "normalMap": "/vehicles/common/racingseat/racingseat_n.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/racingseat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_racingseat_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_racingseat_rusty",
+  "mapTo": "slrr_racingseat_rusty",
+  "persistentId": "d3e72ae4-55e0-5a9f-8bd5-e1ab0228d649",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/common/racingseat/racingseat_b.color.png",
+    "metallicFactor": 0.753000021,
+    "normalMap": "/vehicles/common/racingseat/racingseat_n.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/racingseat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_offroad_seat_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_worn",
+  "mapTo": "slrr_offroad_seat_worn",
+  "persistentId": "8459f265-71f4-5b76-b3ee-2c7b9285483c",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_rusty",
+  "mapTo": "slrr_offroad_seat_rusty",
+  "persistentId": "6540677e-f9c8-51b6-a1ec-172873450f53",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_blue_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_blue_worn",
+  "mapTo": "slrr_offroad_seat_blue_worn",
+  "persistentId": "8d1bb640-0a64-552a-80f6-d8a8d4479d05",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_blue_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_blue_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_blue_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_blue_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_blue_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_blue_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_blue_rusty",
+  "mapTo": "slrr_offroad_seat_blue_rusty",
+  "persistentId": "a2fc401a-4420-56e1-bda5-9814caeb6530",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_blue_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_blue_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_blue_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_blue_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_blue_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_red_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_red_worn",
+  "mapTo": "slrr_offroad_seat_red_worn",
+  "persistentId": "28f879f2-154d-5822-a1f0-81236210b650",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_red_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_red_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_red_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_red_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_red_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_red_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_red_rusty",
+  "mapTo": "slrr_offroad_seat_red_rusty",
+  "persistentId": "d7df68a0-bc37-5b6d-8f3c-0a278b5d74ee",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_red_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_red_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_red_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_red_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_red_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_yellow_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_yellow_worn",
+  "mapTo": "slrr_offroad_seat_yellow_worn",
+  "persistentId": "d485b11a-6074-57b9-9e14-d37ad36b09c2",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_yellow_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_yellow_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_yellow_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_yellow_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_yellow_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_offroad_seat_yellow_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_offroad_seat_yellow_rusty",
+  "mapTo": "slrr_offroad_seat_yellow_rusty",
+  "persistentId": "a7349199-e290-5d7c-a452-888df8892a76",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racinginterior/offroad_seat_yellow_ao.data.png",
+    "baseColorMap": "/vehicles/common/racinginterior/offroad_seat_yellow_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racinginterior/offroad_seat_yellow_m.data.png",
+    "normalMap": "/vehicles/common/racinginterior/offroad_seat_yellow_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racinginterior/offroad_seat_yellow_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_worn",
+  "mapTo": "slrr_vintageseat_01_worn",
+  "persistentId": "734b9bc0-11db-5d1b-bc4f-48ec676063da",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01a_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01a_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01a_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01a_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01a_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_rusty",
+  "mapTo": "slrr_vintageseat_01_rusty",
+  "persistentId": "5fd7b688-d3df-5147-ae27-5552ae2eee21",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01a_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01a_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01a_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01a_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01a_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_red_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_red_worn",
+  "mapTo": "slrr_vintageseat_01_red_worn",
+  "persistentId": "c25032f4-41a3-5999-85ed-ff6fa99b232b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01c_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01c_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01c_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01c_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01c_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_red_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_red_rusty",
+  "mapTo": "slrr_vintageseat_01_red_rusty",
+  "persistentId": "93aeff13-5d86-5b02-ad3e-90c42cfeed83",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01c_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01c_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01c_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01c_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01c_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_tan_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_tan_worn",
+  "mapTo": "slrr_vintageseat_01_tan_worn",
+  "persistentId": "ea123b34-d5aa-558a-a9b1-fbd347fca213",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01b_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01b_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01b_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01b_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01b_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.35,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.4,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_vintageseat_01_tan_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_vintageseat_01_tan_rusty",
+  "mapTo": "slrr_vintageseat_01_tan_rusty",
+  "persistentId": "7426f8e6-756b-5f10-97bb-c3547db82755",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/racingseat/vintageseat_01b_ao.data.png",
+    "baseColorMap": "/vehicles/common/racingseat/vintageseat_01b_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/racingseat/vintageseat_01b_m.data.png",
+    "normalMap": "/vehicles/common/racingseat/vintageseat_01b_nm.normal.png",
+    "roughnessMap": "/vehicles/common/racingseat/vintageseat_01b_r.data.png",
+    "detailMap": "/art/slrr_partwear/seat_wear_c.data.png",
+    "detailBaseColorMapStrength": 0.7,
+    "detailNormalMap": "/art/slrr_partwear/seat_wear_n.normal.png",
+    "detailNormalMapStrength": 0.7,
+    "roughnessDetailMap": "/art/slrr_partwear/seat_wear_r.data.png",
+    "detailRoughnessMapStrength": 0.6,
+    "detailScale": [
+     5,
+     5
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
  "slrr_ardente_wheel_01a_worn": {
   "class": "Material",
   "dynamicCubemap": true,

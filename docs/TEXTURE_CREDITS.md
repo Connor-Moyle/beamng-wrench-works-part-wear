@@ -10,3 +10,4 @@ The worn brake disc look (`mod/art/slrr_partwear/disc_rust_*`, made by `tools/ma
 | worn engine bay look (the dust film's tint) | Ground080 | https://ambientcg.com/view?id=Ground080 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-21 |
 | worn wheel look, 'worn' stage (`mod/art/slrr_partwear/rim_grime_*`, `tools/make_rim_grime_textures.py`: the brake dust's grain and normal; the scuffs are drawn) | Asphalt033 | https://ambientcg.com/view?id=Asphalt033 | ambientCG (Lennart Demes and contributors) | CC0 1.0 | 2026-10-22 |
 | worn wheel look, 'rusty' stage | the mech_rust set above | | | | |
+| worn interior look (`mod/art/slrr_partwear/seat_wear_*`, `tools/make_seat_wear_textures.py`) | none: drawn (periodic noise) | | | | |
