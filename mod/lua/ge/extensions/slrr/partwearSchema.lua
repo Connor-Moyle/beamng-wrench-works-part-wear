@@ -27,11 +27,11 @@ local ROWS = {
   { 'effects', 'judder', 'Brake judder', 'How much worn brake discs shake the car under braking.', 0, 2, 0.1, 'x' },
   { 'effects', 'failureRate', 'Breakdown chance', 'How often a part that is nearly gone breaks (a snapped spring, a seized brake). Only when breakdowns are on.', 0, 3, 0.1, 'x' },
   { 'looks', 'visualWear', 'Worn look', 'How strongly worn parts show it: rust, fading paint, grime. 0 means no change to how parts look.', 0, 1, 0.05, '%' },
-  { 'looks', 'lookDiscs', 'Brake discs', 'Whether worn brake discs show rust and wear Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
-  { 'looks', 'lookMetal', 'Suspension and frame', 'Whether worn suspension, frame and exhaust metal show rust Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
-  { 'looks', 'lookEngine', 'Engine bay', 'Whether a worn engine shows oil and grime in the bay Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
-  { 'looks', 'lookRims', 'Wheel rims', 'Whether worn bearings and pads show on the rims: brake dust and grime Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
-  { 'looks', 'lookCabin', 'Interior and seats', 'Whether a worn seat or bodywork fades the whole cabin Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
+  { 'looks', 'lookDiscs', 'Brake discs', 'Whether worn brake discs show rust and wear. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
+  { 'looks', 'lookMetal', 'Suspension and frame', 'Whether worn suspension, frame and exhaust metal show rust. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
+  { 'looks', 'lookEngine', 'Engine bay', 'Whether a worn engine shows oil and grime in the bay. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
+  { 'looks', 'lookRims', 'Wheel rims', 'Whether worn bearings and pads show on the rims: brake dust and grime. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
+  { 'looks', 'lookCabin', 'Interior and seats', 'Whether a worn seat or bodywork fades the whole cabin. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
 }
 
 -- the settings read from the file, over the preset in it
