@@ -2,7 +2,7 @@
 
 For 80's slot-6 session, next to 82's QA_SLOT6_BLOCK_80.md (sections E and F there are the body kinds and the garage; this block covers everything else new in 0.2.0). Run it as the player where there is a player path (keys, the garage, Street Legal's inventory); the console lines are probes only. Nothing here has been seen in a game yet. After the run, each CHANGELOG line moves from "built offline" to "seen" ONLY with its evidence (frame, log line or number), and a line that failed or showed nothing moves to "Known limits", like the leaf springs did in 0.1.2.
 
-**Build.** Part Wear from `release-020` (with 82's rim-look/failures merges), Wrench Works 1.8.8, Car Surface FX 0.4.11 ("Water drops on the windows" on), Street Legal master (inventory). Settings in ESC > Mods > Part wear: Part wear on, Realistic, Worn look 1, "Parts can break" on. Restore the settings afterwards.
+**Build.** Part Wear from `release-020` (with 82's rim-look/failures merges), Wrench Works 1.8.9 or later, Car Surface FX 0.4.11 ("Water drops on the windows" on), Street Legal master (inventory). Settings in ESC > Mods > Part wear: Part wear on, Realistic, Worn look 1, "Parts can break" on. Restore the settings afterwards.
 
 ## H. The textures (first, they gate everything visual)
 1. Done (82, 80's cook): the six `rim_grime_*` and `seat_wear_*` textures are the game's cooked DDS in `mod/art/slrr_partwear` (the PNGs are gone) and `python tools/test_wear_textures.py` says ok. Check here only that they load: no flat black and no errors (step 2).

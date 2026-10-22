@@ -25,7 +25,7 @@ Presets: **Off**, **Light** (slow wear, small effects, no breakdowns) and **Real
 ## Requirements
 
 - BeamNG.drive 0.40.
-- Wrench Works 1.8.3 or newer: it provides the Mods page and the garage repairs (1.8.8 for the shelf: parts taken off keep their wear and can be reconditioned). Without it the rules still run, but there is no settings page and no repair entries.
+- Wrench Works 1.8.3 or newer: it provides the Mods page and the garage repairs (1.8.9 or later for the shelf: parts taken off keep their wear and can be reconditioned). Without it the rules still run, but there is no settings page and no repair entries.
 - Car Surface FX 0.4 or newer for the worn paint look; 0.4.11 for the glass pits and haze and the worn wipers.
 - Street Legal's inventory (optional): oil, coolant and battery items are used through Part Wear.
 

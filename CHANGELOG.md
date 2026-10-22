@@ -4,7 +4,7 @@
 
 Built on 0.1.2 (everything from it is included). **Nothing new in this list has been seen in the game yet**: the first session that runs it is the Part Wear and Drivers test session, and this section moves each line to "seen" only with that evidence. Everything is off by default, like the rest of part wear, and part wear itself is off until you switch it on in ESC > Mods > Part wear.
 
-Needs: Wrench Works 1.8.8 (the shelf calls and Recondition; the garage repairs work from 1.8.3), Car Surface FX 0.4.11 for the glass and wiper looks (0.4 for the paint look), BeamNG.drive 0.40. Street Legal's inventory calls `useItem` when you use oil, coolant or a battery.
+Needs: Wrench Works 1.8.9 or later (the shelf calls and Recondition; the garage repairs work from 1.8.3), Car Surface FX 0.4.11 for the glass and wiper looks (0.4 for the paint look), BeamNG.drive 0.40. Street Legal's inventory calls `useItem` when you use oil, coolant or a battery.
 
 ### New parts (all built and tested offline, not seen in the game)
 
@@ -37,7 +37,7 @@ Needs: Wrench Works 1.8.8 (the shelf calls and Recondition; the garage repairs w
 
 ### For other mods
 
-- `recordOf`, `restore` and `recondition` keep a taken-off part's wear on the shelf, give it back when fitted and let the garage recondition it; a hook announces the wear of the parts a swap took off (Wrench Works 1.8.8 uses them).
+- `recordOf`, `restore` and `recondition` keep a taken-off part's wear on the shelf, give it back when fitted and let the garage recondition it; a hook announces the wear of the parts a swap took off (Wrench Works 1.8.9 and later use them).
 - `useItem(vehId, kind, item)` for Street Legal's inventory: a new battery (the wear back to new; an electric car's traction battery is set to the item's charge, never a fuel or nitrous tank), an oil change (condition only: the game keeps no oil level a mod can refill) and a coolant refill (the game has no setter that leaves the radiator alone, so a refill also clears the radiator's damage).
 - `conditionsOf` lists the new parts; `setCondition` with no corner sets every corner of the kind instead of throwing.
 
