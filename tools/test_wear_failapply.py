@@ -66,6 +66,9 @@ def main():
     lua.execute("electrics.values.rpm = 0 electrics.values.wheelspeed = 0 run(12)")
     assert any("noise has stopped" in m for m in lua.eval("msgs").values()), "stopping cancels the warning"
     assert W.getCondition("fuel", "all") > 0.04, "a cancelled failure drops nothing more than the wear"
+    # hard landings are counted over the last minute and handed to the rules (the car's vertical speed falls, then stops hard)
+    lua.execute("vz = 0 obj.getVelocity = function() return {x = 0, y = 0, z = vz} end")
+    lua.execute("vz = -6 W_.updateGFX(0.016) vz = 1 W_.updateGFX(0.016) vz = 0 run(1)")
     # off: nothing; racing with the never-racing switch: nothing
     lua.execute("msgs = {} flags = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20")
     W.setSettings(lua.table(**dict(S, failures=False)))

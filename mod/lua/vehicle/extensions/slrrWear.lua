@@ -196,7 +196,11 @@ local function applyFailure(r)
     for _, corner in ipairs(CORNERS[r.drop]) do if get(r.drop, corner) > r.level then cond[r.drop] = cond[r.drop] or {} cond[r.drop][corner] = r.level dirty = true end end
   end
 end
+local landLog, failClock = {}, 0      -- the times of the hard landings of the last minute (the rules' stress input); launches and clutch slip are not measured, so they stay nil
 local function failTick(dt, speed, ev)
+  failClock = failClock + dt
+  for _ = 1, ev.landing or 0 do landLog[#landLog + 1] = failClock end
+  while landLog[1] and landLog[1] < failClock - 60 do table.remove(landLog, 1) end
   local el = electrics and electrics.values or {}
   local conds = {}
   for kind in pairs(COVERED) do
@@ -207,7 +211,7 @@ local function failTick(dt, speed, ev)
   for id in pairs(F.RULES) do if F.conditionOf(id, conds) >= F.WEAR_START then F.clearFailed(failSt, id) end end      -- repaired: it can fail again
   local eng = mainEngine()
   local maxRpm = eng and finite(eng.maxRPM, 0) or 0
-  local inputs = { oil = conds.oil, overheatS = ev.overheat_s, limiterS = ev.limiter_s, lowFuel = finite(el.fuel, 1) < 0.05,
+  local inputs = { oil = conds.oil, overheatS = ev.overheat_s, limiterS = ev.limiter_s, lowFuel = finite(el.fuel, 1) < 0.05, landings = #landLog,
                    rpmFrac = maxRpm > 0 and finite(el.rpm, 0) / maxRpm or nil, coolantC = (el.watertemp ~= nil) and finite(el.watertemp, nil) or nil }
   local running = finite(el.rpm, 0) > 50
   local ctx = { driving = running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
