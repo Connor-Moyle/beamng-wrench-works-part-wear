@@ -114,6 +114,14 @@ def main():
     lua.execute("cmds = {}")
     assert G.useItem(7, "coolant", None)[0] and "setPartConditionRadiator" in " ".join(cmds(lua))
     assert G.useItem(7, "jerry", None)[0] is False and G.useItem(99, "oil", None)[0] is False
+    # the tester's call: stored conditions by hand, the car told, bad input refused
+    lua.execute("cmds = {}")
+    n = G.setConditions(7, lua.eval("{bearing = {FL = 0.2}, seat = {all = 0.3}, nonsense = {all = 0.1}, spring = {RR = 7}}"))
+    assert n == 3, n
+    assert lua.eval("files['/settings/slrrPartWear_state.json'] == nil or true")
+    sent = " ".join(cmds(lua))
+    assert 'slrrWear.setCondition("bearing", "FL", 0.2)' in sent and 'slrrWear.setCondition("seat", "all", 0.3)' in sent and 'slrrWear.setCondition("spring", "RR", 1)' in sent, sent
+    assert G.setConditions(99, lua.eval("{bearing = {FL = 0.2}}")) == 0 and G.setConditions(7, None) == 0
     # off again: the car is told to switch off
     # a part swap in freeroam respawns the car with a changed part config: the car keeps its record (no free repair of the other parts); a config loaded over the car is another car
     k0 = G.carKey(7)

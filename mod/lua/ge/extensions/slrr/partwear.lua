@@ -474,6 +474,23 @@ function M.repair(id, kind, corner)
   else send(id, string.format('for _, c in ipairs({"FL","FR","RL","RR","F","R","all"}) do slrrWear.setCondition(%q, c, 1) end', kind)) end
 end
 
+-- For testers and the showcase (store pictures): set a car's stored conditions by hand, { kind = { corner = c } }, e.g. { bearing = { FL = 0.2 }, seat = { all = 0.3 } }. The car is told at once; the looks
+-- that are decided at spawn (rims, cabin, metal, engine bay) show after the car is spawned again with the same config. Returns the number of conditions set. Not for other mods' gameplay.
+function M.setConditions(vehId, tbl)
+  local key = settings.wearEnabled and veh(vehId) and carKey(vehId)
+  if not key or type(tbl) ~= 'table' then return 0 end
+  local n = 0
+  for kind, cs in pairs(tbl) do
+    if rules.KINDS[kind] and type(cs) == 'table' then
+      for corner, c in pairs(cs) do
+        if type(corner) == 'string' and tonumber(c) and tonumber(c) == tonumber(c) then setPair(vehId, key, kind, corner, math.max(0, math.min(1, tonumber(c)))) n = n + 1 end
+      end
+    end
+  end
+  if n > 0 then paint(vehId) end
+  return n
+end
+
 -- Using a consumable from the player's inventory (Street Legal's inventory calls this): useItem(vehId, kind, item) -> ok, why.
 --   'battery' {charge}: a new battery (Part Wear's battery condition back to new); an electric car's traction battery (type electricBattery) is also set to item.charge. Fuel and N2O tanks are never touched;
 --   an ordinary car's 12 V battery is no energy storage in the game, so there only the condition changes
