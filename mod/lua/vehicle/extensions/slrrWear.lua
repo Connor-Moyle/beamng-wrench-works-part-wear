@@ -214,7 +214,9 @@ local function failTick(dt, speed, ev)
   local inputs = { oil = conds.oil, overheatS = ev.overheat_s, limiterS = ev.limiter_s, lowFuel = finite(el.fuel, 1) < 0.05, landings = #landLog,
                    rpmFrac = maxRpm > 0 and finite(el.rpm, 0) / maxRpm or nil, coolantC = (el.watertemp ~= nil) and finite(el.watertemp, nil) or nil }
   local running = finite(el.rpm, 0) > 50
-  local ctx = { driving = running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
+  local pi = rawget(_G, 'playerInfo')
+  local seated = pi == nil or pi.anyPlayerSeated == true      -- (no playerInfo: a test) a car nobody sits in never rolls: a parked car with the engine on, or a towed one
+  local ctx = { driving = seated and running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
   for _, e in ipairs(F.tick(failSt, conds, inputs, dt, settings, rand, ctx)) do
     if e.event == 'warn' then announce(e.text)
     elseif e.event == 'cancel' then announce('The noise has stopped')

@@ -69,6 +69,14 @@ def main():
     # hard landings are counted over the last minute and handed to the rules (the car's vertical speed falls, then stops hard)
     lua.execute("vz = 0 obj.getVelocity = function() return {x = 0, y = 0, z = vz} end")
     lua.execute("vz = -6 W_.updateGFX(0.016) vz = 1 W_.updateGFX(0.016) vz = 0 run(1)")
+    # a car nobody sits in never rolls (the player left it with the engine running)
+    lua.execute("msgs = {} flags = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20 playerInfo = {anyPlayerSeated = false}")
+    W.setCondition("alternator", "all", 0.05)
+    lua.execute("run(200)")
+    assert lua.eval("#msgs") == 0 and lua.eval("#flags") == 0, "nobody seated: no rolls"
+    lua.execute("playerInfo = {anyPlayerSeated = true} run(200)")
+    assert lua.eval("#msgs") > 0, "seated: the same car rolls (the control of the check above)"
+    lua.execute("playerInfo = nil")
     # off: nothing; racing with the never-racing switch: nothing
     lua.execute("msgs = {} flags = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20")
     W.setSettings(lua.table(**dict(S, failures=False)))
