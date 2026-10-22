@@ -415,6 +415,33 @@ function M.repair(id, kind, corner)
   else send(id, string.format('for _, c in ipairs({"FL","FR","RL","RR","F","R","all"}) do slrrWear.setCondition(%q, c, 1) end', kind)) end
 end
 
+-- Using a consumable from the player's inventory (Street Legal's inventory calls this): useItem(vehId, kind, item) -> ok, why.
+--   'battery' {charge}: a new battery (Part Wear's battery condition back to new) and the game's battery charged to item.charge (default full)
+--   'oil': an oil change (Part Wear's oil condition back to new). The game keeps no oil level a mod can refill, so there is nothing else to top up.
+--   'coolant': the game's coolant refilled to full. The game has no setter that leaves the radiator alone, so a refill also clears the radiator's damage.
+-- Every call into the car is guarded: a car without the part does nothing and still answers ok.
+local ITEM_CODE = {
+  battery = 'for _, s in pairs(energyStorage and energyStorage.getStorages() or {}) do if s.setRemainingRatio then pcall(s.setRemainingRatio, s, %f) end end',
+  coolant = 'for _, d in pairs(powertrain and powertrain.getDevices() or {}) do if d.thermals and d.thermals.setPartConditionRadiator then pcall(d.thermals.setPartConditionRadiator, 0, {}) end end',
+}
+function M.useItem(vehId, kind, item)
+  if not veh(vehId) then return false, 'no such car' end
+  item = type(item) == 'table' and item or {}
+  if kind == 'battery' then
+    local ch = tonumber(item.charge) or 1
+    M.repair(vehId, 'battery', 'all')
+    send(vehId, string.format(ITEM_CODE.battery, ch ~= ch and 1 or math.max(0, math.min(1, ch))))
+    return true, 'battery swapped'
+  elseif kind == 'oil' then
+    M.repair(vehId, 'oil', 'all')
+    return true, 'oil changed (condition only)'
+  elseif kind == 'coolant' then
+    send(vehId, ITEM_CODE.coolant)
+    return true, 'coolant refilled'
+  end
+  return false, 'unknown item kind'
+end
+
 -- ---- Wrench Works garage: worn parts are listed under Services, with their condition and a price; a click pays through the garage's own wallet and sets the part back to new.
 -- The money goes through changeMoney (paid at once, not part of the visit, so undoing a visit cannot refund it). Only while part wear is on (otherwise the garage is exactly as it was). Nothing here needs Wrench Works to be installed: without it the two hooks are never called.
 local CORNER_NAME = { FL = 'front left', FR = 'front right', RL = 'rear left', RR = 'rear right', F = '', R = '', all = '' }

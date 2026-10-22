@@ -64,6 +64,16 @@ def main():
     lua.execute("cmds = {}")
     G.repair(7, "spring", "RR")
     assert cmds(lua)[0].startswith('slrrWear.setCondition("spring", "RR", 1)'), cmds(lua)
+    # inventory items: a battery swap resets the battery condition and charges the game's battery; oil resets the oil condition; coolant refills; bad input is refused
+    lua.execute("cmds = {}")
+    ok, why = G.useItem(7, "battery", lua.eval("{charge = 0.5}"))
+    sent = " ".join(cmds(lua))
+    assert ok and 'slrrWear.setCondition("battery", "all", 1)' in sent and "setRemainingRatio, s, 0.500000" in sent, sent
+    lua.execute("cmds = {}")
+    assert G.useItem(7, "oil", None)[0] and 'slrrWear.setCondition("oil", "all", 1)' in " ".join(cmds(lua))
+    lua.execute("cmds = {}")
+    assert G.useItem(7, "coolant", None)[0] and "setPartConditionRadiator" in " ".join(cmds(lua))
+    assert G.useItem(7, "jerry", None)[0] is False and G.useItem(99, "oil", None)[0] is False
     # off again: the car is told to switch off
     # a part swap in freeroam respawns the car with a changed part config: the car keeps its record (no free repair of the other parts); a config loaded over the car is another car
     k0 = G.carKey(7)
