@@ -34,20 +34,17 @@ local ROWS = {
   { 'looks', 'lookCabin', 'Interior and seats', 'Whether a worn seat or bodywork fades the whole cabin. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
 }
 
--- the built-in gameplay presets per row: easy = slower wear and fewer failures, hardcore = the reverse, sandbox = wear and failures off, realistic = the simulation on
+-- the built-in gameplay presets per row (values from 0f): easy = slower wear and fewer failures, hardcore = the reverse, sandbox = mild wear and no failures, realistic = the simulation on.
+-- The failure groups and the warnings keep their defaults in every preset until 80 has seen a warning and a failure in the game; Easy and Hardcore leave the master switch to the player.
 M.GAMEPLAY = {
-  wearEnabled = { sandbox = false, realistic = true },
-  lifeScale = { easy = 0.05, hardcore = 0.2, sandbox = 0.01 },
-  abuseScale = { easy = 0.7, hardcore = 2.5, sandbox = 0 },
-  ageScale = { easy = 0.5, hardcore = 1.5, sandbox = 0 },
-  effectStrength = { easy = 0.7, hardcore = 1.3 },
-  failures = { sandbox = false, hardcore = true, realistic = true },
+  wearEnabled = { realistic = true, sandbox = true },
+  lifeScale = { easy = 0.06, hardcore = 0.2, sandbox = 0.04 },
+  abuseScale = { easy = 0.75, hardcore = 2.5, sandbox = 0.5 },
+  ageScale = { easy = 0.5, hardcore = 1.5, sandbox = 0.3 },
+  effectStrength = { easy = 0.7, hardcore = 1.3, sandbox = 0.5 },
+  failures = { sandbox = false },
   failureRate = { easy = 0.3, hardcore = 2, sandbox = 0 },
-  failEngine = { hardcore = true, realistic = true },
-  failDrive = { hardcore = true, realistic = true },
-  failElectrics = { hardcore = true, realistic = true },
-  failureWarnings = { hardcore = false },
-  failureNeverRacing = {},
+  failureNeverRacing = { hardcore = false },
 }
 
 -- the settings read from the file, over the preset in it
