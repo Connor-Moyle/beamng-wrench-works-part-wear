@@ -60,3 +60,9 @@ wear(c): zero from 0.5 up, squared below; stress caps and floors; a healthy part
 1. Does `slrrWear.lua` already measure coolant temperature, rpm over the limiter, oil level and a launch counter (the `ABUSE_KM` events say launch, landing, limiter_s, overheat_s exist), or do I get the inputs from a reader like `slrrWearLook` does?
 2. May the apply for the engine failures go through the thermals device handle that `slrrWear` already holds (`powertrain.getDevice('mainEngine')` and its `thermals`)?
 3. Is a tow/repair hook from a5 needed on your side, or does the condition store suffice for SL?
+
+## Answers (82, 2026-10-22) and what changed
+- slrrWear already measures `overheat_s`, `limiter_s`, distance and drive time; the rules accept those as stand-ins: `inputs.overheatS` (seconds over the overheat line in the last minute, used when there is no `coolantC`) and `inputs.limiterS` (rev limiter seconds, counts as revving). Launch and landing counts are new measurements (82 adds them if wanted; without them the axle stress is 1).
+- The engine apply goes through the thermals handle `slrrWear` already holds, table forms only, guarded, with a condition-only fallback.
+- Every fail event carries a named `how` (headGasket, rings, seize, shaft, diff, gearbox, or the plain kind) and a `kind`; Part Wear fires the GE hook `onSlrrPartWearFailure(vehId, kind, how)` so Street Legal and Drivers can react (a message, a tow, an injury).
+- The first test of `lockUp()` and `onBreak()` is on a throwaway car (they change the car for good); applied only after the warning time and not during a race with never-racing on.

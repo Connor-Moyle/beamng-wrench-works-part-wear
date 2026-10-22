@@ -36,6 +36,7 @@ for i in ORDER:
     check(r.warn == 0 or (r.warnText and r.warn >= 10 and r.warn <= 120), i + ": a warning text and time, or sudden")
     res = r.result
     check(res.game or res.drop, i + ": a result")
+    check(res.how and isinstance(res.how, str), i + ": a named result for the car side")
     if res.drop:
         check(res.drop in KINDS and 0 < res.level < 0.2, i + ": the drop is a real kind at a low level")
     for k in [r.kinds[j] for j in range(1, len(r.kinds) + 1)]:
@@ -78,6 +79,23 @@ check(F.hazard("axle", 0.1, T({}), S(failDrive=False)) == 0 and F.hazard("altern
 check(F.chance(0, 5) == 0 and abs(F.chance(1, 1) - (1 - math.exp(-1))) < 1e-12 and F.chance(1e9, 1) == 1 and F.chance(-1, 1) == 0 and F.chance(None, 1) == 0, "the chance of a roll")
 check(F.expectedMinutes(0) == math.inf and abs(F.expectedMinutes(0.1) - 10) < 1e-9, "the expected minutes")
 
+
+# the car's own measurements stand in: seconds over the overheat line and limiter seconds
+check(F.stress("head_gasket", T({"overheatS": 0})) == 1 and F.stress("head_gasket", T({"overheatS": 30})) > F.stress("head_gasket", T({"overheatS": 6})) > 1 and F.stress("head_gasket", T({"overheatS": 9999})) == 10,
+      "the overheat seconds raise the head gasket stress when there is no temperature")
+check(F.stress("rod_bearings", T({"limiterS": 5})) > F.stress("rod_bearings", T({})), "limiter seconds raise the bottom-end stress")
+ev = F.force(F.newState(), "clutch", S())
+check(ev[1].event == "fail" and ev[1].how == "clutch" and ev[1].kind == "clutch", "a sudden failure carries its named result and kind")
+ev = F.tick(F.newState(), T({}), T({}), 0, S(), random.random, T({}))
+st9 = F.newState()
+F.force(st9, "head_gasket", S())
+for _ in range(100):
+    ev = F.tick(st9, T({}), T({}), 1.0, S(), random.random, T({"driving": True}))
+    if len(ev):
+        check(ev[1].event == "fail" and ev[1].how == "headGasket" and ev[1].kind == "radiator", "the pending failure ends in its named result")
+        break
+else:
+    raise SystemExit("wear failures FAIL: the forced head gasket never failed")
 
 # the machine: a worn part, the worst stress: warn, then fail after the warning, and only once
 def run(seed, minutes, conds, inp, settings, ctx, dt=1.0):
