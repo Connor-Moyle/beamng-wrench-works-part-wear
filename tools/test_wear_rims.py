@@ -8,7 +8,8 @@ import json, os, re, sys
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'mod')
 stages = json.load(open(os.path.join(ROOT, 'vehicles', 'common', 'slrrPartWear', 'stages.materials.json')))
 text = open(os.path.join(ROOT, 'lua', 'common', 'slrrWearLookList.lua')).read()
-head, tail = text.split('}, interior = {')
+head, rest = text.split('}, models = {')
+models, tail = rest.split('}, interior = {')
 rims = re.findall(r"^  '([^']+)',$", head, re.M)
 interior = re.findall(r"^  '([^']+)',$", tail, re.M)
 bad = []
@@ -47,9 +48,22 @@ for r in interior:        # the detail layer would replace a layer the material 
     for s in stages['slrr_%s_worn' % r]['Stages']:
         if s.get('emissiveFactor') or s.get('emissiveMap'):
             bad.append(r + ' has an emissive stage')
+modelRows = re.findall(r"^  (\w+) = \{ (.*) \},$", models, re.M)
+if len(modelRows) < 20:
+    bad.append('the list has only %d models' % len(modelRows))
+for model, row in modelRows:      # every material a model names has its worn and rusty variants, the metal from the mechanical set, the engine from the bay set
+    for kind, mat in re.findall(r"(\w+) = '([^']+)'", row):
+        for state in ('worn', 'rusty'):
+            m = stages.get('slrr_%s_%s' % (mat, state))
+            if not m:
+                bad.append('%s (%s of %s) has no %s variant' % (mat, kind, model, state))
+                continue
+            want = 'mech_rust' if kind == 'metal' else 'bay_grime'
+            if not any(s.get('detailMap', '').endswith('/' + want + '_c.data.png') for s in m['Stages']):
+                bad.append('%s: the detail set is not %s' % (m['name'], want))
 if bad:
     print('wear rims FAIL:')
     for b in bad:
         print('  ' + b)
     sys.exit(1)
-print('wear rims ok: %d rim and %d interior materials, worn and rusty variants, %d stage materials in all' % (len(rims), len(interior), len(stages)))
+print('wear rims ok: %d rim and %d interior materials, %d models, worn and rusty variants, %d stage materials in all' % (len(rims), len(interior), len(modelRows), len(stages)))

@@ -11,7 +11,7 @@ import json, sys, uuid, zipfile, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'mod')
 ART = '/art/slrr_partwear/'
-ZIPS = ['common.zip', 'covet.zip', 'vivace.zip', 'pickup.zip']
+ZIPS = None          # every zip next to common.zip (the other models' own materials are in their own zips)
 # the strengths (colour, normal, roughness detail) per state are MODELLED: worn = a surface bloom (discs) or grime with a little rust (metal), rusty = pitted orange rust
 DISC = {'worn': (0.55, 0.5, 0.5), 'rusty': (1.0, 1.0, 0.8)}
 MECH = {'worn': (0.3, 0.35, 0.5), 'rusty': (0.45, 0.8, 0.7)}      # (the colour detail adds to the base: at 1.0 the patches glowed like embers on the Vivace's black floor pan, 80's frame)
@@ -26,6 +26,19 @@ RIM = {'worn': (0.7, 0.5, 0.5, 'rim_grime'), 'rusty': (0.45, 0.8, 0.7, 'mech_rus
 INT = {'worn': (0.35, 0.35, 0.4, 'seat_wear'), 'rusty': (0.7, 0.7, 0.6, 'seat_wear')}
 INTERIOR = ['covet_interior', 'covet_interior_flocked', 'vivace_interior', 'pickup_interior', 'racing_seat', 'racing_seat_blue', 'racing_seat_green', 'racing_seat_red', 'racingseat',
             'offroad_seat', 'offroad_seat_blue', 'offroad_seat_red', 'offroad_seat_yellow', 'vintageseat_01', 'vintageseat_01_red', 'vintageseat_01_tan']
+# the other models of the car pool (82's survey of the stock cars' exhaust meshes: Graph docs/data/exhaust_mesh_materials_by_car.json): the metal (suspension, frame, exhaust) and the engine material
+# of each; the metal gets the low strengths of the Vivace's near-black atlas (their atlases were not measured: 80 tunes each in the game), the engine the bay strengths. model = the JBeam folder name.
+MODELS = {
+    'bastion': {'metal': 'bastion_mechanical'}, 'racetruck': {'engine': 'bastion_engine'}, 'atv': {'engine': 'atv_engine'}, 'autobello': {'engine': 'autobello_engine'},
+    'bolide': {'metal': 'bolide_mechanical', 'engine': 'bolide_engine'}, 'legran': {'metal': 'bruckell_mechanical', 'engine': 'bruckell_engine'},
+    'lansdale': {'metal': 'bruckell_mechanical', 'engine': 'bruckell_engine'}, 'wendover': {'metal': 'bruckell_mechanical', 'engine': 'bruckell_engine'},
+    'burnside': {'engine': 'burnside_v8'}, 'bx': {'metal': 'bx_mechanicals', 'engine': 'ibishu_engine'}, 'etki': {'metal': 'etki_mechanicals', 'engine': 'etki_engine'},
+    'midsize': {'metal': 'midsize_mechanical', 'engine': 'midsize_engines'}, 'midtruck': {'engine': 'midtruck_engine_petrol'}, 'miramar': {'engine': 'miramar_engine'},
+    'moonhawk': {'engine': 'moonhawk_engines'}, 'nine': {'metal': 'nine_mechanicals', 'engine': 'flathead_engines'}, 'pessima': {'engine': 'pessima_engine'},
+    'pigeon': {'engine': 'pigeon_engine'}, 'wigeon': {'engine': 'pigeon_engine'}, 'sbr': {'engine': 'boxer_engine'}, 'scintilla': {'engine': 'scintilla_engine'},
+    'sunburst2': {'metal': 'sunburst2_mechanicals'}, 'utv': {'engine': 'utv_engine'}, 'van': {'metal': 'trucks_mechanical', 'engine': 'gavril_v8'}, 'fullsize': {'engine': 'gavril_v8'},
+    'dumptruck': {'metal': 'dumptruck_frame', 'engine': 'dumptruck_engine'}, 'wl40': {'metal': 'dumptruck_frame', 'engine': 'dumptruck_engine'}, 'percheron': {'engine': 'percheron_engine'},
+}
 BAY = {'worn': (0.5, 0.25, 0.5), 'rusty': (1.0, 0.4, 1.0)}        # the engine bay: 'worn' = dust with a little oil, 'rusty' = heavy oily grime (the stage names are the file's, not rust)
 # (material, texture set, strengths, detail scale: the set tiles this many times across the material's own atlas)
 MATERIALS = [('disc_brake', 'disc_rust', DISC, 3), ('covet_mechanical', 'mech_rust', MECH, 4), ('vivace_mechanical', 'mech_rust', MECH_DARK, 4), ('trucks_mechanical', 'mech_rust', MECH, 4),
@@ -33,6 +46,12 @@ MATERIALS = [('disc_brake', 'disc_rust', DISC, 3), ('covet_mechanical', 'mech_ru
 
 
 MATERIALS += [(i, None, INT, 5) for i in INTERIOR]
+_have = {m[0] for m in MATERIALS}
+for _model, _mats in sorted(MODELS.items()):
+    for _kind, _mat in sorted(_mats.items()):
+        if _mat not in _have:
+            _have.add(_mat)
+            MATERIALS.append((_mat, 'mech_rust' if _kind == 'metal' else 'bay_grime', MECH_DARK if _kind == 'metal' else BAY, 4))
 
 
 def rim_materials(folder):
@@ -57,6 +76,7 @@ def rim_materials(folder):
 wanted = {m[0] for m in MATERIALS}
 src = {}
 folder = os.path.dirname(os.path.abspath(sys.argv[1]))
+ZIPS = sorted(f for f in os.listdir(folder) if f.endswith('.zip'))
 for zn in ZIPS:
     z = zipfile.ZipFile(os.path.join(folder, zn))
     for n in z.namelist():
@@ -111,6 +131,9 @@ with open(os.path.join(OUT, 'lua/common/slrrWearLookList.lua'), 'w') as f:
     f.write('return { rims = {\n')
     for r in sorted(rimsFound):
         f.write("  '%s',\n" % r)
+    f.write('}, models = {\n')
+    for model, mats in sorted(MODELS.items()):
+        f.write("  %s = { %s },\n" % (model, ', '.join("%s = '%s'" % (k, v) for k, v in sorted(mats.items()))))
     f.write('}, interior = {\n')
     for r in INTERIOR:
         f.write("  '%s',\n" % r)
