@@ -1729,6 +1729,2216 @@
    {}
   ]
  },
+ "slrr_atv_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_atv_engine_worn",
+  "mapTo": "slrr_atv_engine_worn",
+  "persistentId": "48a59b8b-85f7-53ba-8954-d6be61fae1a5",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/atv/atv_engine_ao.data.png",
+    "baseColorMap": "/vehicles/atv/atv_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/atv/atv_engine_m.data.png",
+    "normalMap": "/vehicles/atv/atv_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/atv/atv_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_atv_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_atv_engine_rusty",
+  "mapTo": "slrr_atv_engine_rusty",
+  "persistentId": "8ae6e008-830a-5ea7-a5af-307e30e2106d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/atv/atv_engine_ao.data.png",
+    "baseColorMap": "/vehicles/atv/atv_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/atv/atv_engine_m.data.png",
+    "normalMap": "/vehicles/atv/atv_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/atv/atv_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_autobello_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_autobello_engine_worn",
+  "mapTo": "slrr_autobello_engine_worn",
+  "persistentId": "989abf2a-5a0c-55af-a2a3-9416849fc5a5",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/autobello/autobello_engine_ao.data.png",
+    "baseColorMap": "vehicles/autobello/autobello_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/autobello/autobello_engine_m.data.png",
+    "normalMap": "vehicles/autobello/autobello_engine_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/autobello/autobello_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_autobello_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_autobello_engine_rusty",
+  "mapTo": "slrr_autobello_engine_rusty",
+  "persistentId": "9a3cbc1d-61ca-5eb7-9a1b-670ab094d5dd",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/autobello/autobello_engine_ao.data.png",
+    "baseColorMap": "vehicles/autobello/autobello_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/autobello/autobello_engine_m.data.png",
+    "normalMap": "vehicles/autobello/autobello_engine_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/autobello/autobello_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bastion_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bastion_mechanical_worn",
+  "mapTo": "slrr_bastion_mechanical_worn",
+  "persistentId": "9e10144c-eb13-518f-9f19-89decd0ebfae",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bastion/bastion_mechanical_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/bastion/bastion_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bastion/bastion_mechanical_m.data.png",
+    "normalMap": "vehicles/bastion/bastion_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/bastion/bastion_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bastion_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bastion_mechanical_rusty",
+  "mapTo": "slrr_bastion_mechanical_rusty",
+  "persistentId": "8abdbd78-8faf-591b-9c17-f73d08f645f6",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bastion/bastion_mechanical_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/bastion/bastion_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bastion/bastion_mechanical_m.data.png",
+    "normalMap": "vehicles/bastion/bastion_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/bastion/bastion_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bolide_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bolide_engine_worn",
+  "mapTo": "slrr_bolide_engine_worn",
+  "persistentId": "24f62d14-22e8-5c2b-9dea-54a78684cb09",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bolide/bolide_engine_ao.data.png",
+    "baseColorMap": "/vehicles/bolide/bolide_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bolide/bolide_engine_m.data.png",
+    "normalMap": "vehicles/bolide/bolide_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/bolide/bolide_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bolide_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bolide_engine_rusty",
+  "mapTo": "slrr_bolide_engine_rusty",
+  "persistentId": "de3efbe7-6b2c-5ef9-a681-1df630a5b1a8",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bolide/bolide_engine_ao.data.png",
+    "baseColorMap": "/vehicles/bolide/bolide_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bolide/bolide_engine_m.data.png",
+    "normalMap": "vehicles/bolide/bolide_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/bolide/bolide_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bolide_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bolide_mechanical_worn",
+  "mapTo": "slrr_bolide_mechanical_worn",
+  "persistentId": "603cfd85-32eb-5480-857c-b494f7d63a8d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bolide/bolide_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/bolide/bolide_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bolide/bolide_mechanical_m.data.png",
+    "normalMap": "vehicles/bolide/bolide_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/bolide/bolide_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bolide_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bolide_mechanical_rusty",
+  "mapTo": "slrr_bolide_mechanical_rusty",
+  "persistentId": "0aa3e395-3760-5826-8a28-0daaabfce232",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bolide/bolide_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/bolide/bolide_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bolide/bolide_mechanical_m.data.png",
+    "normalMap": "vehicles/bolide/bolide_mechanical_nm.normal.png",
+    "roughnessMap": "/vehicles/bolide/bolide_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_burnside_v8_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_burnside_v8_worn",
+  "mapTo": "slrr_burnside_v8_worn",
+  "persistentId": "9a5cdeab-76e3-5e03-af4e-86e204ee4a45",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/v8_classic/burnside_v8_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/v8_classic/burnside_v8_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/v8_classic/burnside_v8_m.data.png",
+    "normalMap": "/vehicles/common/engines/v8_classic/burnside_v8_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/engines/v8_classic/burnside_v8_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_burnside_v8_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_burnside_v8_rusty",
+  "mapTo": "slrr_burnside_v8_rusty",
+  "persistentId": "d4847b05-fb58-5ae2-b08f-943bcd13228e",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/v8_classic/burnside_v8_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/v8_classic/burnside_v8_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/v8_classic/burnside_v8_m.data.png",
+    "normalMap": "/vehicles/common/engines/v8_classic/burnside_v8_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/engines/v8_classic/burnside_v8_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "metallicFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_bx_mechanicals_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bx_mechanicals_worn",
+  "mapTo": "slrr_bx_mechanicals_worn",
+  "persistentId": "59812400-8c38-5454-b7e0-2f11def1881b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bx/bx_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/bx/bx_mechanicals_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bx/bx_mechanicals_m.data.png",
+    "normalMap": "/vehicles/bx/bx_mechanicals_nm.normal.png",
+    "roughnessMap": "/vehicles/bx/bx_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_bx_mechanicals_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bx_mechanicals_rusty",
+  "mapTo": "slrr_bx_mechanicals_rusty",
+  "persistentId": "9ef2f44c-14f8-59f9-aa48-afbdca82702a",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/bx/bx_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/bx/bx_mechanicals_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/bx/bx_mechanicals_m.data.png",
+    "normalMap": "/vehicles/bx/bx_mechanicals_nm.normal.png",
+    "roughnessMap": "/vehicles/bx/bx_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_dumptruck_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_dumptruck_engine_worn",
+  "mapTo": "slrr_dumptruck_engine_worn",
+  "persistentId": "62ded13e-c262-5c5f-917b-98985a18de87",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/wl40/i6/dumptruck_engine_ao.data.png",
+    "baseColorMap": "/vehicles/wl40/i6/dumptruck_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/wl40/i6/dumptruck_engine_m.data.png",
+    "normalMap": "/vehicles/wl40/i6/dumptruck_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/wl40/i6/dumptruck_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_dumptruck_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_dumptruck_engine_rusty",
+  "mapTo": "slrr_dumptruck_engine_rusty",
+  "persistentId": "31d2e1be-0c0c-5779-982b-058e9622ff28",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/wl40/i6/dumptruck_engine_ao.data.png",
+    "baseColorMap": "/vehicles/wl40/i6/dumptruck_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/wl40/i6/dumptruck_engine_m.data.png",
+    "normalMap": "/vehicles/wl40/i6/dumptruck_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/wl40/i6/dumptruck_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_dumptruck_frame_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_dumptruck_frame_worn",
+  "mapTo": "slrr_dumptruck_frame_worn",
+  "persistentId": "c87115ef-e22d-53b8-aaea-ba9a8ec4924d",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/dumptruck/dumptruck_frame_ao.data.png",
+    "baseColorMap": "/vehicles/dumptruck/dumptruck_frame_b.color.png",
+    "clearCoatFactor": null,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/dumptruck/dumptruck_frame_m.data.png",
+    "normalMap": "/vehicles/dumptruck/dumptruck_frame_nm.normal.png",
+    "roughnessMap": "/vehicles/dumptruck/dumptruck_frame_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatFactor": 1,
+    "colorPaletteMap": "/vehicles/common/nullcolormaskB.color.png",
+    "metallicFactor": null
+   },
+   {
+    "clearCoatFactor": null,
+    "metallicFactor": null
+   },
+   {
+    "clearCoatFactor": null,
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_dumptruck_frame_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_dumptruck_frame_rusty",
+  "mapTo": "slrr_dumptruck_frame_rusty",
+  "persistentId": "eef3baf7-57e9-53af-a684-4705a2f89379",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/dumptruck/dumptruck_frame_ao.data.png",
+    "baseColorMap": "/vehicles/dumptruck/dumptruck_frame_b.color.png",
+    "clearCoatFactor": null,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/dumptruck/dumptruck_frame_m.data.png",
+    "normalMap": "/vehicles/dumptruck/dumptruck_frame_nm.normal.png",
+    "roughnessMap": "/vehicles/dumptruck/dumptruck_frame_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatFactor": 1,
+    "colorPaletteMap": "/vehicles/common/nullcolormaskB.color.png",
+    "metallicFactor": null
+   },
+   {
+    "clearCoatFactor": null,
+    "metallicFactor": null
+   },
+   {
+    "clearCoatFactor": null,
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_etki_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_etki_engine_worn",
+  "mapTo": "slrr_etki_engine_worn",
+  "persistentId": "0e8fe655-491c-5385-b699-7f26698ae4a6",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_engine_ao.data.png",
+    "baseColorMap": "/vehicles/etki/etki_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/etki/etki_engine_m.data.png",
+    "normalMap": "/vehicles/etki/etki_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/etki/etki_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_etki_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_etki_engine_rusty",
+  "mapTo": "slrr_etki_engine_rusty",
+  "persistentId": "1ecd5f07-d5d3-5fb8-95bd-9b2299772f24",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_engine_ao.data.png",
+    "baseColorMap": "/vehicles/etki/etki_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/etki/etki_engine_m.data.png",
+    "normalMap": "/vehicles/etki/etki_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/etki/etki_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_etki_mechanicals_worn": {
+  "class": "Material",
+  "activeLayers": 2,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_etki_mechanicals_worn",
+  "mapTo": "slrr_etki_mechanicals_worn",
+  "persistentId": "c7b2fd49-d292-5616-b3fb-4641ccc00f8b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/etki/etki_mechanicals_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/etki/etki_mechanicals_m.data.png",
+    "normalMap": "/vehicles/etki/etki_mechanicals_nm.normal.png",
+    "roughnessMap": "/vehicles/etki/etki_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_mechanicals_ao.data.png",
+    "colorPaletteMap": "/vehicles/etki/etki_main_p.color.png",
+    "instanceDiffuse": true,
+    "metallicFactor": 1,
+    "normalMap": "/vehicles/etki/etki_mechanicals_nm.normal.png",
+    "opacityMap": "/vehicles/etki/etki_mechanicals_c.data.png"
+   },
+   {},
+   {}
+  ]
+ },
+ "slrr_etki_mechanicals_rusty": {
+  "class": "Material",
+  "activeLayers": 2,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_etki_mechanicals_rusty",
+  "mapTo": "slrr_etki_mechanicals_rusty",
+  "persistentId": "48424847-0a7d-5300-a1d2-7e5825271f11",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/etki/etki_mechanicals_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/etki/etki_mechanicals_m.data.png",
+    "normalMap": "/vehicles/etki/etki_mechanicals_nm.normal.png",
+    "roughnessMap": "/vehicles/etki/etki_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "ambientOcclusionMap": "/vehicles/etki/etki_mechanicals_ao.data.png",
+    "colorPaletteMap": "/vehicles/etki/etki_main_p.color.png",
+    "instanceDiffuse": true,
+    "metallicFactor": 1,
+    "normalMap": "/vehicles/etki/etki_mechanicals_nm.normal.png",
+    "opacityMap": "/vehicles/etki/etki_mechanicals_c.data.png"
+   },
+   {},
+   {}
+  ]
+ },
+ "slrr_bruckell_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bruckell_engine_worn",
+  "mapTo": "slrr_bruckell_engine_worn",
+  "persistentId": "e9ac0105-db26-5cdf-919c-004bd1ac18fc",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/bruckell_engine_ao.data.png",
+    "baseColorMap": "/vehicles/common/bruckell_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/bruckell_engine_m.data.png",
+    "normalMap": "vehicles/common/bruckell_engine_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/bruckell_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_bruckell_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bruckell_engine_rusty",
+  "mapTo": "slrr_bruckell_engine_rusty",
+  "persistentId": "a58be6ef-a666-5434-b657-1fd86b80dcf5",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/bruckell_engine_ao.data.png",
+    "baseColorMap": "/vehicles/common/bruckell_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/bruckell_engine_m.data.png",
+    "normalMap": "vehicles/common/bruckell_engine_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/bruckell_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_bruckell_mechanical_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bruckell_mechanical_worn",
+  "mapTo": "slrr_bruckell_mechanical_worn",
+  "persistentId": "4be7800c-ddf1-516f-8a51-525b59e626a5",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/bruckell_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/common/bruckell_mechanical_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/bruckell_mechanical_m.data.png",
+    "normalMap": "vehicles/common/bruckell_mechanical_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/bruckell_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_bruckell_mechanical_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_bruckell_mechanical_rusty",
+  "mapTo": "slrr_bruckell_mechanical_rusty",
+  "persistentId": "0dcb6631-3ae4-5116-a732-b8fd51d46310",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/bruckell_mechanical_ao.data.png",
+    "baseColorMap": "/vehicles/common/bruckell_mechanical_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/bruckell_mechanical_m.data.png",
+    "normalMap": "vehicles/common/bruckell_mechanical_n.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/bruckell_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_midsize_engines_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "doubleSided": true,
+  "dynamicCubemap": true,
+  "invertBackFaceNormals": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_midsize_engines_worn",
+  "mapTo": "slrr_midsize_engines_worn",
+  "persistentId": "a0fad653-0a74-5bca-8978-0823b6071c3b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/midsize/midsize_engines_ao.data.png",
+    "baseColorMap": "vehicles/midsize/midsize_engines_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/midsize/midsize_engines_m.data.png",
+    "normalMap": "vehicles/midsize/midsize_engines_nm.normal.png",
+    "roughnessMap": "vehicles/midsize/midsize_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_midsize_engines_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "doubleSided": true,
+  "dynamicCubemap": true,
+  "invertBackFaceNormals": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_midsize_engines_rusty",
+  "mapTo": "slrr_midsize_engines_rusty",
+  "persistentId": "1e02dabc-2a14-5a9d-a438-9a1c971b315c",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/midsize/midsize_engines_ao.data.png",
+    "baseColorMap": "vehicles/midsize/midsize_engines_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/midsize/midsize_engines_m.data.png",
+    "normalMap": "vehicles/midsize/midsize_engines_nm.normal.png",
+    "roughnessMap": "vehicles/midsize/midsize_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_midsize_mechanical_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_midsize_mechanical_worn",
+  "mapTo": "slrr_midsize_mechanical_worn",
+  "persistentId": "dc659dad-991d-54cf-9cb2-7524b996bb1c",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/midsize/midsize_mechanical_ao.data.png",
+    "baseColorMap": "vehicles/midsize/midsize_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/midsize/midsize_mechanical_m.data.png",
+    "normalMap": "vehicles/midsize/midsize_mechanical_nm.normal.png",
+    "roughnessMap": "vehicles/midsize/midsize_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_midsize_mechanical_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_midsize_mechanical_rusty",
+  "mapTo": "slrr_midsize_mechanical_rusty",
+  "persistentId": "22f7d293-cd86-5ed1-94f8-b808c0a98b29",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "vehicles/midsize/midsize_mechanical_ao.data.png",
+    "baseColorMap": "vehicles/midsize/midsize_mechanical_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/midsize/midsize_mechanical_m.data.png",
+    "normalMap": "vehicles/midsize/midsize_mechanical_nm.normal.png",
+    "roughnessMap": "vehicles/midsize/midsize_mechanical_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_midtruck_engine_petrol_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_midtruck_engine_petrol_worn",
+  "mapTo": "slrr_midtruck_engine_petrol_worn",
+  "persistentId": "4b93f270-8396-5830-b3fc-0744c8a19a7b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/midtruck/midtruck_engine_petrol_ao.data.png",
+    "baseColorMap": "/vehicles/midtruck/midtruck_engine_petrol_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/midtruck/midtruck_engine_petrol_m.data.png",
+    "normalMap": "vehicles/midtruck/midtruck_engine_petrol_nm.normal.png",
+    "roughnessMap": "/vehicles/midtruck/midtruck_engine_petrol_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_midtruck_engine_petrol_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_midtruck_engine_petrol_rusty",
+  "mapTo": "slrr_midtruck_engine_petrol_rusty",
+  "persistentId": "68664028-fd33-5098-9d91-5bc6d1c63ec7",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/midtruck/midtruck_engine_petrol_ao.data.png",
+    "baseColorMap": "/vehicles/midtruck/midtruck_engine_petrol_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/midtruck/midtruck_engine_petrol_m.data.png",
+    "normalMap": "vehicles/midtruck/midtruck_engine_petrol_nm.normal.png",
+    "roughnessMap": "/vehicles/midtruck/midtruck_engine_petrol_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_miramar_engine_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucent": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_miramar_engine_worn",
+  "mapTo": "slrr_miramar_engine_worn",
+  "persistentId": "b39e7648-e17a-594e-b787-b1ea5eef444b",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/miramar/miramar_engine_ao.data.png",
+    "baseColorMap": "/vehicles/miramar/miramar_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/miramar/miramar_engine_m.data.png",
+    "normalMap": "/vehicles/miramar/miramar_engine_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/miramar/miramar_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_miramar_engine_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucent": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_miramar_engine_rusty",
+  "mapTo": "slrr_miramar_engine_rusty",
+  "persistentId": "00b79f3f-0317-59ca-a7ad-13c8cdff8096",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/miramar/miramar_engine_ao.data.png",
+    "baseColorMap": "/vehicles/miramar/miramar_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/miramar/miramar_engine_m.data.png",
+    "normalMap": "/vehicles/miramar/miramar_engine_nm.normal.png",
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/miramar/miramar_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_moonhawk_engines_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucent": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_moonhawk_engines_worn",
+  "mapTo": "slrr_moonhawk_engines_worn",
+  "persistentId": "a210596b-50b5-5f06-adc1-3a7e4f30f65f",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/moonhawk/moonhawk_engines_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/moonhawk/moonhawk_engines_m.data.png",
+    "normalMap": "/vehicles/moonhawk/moonhawk_engines_n.normal.png",
+    "pixelSpecular": true,
+    "roughnessFactor": null,
+    "roughnessMap": "/vehicles/moonhawk/moonhawk_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_moonhawk_engines_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucent": true,
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_moonhawk_engines_rusty",
+  "mapTo": "slrr_moonhawk_engines_rusty",
+  "persistentId": "eca1cd8d-7a21-58d4-a033-aae669adc023",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/moonhawk/moonhawk_engines_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/moonhawk/moonhawk_engines_m.data.png",
+    "normalMap": "/vehicles/moonhawk/moonhawk_engines_n.normal.png",
+    "pixelSpecular": true,
+    "roughnessFactor": null,
+    "roughnessMap": "/vehicles/moonhawk/moonhawk_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_flathead_engines_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_flathead_engines_worn",
+  "mapTo": "slrr_flathead_engines_worn",
+  "persistentId": "af0e289c-b3d9-5bcb-a641-22f36455db28",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/flathead_engines_ao.data.png",
+    "baseColorMap": "/vehicles/common/flathead_engines_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/flathead_engines_m.data.png",
+    "normalMap": "/vehicles/common/flathead_engines_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/flathead_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_flathead_engines_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_flathead_engines_rusty",
+  "mapTo": "slrr_flathead_engines_rusty",
+  "persistentId": "dc8dcec0-33d1-5fcc-a512-7fe73d71d865",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/flathead_engines_ao.data.png",
+    "baseColorMap": "/vehicles/common/flathead_engines_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/flathead_engines_m.data.png",
+    "normalMap": "/vehicles/common/flathead_engines_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/common/flathead_engines_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_nine_mechanicals_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_nine_mechanicals_worn",
+  "mapTo": "slrr_nine_mechanicals_worn",
+  "persistentId": "5840ac28-7bd3-5d6a-9fd1-f50f39325e34",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/nine/nine_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/nine/nine_mechanicals_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/nine/nine_mechanicals_m.data.png",
+    "normalMap": "/vehicles/nine/nine_mechanicals_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/nine/nine_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_nine_mechanicals_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_nine_mechanicals_rusty",
+  "mapTo": "slrr_nine_mechanicals_rusty",
+  "persistentId": "8544c7ec-c520-5324-8d31-63d531dd0d29",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/nine/nine_mechanicals_ao.data.png",
+    "baseColorMap": "/vehicles/nine/nine_mechanicals_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/nine/nine_mechanicals_m.data.png",
+    "normalMap": "/vehicles/nine/nine_mechanicals_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "/vehicles/nine/nine_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_percheron_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_percheron_engine_worn",
+  "mapTo": "slrr_percheron_engine_worn",
+  "persistentId": "1227b51c-9bea-5582-8192-df4443a45e8a",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/percheron/percheron_engine_ao.data.png",
+    "baseColorMap": "/vehicles/percheron/percheron_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/percheron/percheron_engine_m.data.png",
+    "normalMap": "/vehicles/percheron/percheron_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/percheron/percheron_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_percheron_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_percheron_engine_rusty",
+  "mapTo": "slrr_percheron_engine_rusty",
+  "persistentId": "00ec9a36-9086-5adb-84cc-75c88e0c1b43",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/percheron/percheron_engine_ao.data.png",
+    "baseColorMap": "/vehicles/percheron/percheron_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/percheron/percheron_engine_m.data.png",
+    "normalMap": "/vehicles/percheron/percheron_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/percheron/percheron_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_pessima_engine_worn": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_pessima_engine_worn",
+  "mapTo": "slrr_pessima_engine_worn",
+  "persistentId": "43ec67c5-7ec2-5073-b1f7-543e67475414",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/common/engines/ibishu/pessima_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/ibishu/pessima_engine_m.data.png",
+    "normalMap": "/vehicles/common/engines/ibishu/pessima_engine_n.normal.png",
+    "roughnessMap": "/vehicles/common/engines/ibishu/pessima_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_pessima_engine_rusty": {
+  "class": "Material",
+  "alphaRef": 0,
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_pessima_engine_rusty",
+  "mapTo": "slrr_pessima_engine_rusty",
+  "persistentId": "3cb8d8ef-0715-5b75-ab3b-1910881b07fb",
+  "Stages": [
+   {
+    "baseColorMap": "/vehicles/common/engines/ibishu/pessima_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/ibishu/pessima_engine_m.data.png",
+    "normalMap": "/vehicles/common/engines/ibishu/pessima_engine_n.normal.png",
+    "roughnessMap": "/vehicles/common/engines/ibishu/pessima_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_pigeon_engine_worn": {
+  "class": "Material",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_pigeon_engine_worn",
+  "mapTo": "slrr_pigeon_engine_worn",
+  "persistentId": "acd1ac7e-ada8-5028-8aeb-69fa76f4e4a1",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/pigeon/pigeon_engine_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/common/pigeon/pigeon_engine_b.color.png",
+    "metallicMap": "/vehicles/common/pigeon/pigeon_engine_m.data.png",
+    "normalMap": "/vehicles/common/pigeon/pigeon_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/common/pigeon/pigeon_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "baseColorFactor": null
+   },
+   {
+    "baseColorFactor": null
+   },
+   {
+    "baseColorFactor": null
+   }
+  ]
+ },
+ "slrr_pigeon_engine_rusty": {
+  "class": "Material",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_pigeon_engine_rusty",
+  "mapTo": "slrr_pigeon_engine_rusty",
+  "persistentId": "8e818d0d-2670-5db5-9641-61413545d970",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/pigeon/pigeon_engine_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/common/pigeon/pigeon_engine_b.color.png",
+    "metallicMap": "/vehicles/common/pigeon/pigeon_engine_m.data.png",
+    "normalMap": "/vehicles/common/pigeon/pigeon_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/common/pigeon/pigeon_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "baseColorFactor": null
+   },
+   {
+    "baseColorFactor": null
+   },
+   {
+    "baseColorFactor": null
+   }
+  ]
+ },
+ "slrr_bastion_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bastion_engine_worn",
+  "mapTo": "slrr_bastion_engine_worn",
+  "persistentId": "c2e8a1f8-af1a-5850-b208-40e86f07d6cc",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/bastion/bastion_engine_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/bastion/bastion_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/bastion/bastion_engine_m.data.png",
+    "normalMap": "vehicles/common/engines/bastion/bastion_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/common/engines/bastion/bastion_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_bastion_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "translucentBlendOp": "None",
+  "version": 1.5,
+  "name": "slrr_bastion_engine_rusty",
+  "mapTo": "slrr_bastion_engine_rusty",
+  "persistentId": "709996ab-c88f-5ac4-9232-3fb3a7036483",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/bastion/bastion_engine_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/bastion/bastion_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/bastion/bastion_engine_m.data.png",
+    "normalMap": "vehicles/common/engines/bastion/bastion_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/common/engines/bastion/bastion_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_boxer_engine_worn": {
+  "class": "Material",
+  "doubleSided": true,
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_boxer_engine_worn",
+  "mapTo": "slrr_boxer_engine_worn",
+  "persistentId": "644997a0-75b9-5842-a41d-2904fcad8029",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/boxer/boxer_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/boxer/boxer_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/boxer/boxer_m.data.png",
+    "normalMap": "/vehicles/common/engines/boxer/boxer_nm.normal.png",
+    "roughnessMap": "/vehicles/common/engines/boxer/boxer_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_boxer_engine_rusty": {
+  "class": "Material",
+  "doubleSided": true,
+  "dynamicCubemap": true,
+  "version": 1.5,
+  "name": "slrr_boxer_engine_rusty",
+  "mapTo": "slrr_boxer_engine_rusty",
+  "persistentId": "0f665b5f-5115-530c-938f-92dde8b89908",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/common/engines/boxer/boxer_ao.data.png",
+    "baseColorMap": "/vehicles/common/engines/boxer/boxer_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/common/engines/boxer/boxer_m.data.png",
+    "normalMap": "/vehicles/common/engines/boxer/boxer_nm.normal.png",
+    "roughnessMap": "/vehicles/common/engines/boxer/boxer_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   },
+   {
+    "metallicFactor": null
+   }
+  ]
+ },
+ "slrr_scintilla_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_scintilla_engine_worn",
+  "mapTo": "slrr_scintilla_engine_worn",
+  "persistentId": "60f4350b-141b-57ba-a57c-4ae628a65921",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/scintilla/scintilla_engine_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/scintilla/scintilla_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/scintilla/scintilla_engine_m.data.png",
+    "normalMap": "/vehicles/scintilla/scintilla_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/scintilla/scintilla_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_scintilla_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_scintilla_engine_rusty",
+  "mapTo": "slrr_scintilla_engine_rusty",
+  "persistentId": "1eeeace9-f447-547c-a7ed-9c90b0627c78",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/scintilla/scintilla_engine_ao.data.png",
+    "baseColorFactor": [
+     1,
+     0.999989986,
+     0.999989986,
+     1
+    ],
+    "baseColorMap": "/vehicles/scintilla/scintilla_engine_b.color.png",
+    "metallicFactor": 1,
+    "metallicMap": "/vehicles/scintilla/scintilla_engine_m.data.png",
+    "normalMap": "/vehicles/scintilla/scintilla_engine_nm.normal.png",
+    "roughnessMap": "/vehicles/scintilla/scintilla_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_sunburst2_mechanicals_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_sunburst2_mechanicals_worn",
+  "mapTo": "slrr_sunburst2_mechanicals_worn",
+  "persistentId": "c9065371-05dd-52e9-a541-621cb0e3b3f0",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_mechanicals_ao.data.png",
+    "baseColorMap": "vehicles/sunburst2/sunburst2_mechanicals_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/sunburst2/sunburst2_mechanicals_m.data.png",
+    "normalMap": "vehicles/sunburst2/sunburst2_mechanicals_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/sunburst2/sunburst2_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.1,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.35,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_sunburst2_mechanicals_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_sunburst2_mechanicals_rusty",
+  "mapTo": "slrr_sunburst2_mechanicals_rusty",
+  "persistentId": "5a667af2-5e9f-5d99-b034-9c99b9fed250",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_mechanicals_ao.data.png",
+    "baseColorMap": "vehicles/sunburst2/sunburst2_mechanicals_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/sunburst2/sunburst2_mechanicals_m.data.png",
+    "normalMap": "vehicles/sunburst2/sunburst2_mechanicals_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/sunburst2/sunburst2_mechanicals_r.data.png",
+    "detailMap": "/art/slrr_partwear/mech_rust_c.data.png",
+    "detailBaseColorMapStrength": 0.15,
+    "detailNormalMap": "/art/slrr_partwear/mech_rust_n.normal.png",
+    "detailNormalMapStrength": 0.8,
+    "roughnessDetailMap": "/art/slrr_partwear/mech_rust_r.data.png",
+    "detailRoughnessMapStrength": 0.7,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   },
+   {
+    "clearCoatRoughnessFactor": null,
+    "metallicFactor": null,
+    "opacityFactor": null,
+    "pixelSpecular": null
+   }
+  ]
+ },
+ "slrr_utv_engine_worn": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_utv_engine_worn",
+  "mapTo": "slrr_utv_engine_worn",
+  "persistentId": "ddc60b6b-28e4-5881-89d0-58e7ab4681d3",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/utv/utv_engine_ao.data.png",
+    "baseColorMap": "vehicles/utv/utv_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/utv/utv_engine_m.data.png",
+    "normalMap": "vehicles/utv/utv_engine_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/utv/utv_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 0.5,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.25,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 0.5,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
+ "slrr_utv_engine_rusty": {
+  "class": "Material",
+  "dynamicCubemap": true,
+  "materialTag0": "beamng",
+  "materialTag1": "vehicle",
+  "version": 1.5,
+  "name": "slrr_utv_engine_rusty",
+  "mapTo": "slrr_utv_engine_rusty",
+  "persistentId": "ba69c43d-09a9-5af2-928b-52ef77940a77",
+  "Stages": [
+   {
+    "ambientOcclusionMap": "/vehicles/utv/utv_engine_ao.data.png",
+    "baseColorMap": "vehicles/utv/utv_engine_b.color.png",
+    "clearCoatRoughnessFactor": 0,
+    "metallicFactor": 1,
+    "metallicMap": "vehicles/utv/utv_engine_m.data.png",
+    "normalMap": "vehicles/utv/utv_engine_nm.normal.png",
+    "opacityFactor": 0,
+    "pixelSpecular": true,
+    "roughnessMap": "vehicles/utv/utv_engine_r.data.png",
+    "detailMap": "/art/slrr_partwear/bay_grime_c.data.png",
+    "detailBaseColorMapStrength": 1.0,
+    "detailNormalMap": "/art/slrr_partwear/bay_grime_n.normal.png",
+    "detailNormalMapStrength": 0.4,
+    "roughnessDetailMap": "/art/slrr_partwear/bay_grime_r.data.png",
+    "detailRoughnessMapStrength": 1.0,
+    "detailScale": [
+     4,
+     4
+    ]
+   },
+   {},
+   {},
+   {}
+  ]
+ },
  "slrr_ardente_wheel_01a_worn": {
   "class": "Material",
   "dynamicCubemap": true,
