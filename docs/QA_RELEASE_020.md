@@ -5,7 +5,7 @@ For 80's slot-6 session, next to 82's QA_SLOT6_BLOCK_80.md (sections E and F the
 **Build.** Part Wear from `release-020` (with 82's rim-look/failures merges), Wrench Works 1.8.8, Car Surface FX 0.4.11 ("Water drops on the windows" on), Street Legal master (inventory). Settings in ESC > Mods > Part wear: Part wear on, Realistic, Worn look 1, "Parts can break" on. Restore the settings afterwards.
 
 ## H. The textures (first, they gate everything visual)
-1. Start the game with the mod; the new detail textures `rim_grime_*` and `seat_wear_*` (PNG in the mod) are cooked by the game on first load. Copy the cooked DDS from `...\BeamNG.drive\current\temp\art\slrr_partwear` into `mod/art/slrr_partwear`, delete the six PNGs, then `python tools/test_wear_textures.py` must say ok. (Part Wear is NOT releasable before this: the stage materials name `.dds` files.)
+1. Done (82, 80's cook): the six `rim_grime_*` and `seat_wear_*` textures are the game's cooked DDS in `mod/art/slrr_partwear` (the PNGs are gone) and `python tools/test_wear_textures.py` says ok. Check here only that they load: no flat black and no errors (step 2).
 2. The log has no errors about `rim_grime`, `seat_wear` or `stages.materials.json`; nothing renders flat black.
 
 ## I. The worn looks (a Covet, a Vivace, a pickup; each look is decided at spawn, so set the conditions first, then respawn)
