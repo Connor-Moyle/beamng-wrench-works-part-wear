@@ -61,6 +61,16 @@ function M.build(S, opts)
     tooltip = 'Off: no wear. Light: slow wear, small effects, no breakdowns. Realistic: the full effects.' }
   fields[#fields + 1] = { id = 'failures', tab = 'effects', group = 'Breakdowns', type = 'bool', label = 'Parts can break', default = real.failures, store = json('failures'), apply = 'live', onChange = changed,
     tooltip = 'A part that is nearly gone can break: a snapped spring, a seized brake. Off: parts only get worse.' }
+  -- random mechanical failures (docs/FAILURES.md): which groups can fail, whether there is a warning first, and whether a race is exempt
+  for _, b in ipairs({
+    { 'failEngine', 'Engine failures', true, 'Head gasket, piston rings and the bottom end can fail on a badly worn engine. Needs "Parts can break".' },
+    { 'failDrive', 'Driveline failures', true, 'A driveshaft, the differential and the gearbox can fail on badly worn parts. Needs "Parts can break".' },
+    { 'failElectrics', 'Electrical failures', true, 'The alternator can stop charging on a badly worn one. Needs "Parts can break".' },
+    { 'failureWarnings', 'Warning before a failure', true, 'A noise or a message comes first, and stopping the engine for ten seconds can save the part. Off: failures come without warning.' },
+    { 'failureNeverRacing', 'No failures during a race', false, 'A race, a job or a chase is never ended by a random failure.' },
+  }) do
+    fields[#fields + 1] = { id = b[1], tab = 'effects', group = 'Breakdowns', type = 'bool', label = b[2], default = b[3], store = json(b[1]), apply = 'live', onChange = changed, tooltip = b[4], advanced = true }
+  end
   for _, r in ipairs(ROWS) do
     local key = r[2]
     fields[#fields + 1] = { id = key, tab = r[1], group = r[1] == 'wear' and 'Speed of wear' or (r[1] == 'effects' and 'Effects' or 'Looks'), type = 'slider', label = r[3], tooltip = r[4], min = r[5], max = r[6], step = r[7],

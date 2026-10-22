@@ -27,6 +27,13 @@ local lastVz, landCool, acc = nil, 0, {}   -- the vertical speed of the last fra
 local axles = nil                          -- wheel index -> 'F' / 'R' by where the wheel's node is on the car (jbeam y grows backward)
 local rand = math.random
 function M.setRandom(f) rand = f end
+-- random mechanical failures (slrrFailRules, docs/FAILURES.md): the rules decide, this file measures and applies. Without the rules file nothing here runs and the old failure roll stays.
+local okF, F = pcall(require, 'slrrFailRules')
+local failSt = okF and F.newState() or nil
+local racing = false                 -- set by Street Legal while a race, job or chase is on (settings.failureNeverRacing)
+function M.setRacing(b) racing = b == true end
+local COVERED = {}                   -- the kinds whose failures the rules own (the old roll skips them)
+if okF then for _, r in pairs(F.RULES) do for _, k in ipairs(r.kinds) do COVERED[k] = true end end end
 
 local function say(m) log('I', 'slrrWear', m) end
 local function layer() return rawget(_G, 'slrrWearProbe') end
@@ -133,7 +140,8 @@ local function wear(km, ev, dt)
       local c = get(kind, corner)
       local n = rules.wearStep(kind, c, {km = km, events = rules.eventsFor(kind, corner, ev)}, settings)
       if n < c then cond[kind] = cond[kind] or {} cond[kind][corner] = n dirty = true c = n end
-      local lvl, text = rules.failureStep(kind, c, dt / 3600, settings, rand)      -- a badly worn part can fail (only with the breakdowns setting on)
+      local lvl, text
+      if not (failSt and COVERED[kind]) then lvl, text = rules.failureStep(kind, c, dt / 3600, settings, rand) end      -- a badly worn part can fail (only with the breakdowns setting on)
       if lvl then cond[kind] = cond[kind] or {} cond[kind][corner] = lvl dirty = true announce(text) end
     end
   end
@@ -166,6 +174,54 @@ local function heat(ev, dt)
   if eng and eng.revLimiterActive == true then ev.limiter_s = dt end
 end
 
+-- what a failure does in the game: each call guarded, since none has been seen in a running game yet. A call that is missing on this car leaves the failure as a message only.
+local function mainEngine() return powertrain and powertrain.getDevice and powertrain.getDevice('mainEngine') end
+local function flag(eng, name) local th = eng and eng.thermals if th and th.setPartConditionThermals then pcall(th.setPartConditionThermals, 0, {[name] = true}, true) end end
+local function breakOne(match)
+  local list = {}
+  for _, d in pairs(powertrain and powertrain.getDevices and powertrain.getDevices() or {}) do
+    if type(d.type) == 'string' and d.type:find(match) and d.onBreak and not d.isBroken then list[#list + 1] = d end
+  end
+  local d = list[#list > 0 and math.max(1, math.floor(rand() * #list) + 1) or 1]
+  if d then pcall(d.onBreak, d) end
+end
+local function applyFailure(r)
+  if r.game == 'thermals' then flag(mainEngine(), r.flag)
+  elseif r.game == 'lockUp' then
+    local eng = mainEngine()
+    if eng and eng.lockUp then pcall(eng.lockUp, eng) end
+    flag(eng, r.flag or 'connectingRodBearingsDamaged')
+  elseif r.game == 'onBreak' then breakOne(r.device == 'differential' and 'differential' or (r.device == 'gearbox' and 'earbox' or 'shaft')) end
+  if r.drop and CORNERS[r.drop] then
+    for _, corner in ipairs(CORNERS[r.drop]) do if get(r.drop, corner) > r.level then cond[r.drop] = cond[r.drop] or {} cond[r.drop][corner] = r.level dirty = true end end
+  end
+end
+local function failTick(dt, speed, ev)
+  local el = electrics and electrics.values or {}
+  local conds = {}
+  for kind in pairs(COVERED) do
+    local low = 1
+    for _, corner in ipairs(CORNERS[kind] or {}) do low = math.min(low, get(kind, corner)) end
+    conds[kind] = low
+  end
+  for id in pairs(F.RULES) do if F.conditionOf(id, conds) >= F.WEAR_START then F.clearFailed(failSt, id) end end      -- repaired: it can fail again
+  local eng = mainEngine()
+  local maxRpm = eng and finite(eng.maxRPM, 0) or 0
+  local inputs = { oil = conds.oil, overheatS = ev.overheat_s, limiterS = ev.limiter_s, lowFuel = finite(el.fuel, 1) < 0.05,
+                   rpmFrac = maxRpm > 0 and finite(el.rpm, 0) / maxRpm or nil, coolantC = (el.watertemp ~= nil) and finite(el.watertemp, nil) or nil }
+  local running = finite(el.rpm, 0) > 50
+  local ctx = { driving = running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
+  for _, e in ipairs(F.tick(failSt, conds, inputs, dt, settings, rand, ctx)) do
+    if e.event == 'warn' then announce(e.text)
+    elseif e.event == 'cancel' then announce('The noise has stopped')
+    elseif e.event == 'fail' then
+      announce(e.text)
+      if e.result then applyFailure(e.result) end
+      if obj and obj.queueGameEngineLua then obj:queueGameEngineLua(string.format('extensions.hook("onSlrrPartWearFailure", %d, %q, %q)', obj:getId(), tostring(e.kind or e.id), tostring(e.how or e.id))) end
+    end
+  end
+end
+
 local function tick(dt)
   if pending > 0 then pending = pending - 1 if pending == 0 then push(true) end end      -- a few frames after a reset (the apply layer reapplies on its own after two): hand every part over again, whatever the order
   timer, report = timer + dt, report + dt
@@ -178,6 +234,7 @@ local function tick(dt)
     local decel = (lastV - speed) / timer
     if decel > HARD_STOP and lastV > HARD_FROM then if not braking then events.hardstop = 1 end braking = true elseif decel < 3 then braking = false end
     wear(speed * timer / 1000, events, timer)
+    if failSt then local ok, err = pcall(failTick, timer, speed, events) if not ok then say('failures: ' .. tostring(err)) end end
     lastV, timer = speed, 0
     push(false)
     if look() then pcall(look().update, get, settings) end      -- the worn disc look: nothing happens in a car spawned without the glowMap entry
