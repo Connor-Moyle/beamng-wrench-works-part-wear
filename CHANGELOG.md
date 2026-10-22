@@ -1,20 +1,55 @@
 # Changelog
 
-## 0.2.0 (unreleased, test build)
+## 0.2.0 (unreleased)
 
-Nothing in this list has been seen in the game yet; all of it is off by default like the rest of part wear.
+Built on 0.1.2 (everything from it is included). **Nothing new in this list has been seen in the game yet**: the first session that runs it is the Part Wear and Drivers test session, and this section moves each line to "seen" only with that evidence. Everything is off by default, like the rest of part wear, and part wear itself is off until you switch it on in ESC > Mods > Part wear.
 
-- **More parts wear.** The fuel system (injectors and pump: a little less power at the worst), the intercooler (turbo cars), the catalytic converter (less power), the battery and starter (slower cranking), the steering (a little slack), the flywheel (inertia), the bulbs (dimmer), the alternator and the exhaust sound. Each has a condition, a price and a repair in the Wrench Works garage.
-- **The body and its glass.** The body (lower break and deform limits, down to 60 %, so it crumples a little more), the glass (breaks at a lighter hit; pitting and haze on the windows through Car Surface FX, on the player's car, with its window-drops setting on), the wiper blades (they clear fewer drops), the doors (hinges and latches) and the seat. These change how a car crashes: a crash comparison in the game is still to do.
-- **Shelf calls for Wrench Works.** A part taken off keeps its wear on the shelf, comes back with it when fitted, and can be reconditioned in the garage (`recordOf`, `restore`, `recondition` and a hook when a swap takes a part off). Wrench Works 1.8.8 uses them.
-- **Worn wheels.** The rims of the stock Covet, Vivace and pickup wheels (51 rim materials) get a worn stage (brake dust and kerb scuffs) and a rusty stage (the steel's rust), as variants of the game's own rim materials with the rim's maps kept; the game side puts them in the car's glowMap at spawn from the bearing and pad conditions (82's part). The cabin and seat materials of the same cars and the game's racing, offroad and vintage seats (16 materials) get a worn stage (faded) and a heavily worn stage (creased, shiny patches), from the seat condition; only materials with no detail layer or lit stage of their own. The suspension, frame and exhaust metal and the engine bay of 28 more models of the car pool (the generated list `slrrWearLookList.models`, from the survey of the stock cars' exhaust meshes; the metal at the low strengths of the Vivace, untuned for each atlas) get the same two stages. The new detail textures are game-cooked DDS only after a test run.
-- **The whole cabin looks worn, not only the seats**: the dash and the door cards share the material with the seats.
-- **Random mechanical failures.** A badly worn engine, driveline or alternator can fail by chance, in a logical way: a part above half its condition never fails, below that the chance grows with the wear and with what really stresses it (an overheating engine for the head gasket, hard revving for the bottom end). A warning comes first (a noise, a message); stopping with the engine off for ten seconds can save the part. The game's own failures are used where it has them: blown head gasket, damaged piston rings, a seized bottom end, a broken driveshaft, differential or gearbox. Settings in Effects > Breakdowns (groups, warnings, none during a race). Off unless "Parts can break" is on; none of the game calls have been seen in a running game.
-- **Worn look on more cars.** The suspension metal and the engine bay get their worn and rusty look on 28 models (before, three), and each look (brake discs, suspension and frame, engine bay, wheel rims, interior and seats) has its own switch in the Looks tab.
-- **For the inventory.** `useItem` lets another mod swap a battery (the battery wears back to new; an electric car's traction battery is also charged), change the oil (the oil wears back to new; the game has no oil level to refill) or refill the coolant (this also clears radiator damage, because the game has no refill that leaves the radiator alone).
-- **Gameplay presets.** Every row says whether it is gameplay or graphics, and the wear rows carry Easy, Hardcore, Realistic and Sandbox values for the Wrench Works presets page (Sandbox: mild wear and no failures).
-- A call to `setCondition` with no corner now sets every corner of that kind instead of failing.
-- Everything from 0.1.2 is included.
+Needs: Wrench Works 1.8.8 (the shelf calls and Recondition; the garage repairs work from 1.8.3), Car Surface FX 0.4.11 for the glass and wiper looks (0.4 for the paint look), BeamNG.drive 0.40. Street Legal's inventory calls `useItem` when you use oil, coolant or a battery.
+
+### New parts (all built and tested offline, not seen in the game)
+
+- **Fuel system, intercooler, catalytic converter, battery.** The fuel system (injectors and pump: a little less power at the worst), the intercooler (turbo cars), the catalytic converter (less power) and the battery (slower cranking). Each has a condition, a price and a repair in the Wrench Works garage.
+- **The last five parts.** The steering (a little slack at the rack), the flywheel (inertia), the bulbs (dimmer), the alternator (a worn one charges the battery less) and the exhaust sound.
+- **The body and its glass.** The body (lower break and deform limits, down to 60 %, so it crumples a little more), the glass (breaks at a lighter hit), the doors (hinges and latches) and the seat (its mounts). These change how a car crashes: a crash comparison in the game is still to do, and the finder that reads each car's structure has a dump for the first run.
+- **Glass pits, haze and worn wipers** through Car Surface FX 0.4.11 (`setGlassWear`, `setWiperWear`): pitting and haze on the player's car, wiper blades that clear fewer drops. Needs "Water drops on the windows" on in Car Surface FX.
+- **Still not seen from 0.1.2:** the gearbox, differential, driveshafts, turbocharger, radiator, ignition, engine oil, anti-roll bars, control arm bushes and wheel bearings, and the rust on brake calipers and hubs while driving.
+
+### Worn looks (built offline; the new detail textures are game-cooked DDS only after a test run)
+
+- **Worn wheels.** The rims of the stock Covet, Vivace and pickup wheels (51 rim materials) get a worn stage (brake dust and kerb scuffs) and a rusty stage (the steel's rust), as variants of the game's own rim materials with the rim's maps kept; the stage follows the worse of the wheel bearings and the pads, decided at spawn.
+- **Worn cabin.** The cabin and seat materials of those cars and the game's racing, offroad and vintage seats (16 materials) get a faded and a heavily worn stage from the seat condition. The dash and the door cards share the material with the seats, so the whole cabin looks worn, not only the seats. Materials with their own detail layer or lit stage (the Ardente interior and seats) and the player's chosen interior skins are left alone.
+- **Metal and engine bay of 28 more models** of the car pool (from the survey of the stock cars' exhaust meshes) get the same two stages as the Covet, Vivace and pickup have; the metal uses low strengths because the atlases were not measured one by one.
+- **A setting per look** (Looks: brake discs, suspension and frame, engine bay, wheel rims, interior and seats; 0 switches that look off) next to "Worn look". A material the game has not loaded yet gets no entry; the log says how many ("rims stage N (M materials, K not loaded)").
+- Not possible: a different stage per corner (a material is one per car), a worn look on parts with no mesh of their own (gearbox, battery, fuel tank and the like), and a change while driving other than the brake discs.
+
+### Random mechanical failures (built offline; the game calls have never run in a game)
+
+- A badly worn part can fail by chance, in a logical way: a part above half its condition never fails, below that the chance rises with the wear and with what really stresses it (an overheating engine for the head gasket, hard revving and low oil for the bottom end, torque spikes for the driveline). A warning comes first (a message, a noise): stopping with the engine off for ten seconds can save the part.
+- The game's own failures are used where it has them: a blown head gasket, damaged piston rings, a seized bottom end, a broken driveshaft, differential or gearbox (manual). Other parts drop to a low condition as before.
+- **Off by default, and never in a race.** The engine, driveline and electrical groups are separate switches and all ship off (Effects > Breakdowns), "Parts can break" must be on, and "No failures during a race" is on (a race, a job or a chase is never ended by a random failure; the Hardcore gameplay preset turns it off). Only a car with a player seated in it rolls. A seized engine or broken shaft lasts until the car is reset in the game or repaired in the garage: test it on a throwaway car first.
+- Frequency 0 to 3 times (Breakdown chance). A hook `onSlrrPartWearFailure(vehId, kind, how)` lets other mods react.
+
+### Settings and presets
+
+- New rows: the failure groups, the warning, no failures during a race, and one look slider per kind (above).
+- **Gameplay presets.** The wear and breakdown rows are tagged gameplay for Wrench Works' Gameplay presets page (Easy: slower wear, fewer failures; Hardcore: faster wear, more failures and failures in races; Realistic and Sandbox too); the look rows are tagged graphics. Part Wear's own presets (Off, Light, Realistic) are unchanged.
+
+### For other mods
+
+- `recordOf`, `restore` and `recondition` keep a taken-off part's wear on the shelf, give it back when fitted and let the garage recondition it; a hook announces the wear of the parts a swap took off (Wrench Works 1.8.8 uses them).
+- `useItem(vehId, kind, item)` for Street Legal's inventory: a new battery (the wear back to new; an electric car's traction battery is set to the item's charge, never a fuel or nitrous tank), an oil change (condition only: the game keeps no oil level a mod can refill) and a coolant refill (the game has no setter that leaves the radiator alone, so a refill also clears the radiator's damage).
+- `conditionsOf` lists the new parts; `setCondition` with no corner sets every corner of the kind instead of throwing.
+
+### Fixes (found by reading and by the offline tests)
+
+- A repaired ignition gives the game's own misfire chance back, and a worn engine's power cap gives the game's own state back at a repair and at a clear (a latch could keep the lowered power).
+- Worn bulbs are dimmed once from a saved base and restored at clear (they could compound); the steering slack is forgotten while the AI drives; a hard landing and the reset reapply no longer skip an effect.
+
+### Known limits
+
+- **Leaf springs: no effect yet** (seen in 0.1.2: the pickup's rear leaf springs are found but the game's call that changes a spring rate does nothing on these beams). The master cylinder and the brake fluid had no measurable effect in 0.1.2, and gearbox drag was not measurable.
+- None of the new parts has been measured in the game; none of the failure calls has run; the body, glass and door limits change crashes and need a crash comparison; the cooked textures for the new looks are still to be made in the game.
+- A newly fitted part of a slot no table row covers keeps the old part's wear: repair it in the Wrench Works garage.
 
 ## 0.1.2 (2026-10-22)
 
