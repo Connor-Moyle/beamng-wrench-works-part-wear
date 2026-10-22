@@ -211,6 +211,30 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
     end
   end
   stages[#stages + 1] = 'rims stage ' .. rimStage .. ' (' .. rimSet .. ' materials, ' .. rimSkipped .. ' not loaded)'
+  -- The cabin: the same entries for the interior and seat materials (list.interior), one stage for the whole cabin from the seat condition (else the worse of the bodywork). The dash and
+  -- the door cards share the material, so the whole cabin looks worn and not only the seats. Skin materials and the lit or detail-mapped ones are not in the list.
+  local inSet, inSkipped, inStage = 0, 0, 0
+  do
+    local ok, list = pcall(require, 'slrrWearLookList')
+    if ok and type(list) == 'table' and type(list.interior) == 'table' and scenetree and scenetree.findObject then
+      local c
+      for _, v in pairs(rec.seat or {}) do c = math.min(c or 1, tonumber(v) or 1) end
+      if not c then for _, v in pairs(rec.body or {}) do c = math.min(c or 1, tonumber(v) or 1) end end
+      inStage = rules.discStage(c or 1, settings.visualWear)
+      if inStage > 0 then
+        for _, mat in ipairs(list.interior) do
+          if vehicle.glowMap[mat] == nil then
+            if scenetree.findObject(mat) then
+              local look = 'slrr_' .. mat .. (inStage == 2 and '_rusty' or '_worn')
+              vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
+              inSet = inSet + 1
+            else inSkipped = inSkipped + 1 end
+          end
+        end
+      end
+    end
+  end
+  stages[#stages + 1] = 'interior stage ' .. inStage .. ' (' .. inSet .. ' materials, ' .. inSkipped .. ' not loaded)'
   say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, ' .. table.concat(stages, ', ') .. ', record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
 end
 local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }

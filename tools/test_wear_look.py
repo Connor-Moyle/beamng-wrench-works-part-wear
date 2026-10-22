@@ -155,6 +155,14 @@ def main():
     assert spawn("{padR = {R = 0.4}}")["ardente_wheel_01a"]["off"] == "slrr_ardente_wheel_01a_worn", "the pads count too"
     assert spawn("{bearing = {FL = 0.9}, padF = {F = 0.8}}")["ardente_wheel_01a"] is None, "good parts: the car's own rims"
     assert spawn("{bearing = {FL = 0.1}}", "{glowMap = {ardente_wheel_01a = {off = 'theirs', on = 'x'}}}")["ardente_wheel_01a"]["off"] == "theirs", "an entry the car already has is left alone"
+    # the cabin: one stage for the whole cabin from the seat condition, else the worse of the bodywork; a known material only; the car's own entry is left alone
+    lua.execute("scenetree = {findObject = function(n) return n == 'covet_interior' and {} or nil end}")
+    gm = spawn("{seat = {all = 0.2}}")
+    assert gm["covet_interior"]["off"] == "slrr_covet_interior_rusty" and gm["covet_interior"]["on"] == gm["covet_interior"]["off"] and gm["vivace_interior"] is None, "a worn-out seat: the heavily worn cabin; a material the game does not know gets nothing"
+    assert spawn("{seat = {all = 0.5}}")["covet_interior"]["off"] == "slrr_covet_interior_worn", "a tired seat: faded cabin"
+    assert spawn("{body = {all = 0.5}}")["covet_interior"]["off"] == "slrr_covet_interior_worn", "no seat record: the bodywork decides"
+    assert spawn("{seat = {all = 0.95}}")["covet_interior"] is None, "a good seat: the car's own cabin"
+    assert spawn("{seat = {all = 0.1}}", "{glowMap = {covet_interior = {off = 'theirs', on = 'x'}}}")["covet_interior"]["off"] == "theirs", "an entry the car already has is left alone"
     lua.execute("scenetree = nil")
     assert spawn("{bearing = {FL = 0.1}}")["ardente_wheel_01a"] is None, "no scene tree: nothing added, no error"
     lua.execute("car.JBeam = 'pickup'")
