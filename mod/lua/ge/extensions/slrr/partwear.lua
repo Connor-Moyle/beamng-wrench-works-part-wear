@@ -140,11 +140,19 @@ end
 -- The worn look at spawn. The brake discs: the car must carry the worn and rusty variants of disc_brake from spawn, so they go in its glowMap while part wear and its worn look are on
 -- (the variants are in vehicles/common/slrrPartWear/stages.materials.json, loaded with the first car; made by tools/make_disc_stage_materials.py). Cars spawned earlier keep their own discs.
 local DISC = 'disc_brake'
+-- the strength of one kind's look: 0 when the general Worn look or the kind's own setting is 0: the stages themselves do not scale
+local function vis(k) return (settings.visualWear or 0) * (tonumber(settings[k]) or 1) end
+-- the models the look list covers (JBeam name -> { metal =, engine = }, from the exhaust-mesh survey); the three tables below stay as the fallback
+local function listed(jb, what)
+  local ok, list = pcall(require, 'slrrWearLookList')
+  local m = ok and type(list) == 'table' and type(list.models) == 'table' and list.models[jb]
+  return m and m[what] or nil
+end
 -- JBeam name -> the material of the model's suspension, frame and exhaust metal (read from the game's vehicle files and a probe of a spawned pickup); the worn and rusty variants are in the same stages file
 local MECH = { covet = 'covet_mechanical', vivace = 'vivace_mechanical', pickup = 'trucks_mechanical' }
 -- JBeam name -> the material of the model's engine (block, head, headers, intake; 82's survey); its 'rusty' variant is heavy oily grime, 'worn' dust with a little oil
 local BAY = { covet = 'ibishu_engine', vivace = 'vivace_engine', pickup = 'gavril_v8' }
-local ROWS = { { 'metal', MECH, rules.mechCondition }, { 'engine', BAY, rules.engineCondition } }      -- { name in the log, JBeam -> material, the condition the stage follows }
+local ROWS = { { 'metal', MECH, rules.mechCondition, 'lookMetal' }, { 'engine', BAY, rules.engineCondition, 'lookEngine' } }      -- { name in the log, JBeam -> material, the condition the stage follows }
 function M.onJbeamLoadingPhase2(_, objID, vehicle)
   if not (settings.wearEnabled and (settings.visualWear or 0) > 0) or type(vehicle) ~= 'table' then return end
   vehicle.glowMap = vehicle.glowMap or {}
@@ -163,7 +171,7 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
         local rot = rec.rotor and tonumber(rec.rotor[corner]) or 1
         local pad = rec[axle == 'F' and 'padF' or 'padR']
         pad = pad and tonumber(pad[axle]) or 1
-        local st = rules.discStage(math.min(rot, pad), settings.visualWear)
+        local st = rules.discStage(math.min(rot, pad), vis('lookDiscs'))
         if st > 0 then e.off = st == 2 and 'slrr_disc_brake_rusty' or 'slrr_disc_brake_worn' set = set + 1 end
       end
     end
@@ -175,10 +183,10 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
   local jb = o and tostring(o.JBeam)
   local stages = {}
   for _, row in ipairs(ROWS) do
-    local mat = jb and row[2][jb]
+    local mat = jb and (row[2][jb] or listed(jb, row[1]))
     local st = 0
     if mat and vehicle.glowMap[mat] == nil then
-      st = rules.lookStage(row[3](rec), settings.visualWear)
+      st = rules.lookStage(row[3](rec), vis(row[4]))
       if st > 0 then
         local look = 'slrr_' .. mat .. (st == 2 and '_rusty' or '_worn')
         vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
@@ -196,7 +204,7 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
       local c = 1
       for _, v in pairs(rec.bearing or {}) do c = math.min(c, tonumber(v) or 1) end
       for _, k in ipairs({'padF', 'padR'}) do for _, v in pairs(rec[k] or {}) do c = math.min(c, tonumber(v) or 1) end end
-      rimStage = rules.discStage(c, settings.visualWear)
+      rimStage = rules.discStage(c, vis('lookRims'))
       if rimStage > 0 then
         for _, mat in ipairs(list.rims) do
           if vehicle.glowMap[mat] == nil then
@@ -220,7 +228,7 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
       local c
       for _, v in pairs(rec.seat or {}) do c = math.min(c or 1, tonumber(v) or 1) end
       if not c then for _, v in pairs(rec.body or {}) do c = math.min(c or 1, tonumber(v) or 1) end end
-      inStage = rules.discStage(c or 1, settings.visualWear)
+      inStage = rules.discStage(c or 1, vis('lookCabin'))
       if inStage > 0 then
         for _, mat in ipairs(list.interior) do
           if vehicle.glowMap[mat] == nil then

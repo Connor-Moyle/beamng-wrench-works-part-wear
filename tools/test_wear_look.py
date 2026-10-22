@@ -163,6 +163,19 @@ def main():
     assert spawn("{body = {all = 0.5}}")["covet_interior"]["off"] == "slrr_covet_interior_worn", "no seat record: the bodywork decides"
     assert spawn("{seat = {all = 0.95}}")["covet_interior"] is None, "a good seat: the car's own cabin"
     assert spawn("{seat = {all = 0.1}}", "{glowMap = {covet_interior = {off = 'theirs', on = 'x'}}}")["covet_interior"]["off"] == "theirs", "an entry the car already has is left alone"
+    # each kind has its own strength (times Worn look): 0 switches that kind off
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', lookCabin = 0, lookRims = 0}")
+    assert spawn("{seat = {all = 0.1}}")["covet_interior"] is None, "cabin look off: nothing"
+    lua.execute("scenetree = {findObject = function(n) return n == 'ardente_wheel_01a' and {} or nil end}")
+    assert spawn("{bearing = {FL = 0.2}}")["ardente_wheel_01a"] is None, "rims look off: nothing"
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
+    # a model of the look list that the three hard-coded ones do not have
+    lua.execute("car.JBeam = 'bolide'")
+    lua.globals().KEY = G.carKey(7)
+    gm = spawn("{engine = {all = 0.1}, spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}, damper = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}")
+    assert gm["bolide_engine"]["off"] == "slrr_bolide_engine_rusty" and gm["bolide_mechanical"]["off"] == "slrr_bolide_mechanical_rusty", "a listed model: its own materials"
+    lua.execute("car.JBeam = 'covet'")
+    lua.globals().KEY = key
     lua.execute("scenetree = nil")
     assert spawn("{bearing = {FL = 0.1}}")["ardente_wheel_01a"] is None, "no scene tree: nothing added, no error"
     lua.execute("car.JBeam = 'pickup'")
