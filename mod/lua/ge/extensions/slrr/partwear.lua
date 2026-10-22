@@ -186,6 +186,31 @@ function M.onJbeamLoadingPhase2(_, objID, vehicle)
     end
     stages[#stages + 1] = row[1] .. ' stage ' .. st
   end
+  -- The wheels' rims: the list of rim materials that have worn and rusty variants (slrrWearLookList, made from the stock wheels). One stage for the whole car from the worse of its wheel bearings
+  -- and its brake pads (like the discs). An entry is only added for a material that already exists in the game: a glowMap entry for an unknown name makes the engine create an EMPTY material of
+  -- that name, which would blank any rim that used it later. A material the car does not use gets an entry that switches nothing.
+  local rimSet, rimSkipped, rimStage = 0, 0, 0
+  do
+    local ok, list = pcall(require, 'slrrWearLookList')
+    if ok and type(list) == 'table' and type(list.rims) == 'table' and scenetree and scenetree.findObject then
+      local c = 1
+      for _, v in pairs(rec.bearing or {}) do c = math.min(c, tonumber(v) or 1) end
+      for _, k in ipairs({'padF', 'padR'}) do for _, v in pairs(rec[k] or {}) do c = math.min(c, tonumber(v) or 1) end end
+      rimStage = rules.discStage(c, settings.visualWear)
+      if rimStage > 0 then
+        for _, mat in ipairs(list.rims) do
+          if vehicle.glowMap[mat] == nil then
+            if scenetree.findObject(mat) then
+              local look = 'slrr_' .. mat .. (rimStage == 2 and '_rusty' or '_worn')
+              vehicle.glowMap[mat] = { off = look, on = look, simpleFunction = 'slrr_never' }
+              rimSet = rimSet + 1
+            else rimSkipped = rimSkipped + 1 end
+          end
+        end
+      end
+    end
+  end
+  stages[#stages + 1] = 'rims stage ' .. rimStage .. ' (' .. rimSet .. ' materials, ' .. rimSkipped .. ' not loaded)'
   say('worn disc look: glowMap entry added for car ' .. tostring(objID) .. ', ' .. set .. ' disc(s) worn at spawn, ' .. table.concat(stages, ', ') .. ', record key ' .. tostring(key) .. (rec and next(rec) and '' or ' (no record under it)'))
 end
 local lookMsc = {}               -- vehicle id -> { 'material|mesh' -> switch id }
