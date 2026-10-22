@@ -40,6 +40,22 @@ def main():
     assert "off" in G.status() and lua.eval("#cmds") == 0, "off by default: no car gets anything"
     reg = lua.eval("registered")
     assert reg["mod"] == "slrr_partwear" and len(reg["fields"]) >= 10, "the Mods page is registered"
+    # gameplay presets: looks are graphics, the rest gameplay; every preset value has the row's type and lies inside its range
+    for i in range(len(reg["fields"])):
+        f = reg["fields"][i + 1]
+        assert f["scope"] == ("graphics" if f["tab"] == "looks" else "gameplay"), (f["id"], f["scope"])
+        gp = f["gameplay"]
+        if gp is None:
+            continue
+        for name in ("easy", "hardcore", "realistic", "sandbox"):
+            v = gp[name]
+            if v is None:
+                continue
+            assert name in ("easy", "hardcore", "realistic", "sandbox")
+            if f["type"] == "bool":
+                assert isinstance(v, bool), (f["id"], name, v)
+            else:
+                assert f["min"] <= v <= f["max"], (f["id"], name, v, f["min"], f["max"])
     f0 = reg["fields"][1]
     assert f0["id"] == "wearEnabled" and f0["default"] is False and f0["feature"] is True, "the master switch is first, off by default"
     G.attach(7)

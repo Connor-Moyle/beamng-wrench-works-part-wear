@@ -34,6 +34,22 @@ local ROWS = {
   { 'looks', 'lookCabin', 'Interior and seats', 'Whether a worn seat or bodywork fades the whole cabin. Set to 0 to switch this look off.', 0, 1, 0.05, '%' },
 }
 
+-- the built-in gameplay presets per row: easy = slower wear and fewer failures, hardcore = the reverse, sandbox = wear and failures off, realistic = the simulation on
+M.GAMEPLAY = {
+  wearEnabled = { sandbox = false, realistic = true },
+  lifeScale = { easy = 0.05, hardcore = 0.2, sandbox = 0.01 },
+  abuseScale = { easy = 0.7, hardcore = 2.5, sandbox = 0 },
+  ageScale = { easy = 0.5, hardcore = 1.5, sandbox = 0 },
+  effectStrength = { easy = 0.7, hardcore = 1.3 },
+  failures = { sandbox = false, hardcore = true, realistic = true },
+  failureRate = { easy = 0.3, hardcore = 2, sandbox = 0 },
+  failEngine = { hardcore = true, realistic = true },
+  failDrive = { hardcore = true, realistic = true },
+  failElectrics = { hardcore = true, realistic = true },
+  failureWarnings = { hardcore = false },
+  failureNeverRacing = {},
+}
+
 -- the settings read from the file, over the preset in it
 function M.read(readJson)
   local f = readJson and readJson(M.FILE)
@@ -76,6 +92,10 @@ function M.build(S, opts)
     fields[#fields + 1] = { id = key, tab = r[1], group = r[1] == 'wear' and 'Speed of wear' or (r[1] == 'effects' and 'Effects' or 'Looks'), type = 'slider', label = r[3], tooltip = r[4], min = r[5], max = r[6], step = r[7],
       unit = r[8] == '%' and '%' or r[8], scale = r[8] == '%' and 100 or 1, default = real[key], store = json(key), apply = 'live', onChange = changed,
       advanced = key ~= 'lifeScale' and key ~= 'effectStrength' }
+  end
+  -- Gameplay presets (Graph docs/GAMEPLAY_PRESETS.md): the looks are graphics, every other row is gameplay; a row without an entry for a preset stays at its default there
+  for _, f in ipairs(fields) do
+    if f.tab == 'looks' then f.scope = 'graphics' else f.scope, f.gameplay = 'gameplay', M.GAMEPLAY[f.id] end
   end
   return { mod = 'slrr_partwear', title = 'Part wear', icon = 'wrench', order = 42, tabs = M.TABS, fields = fields }
 end
