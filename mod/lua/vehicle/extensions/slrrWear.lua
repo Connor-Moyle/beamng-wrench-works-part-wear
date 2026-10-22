@@ -230,7 +230,7 @@ local function failTick(dt, speed, ev)
   local ctx = { driving = seated and running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
   handleFailures(F.tick(failSt, conds, inputs, dt, settings, rand, ctx))
 end
-function M.forceFailure(id)      -- for a tester: the rule's warning now (or the failure at once when it has no warning), whatever the groups' switches say
+function M.forceFailure(id)      -- A CONSOLE CALL FOR A TESTER ON A THROWAWAY CAR: never wire it to a button or another mod. It starts the rule's warning now (or the failure at once when it has no warning), whatever the groups' switches say
   if not (failSt and F.RULES[id] and active) then return false end
   local ev = F.force(failSt, id, settings)
   handleFailures(ev)
