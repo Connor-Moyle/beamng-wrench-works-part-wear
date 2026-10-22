@@ -1,5 +1,11 @@
 # Changelog
 
+## Next (not released)
+
+Built offline, not seen in the game:
+
+- **Worn wheels.** The rims of the stock Covet, Vivace and pickup wheels (51 rim materials) get a worn stage (brake dust and kerb scuffs) and a rusty stage (the steel's rust), as variants of the game's own rim materials with the rim's maps kept; the game side puts them in the car's glowMap at spawn from the bearing and pad conditions (82's part). The cabin and seat materials of the same cars and the game's racing, offroad and vintage seats (16 materials) get a worn stage (faded) and a heavily worn stage (creased, shiny patches), from the seat condition; only materials with no detail layer or lit stage of their own. The new detail textures are game-cooked DDS only after a test run.
+
 ## 0.1.2 (2026-10-22)
 
 Seen in the game (a Vivace, a pickup and a Covet, part wear on, Realistic):

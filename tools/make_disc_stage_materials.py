@@ -21,11 +21,18 @@ MECH = {'worn': (0.3, 0.35, 0.5), 'rusty': (0.45, 0.8, 0.7)}      # (the colour 
 MECH_DARK = {'worn': (0.1, 0.35, 0.5), 'rusty': (0.15, 0.8, 0.7)}
 # the rims: 'worn' = brake dust and kerb scuffs (rim_grime), 'rusty' = the steel rim's rust (mech_rust); a strengths entry may name its own texture set as a 4th value
 RIM = {'worn': (0.7, 0.5, 0.5, 'rim_grime'), 'rusty': (0.45, 0.8, 0.7, 'mech_rust')}
+# the cabin and seats: 'worn' = faded, lightly creased; 'rusty' = the heavy wear (the stage names are the file's: no rust on upholstery). Only materials with no detail layer of their own and no
+# emissive stage (a detail layer would replace theirs; the dash lights stay as they are): the Covet, Vivace and pickup interiors and the seat materials of the game's racing, offroad and vintage seats
+INT = {'worn': (0.35, 0.35, 0.4, 'seat_wear'), 'rusty': (0.7, 0.7, 0.6, 'seat_wear')}
+INTERIOR = ['covet_interior', 'covet_interior_flocked', 'vivace_interior', 'pickup_interior', 'racing_seat', 'racing_seat_blue', 'racing_seat_green', 'racing_seat_red', 'racingseat',
+            'offroad_seat', 'offroad_seat_blue', 'offroad_seat_red', 'offroad_seat_yellow', 'vintageseat_01', 'vintageseat_01_red', 'vintageseat_01_tan']
 BAY = {'worn': (0.5, 0.25, 0.5), 'rusty': (1.0, 0.4, 1.0)}        # the engine bay: 'worn' = dust with a little oil, 'rusty' = heavy oily grime (the stage names are the file's, not rust)
 # (material, texture set, strengths, detail scale: the set tiles this many times across the material's own atlas)
 MATERIALS = [('disc_brake', 'disc_rust', DISC, 3), ('covet_mechanical', 'mech_rust', MECH, 4), ('vivace_mechanical', 'mech_rust', MECH_DARK, 4), ('trucks_mechanical', 'mech_rust', MECH, 4),
              ('ibishu_engine', 'bay_grime', BAY, 4), ('vivace_engine', 'bay_grime', BAY, 4), ('gavril_v8', 'bay_grime', BAY, 4)]
 
+
+MATERIALS += [(i, None, INT, 5) for i in INTERIOR]
 
 
 def rim_materials(folder):
@@ -103,6 +110,9 @@ with open(os.path.join(OUT, 'lua/common/slrrWearLookList.lua'), 'w') as f:
     f.write('-- made by tools/make_disc_stage_materials.py: the rim materials that have slrr_<name>_worn / _rusty stage variants (the stock wheels of the Covet, Vivace and pickup)\n')
     f.write('return { rims = {\n')
     for r in sorted(rimsFound):
+        f.write("  '%s',\n" % r)
+    f.write('}, interior = {\n')
+    for r in INTERIOR:
         f.write("  '%s',\n" % r)
     f.write('} }\n')
 print(len(out), 'variants of', ', '.join(m[0] for m in MATERIALS))
