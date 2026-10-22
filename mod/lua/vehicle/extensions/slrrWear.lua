@@ -39,7 +39,8 @@ function M.getCondition(kind, corner) return get(kind, corner or CORNERS[kind] a
 function M.setCondition(kind, corner, c)
   if not CORNERS[kind] then return false end
   cond[kind] = cond[kind] or {}
-  cond[kind][corner] = rules.clamp(finite(c, 1), 0, 1)
+  -- no corner: every corner of the kind
+  for _, k in ipairs(corner ~= nil and { corner } or CORNERS[kind]) do cond[kind][k] = rules.clamp(finite(c, 1), 0, 1) end
   dirty = true
   return true
 end

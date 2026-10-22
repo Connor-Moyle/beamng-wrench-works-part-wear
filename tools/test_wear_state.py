@@ -37,6 +37,11 @@ def main():
     assert W.status().startswith("wear on")
     assert any("6 springs, 4 dampers found" in m for m in lua.eval("logs").values()), "the found counts are in the log when part wear switches on"
     W.setCondition("damper", "FL", 0.4)
+    assert W.setCondition("damper", None, 0.7) and W.getCondition("damper", "FR") == 0.7 and W.getCondition("damper", "FL") == 0.7, "no corner: every corner of the kind"
+    W.setCondition("damper", "FL", 0.4)
+    W.setCondition("damper", "FR", 1)
+    W.setCondition("damper", "RL", 1)
+    W.setCondition("damper", "RR", 1)
     lua.execute("calls = {}")
     lua.execute("run(1, 0)")
     c = lua.eval("calls")
