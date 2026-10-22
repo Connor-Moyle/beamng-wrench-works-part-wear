@@ -69,6 +69,16 @@ def main():
     ok, why = G.useItem(7, "battery", lua.eval("{charge = 0.5}"))
     sent = " ".join(cmds(lua))
     assert ok and 'slrrWear.setCondition("battery", "all", 1)' in sent and "setRemainingRatio, s, 0.500000" in sent, sent
+    assert 's.type == "electricBattery"' in sent, "only the traction battery is charged: a fuel tank under useItem('battery') stays as it is"
+    # run the car-side code against stand-in storages: the fuel tank and the N2O tank are not touched, the battery is
+    lua.execute("""
+      local function store(t, r) return {type = t, ratio = r, setRemainingRatio = function(s, x) s.ratio = x end} end
+      tank, n2o, batt = store('fuelTank', 0.2), store('n2oTank', 0.4), store('electricBattery', 0.1)
+      energyStorage = {getStorages = function() return {tank, n2o, batt} end}
+    """)
+    lua.globals().CODE = [c for c in cmds(lua) if "setRemainingRatio" in c][0]
+    lua.execute("assert(load(CODE))()")
+    assert lua.eval("tank.ratio") == 0.2 and lua.eval("n2o.ratio") == 0.4 and lua.eval("batt.ratio") == 0.5, "fuel and N2O unchanged, the traction battery set"
     lua.execute("cmds = {}")
     assert G.useItem(7, "oil", None)[0] and 'slrrWear.setCondition("oil", "all", 1)' in " ".join(cmds(lua))
     lua.execute("cmds = {}")

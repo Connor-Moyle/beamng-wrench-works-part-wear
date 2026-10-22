@@ -473,12 +473,13 @@ function M.repair(id, kind, corner)
 end
 
 -- Using a consumable from the player's inventory (Street Legal's inventory calls this): useItem(vehId, kind, item) -> ok, why.
---   'battery' {charge}: a new battery (Part Wear's battery condition back to new) and the game's battery charged to item.charge (default full)
+--   'battery' {charge}: a new battery (Part Wear's battery condition back to new); an electric car's traction battery (type electricBattery) is also set to item.charge. Fuel and N2O tanks are never touched;
+--   an ordinary car's 12 V battery is no energy storage in the game, so there only the condition changes
 --   'oil': an oil change (Part Wear's oil condition back to new). The game keeps no oil level a mod can refill, so there is nothing else to top up.
 --   'coolant': the game's coolant refilled to full. The game has no setter that leaves the radiator alone, so a refill also clears the radiator's damage.
 -- Every call into the car is guarded: a car without the part does nothing and still answers ok.
 local ITEM_CODE = {
-  battery = 'for _, s in pairs(energyStorage and energyStorage.getStorages() or {}) do if s.setRemainingRatio then pcall(s.setRemainingRatio, s, %f) end end',
+  battery = 'for _, s in pairs(energyStorage and energyStorage.getStorages() or {}) do if s.type == "electricBattery" and s.setRemainingRatio then pcall(s.setRemainingRatio, s, %f) end end',
   coolant = 'for _, d in pairs(powertrain and powertrain.getDevices() or {}) do if d.thermals and d.thermals.setPartConditionRadiator then pcall(d.thermals.setPartConditionRadiator, 0, {}) end end',
 }
 function M.useItem(vehId, kind, item)
