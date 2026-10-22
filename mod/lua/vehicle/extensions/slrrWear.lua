@@ -196,6 +196,17 @@ local function applyFailure(r)
     for _, corner in ipairs(CORNERS[r.drop]) do if get(r.drop, corner) > r.level then cond[r.drop] = cond[r.drop] or {} cond[r.drop][corner] = r.level dirty = true end end
   end
 end
+local function handleFailures(events)      -- what the rules answered: say it, apply it, tell the game side
+  for _, e in ipairs(events) do
+    if e.event == 'warn' then announce(e.text)
+    elseif e.event == 'cancel' then announce('The noise has stopped')
+    elseif e.event == 'fail' then
+      announce(e.text)
+      if e.result then applyFailure(e.result) end
+      if obj and obj.queueGameEngineLua then obj:queueGameEngineLua(string.format('extensions.hook("onSlrrPartWearFailure", %d, %q, %q)', obj:getId(), tostring(e.kind or e.id), tostring(e.how or e.id))) end
+    end
+  end
+end
 local landLog, failClock = {}, 0      -- the times of the hard landings of the last minute (the rules' stress input); launches and clutch slip are not measured, so they stay nil
 local function failTick(dt, speed, ev)
   failClock = failClock + dt
@@ -217,15 +228,13 @@ local function failTick(dt, speed, ev)
   local pi = rawget(_G, 'playerInfo')
   local seated = pi == nil or pi.anyPlayerSeated == true      -- (no playerInfo: a test) a car nobody sits in never rolls: a parked car with the engine on, or a towed one
   local ctx = { driving = seated and running and speed > 1, stopped = (not running) and speed < 0.5, racing = racing }
-  for _, e in ipairs(F.tick(failSt, conds, inputs, dt, settings, rand, ctx)) do
-    if e.event == 'warn' then announce(e.text)
-    elseif e.event == 'cancel' then announce('The noise has stopped')
-    elseif e.event == 'fail' then
-      announce(e.text)
-      if e.result then applyFailure(e.result) end
-      if obj and obj.queueGameEngineLua then obj:queueGameEngineLua(string.format('extensions.hook("onSlrrPartWearFailure", %d, %q, %q)', obj:getId(), tostring(e.kind or e.id), tostring(e.how or e.id))) end
-    end
-  end
+  handleFailures(F.tick(failSt, conds, inputs, dt, settings, rand, ctx))
+end
+function M.forceFailure(id)      -- for a tester: the rule's warning now (or the failure at once when it has no warning), whatever the groups' switches say
+  if not (failSt and F.RULES[id] and active) then return false end
+  local ev = F.force(failSt, id, settings)
+  handleFailures(ev)
+  return #ev > 0
 end
 
 local function tick(dt)

@@ -77,6 +77,11 @@ def main():
     lua.execute("playerInfo = {anyPlayerSeated = true} run(200)")
     assert lua.eval("#msgs") > 0, "seated: the same car rolls (the control of the check above)"
     lua.execute("playerInfo = nil")
+    # a tester can make a rule warn at once
+    lua.execute("msgs = {} playerInfo = nil")
+    W.setCondition("diff", "F", 0.05)
+    assert W.forceFailure("diff") and any("differential is whining" in m for m in lua.eval("msgs").values()), "forceFailure warns"
+    assert not W.forceFailure("nonsense"), "an unknown rule is refused"
     # off: nothing; racing with the never-racing switch: nothing
     lua.execute("msgs = {} flags = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20")
     W.setSettings(lua.table(**dict(S, failures=False)))
