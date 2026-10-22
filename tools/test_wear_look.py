@@ -82,6 +82,7 @@ def main():
       be = {getObjectByID = function(_, id) return id == 7 and car or nil end, getPlayerVehicleID = function() return 7 end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
       package.preload['slrr/partwearSchema'] = function() return assert(loadfile('@ROOT@/ge/extensions/slrr/partwearSchema.lua'))() end
+      package.preload['slrrWearLookList'] = function() return assert(loadfile('@ROOT@/common/slrrWearLookList.lua'))() end
     """.replace("@ROOT@", ROOT.replace("\\", "/")))
     G = lua.execute(open(os.path.join(ROOT, "ge", "extensions", "slrr", "partwear.lua"), encoding="utf8").read())
     G.onExtensionLoaded()
@@ -144,6 +145,39 @@ def main():
     assert spawn("{engine = {all = 0.5}}")["ibishu_engine"]["off"] == "slrr_ibishu_engine_worn", "a tired engine: dust with a little oil"
     gm = spawn("{engine = {all = 0.2}, spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}, damper = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}")
     assert gm["ibishu_engine"]["off"] == "slrr_ibishu_engine_rusty" and gm["covet_mechanical"]["off"] == "slrr_covet_mechanical_rusty", "both rows at once"
+    # the rims: one stage for the whole car from the worse of the bearings and the pads; an entry only for a rim material the game already knows (an entry for an unknown name makes the engine
+    # create an empty material of that name); an entry the car has is left alone
+    lua.execute("scenetree = {findObject = function(n) return n == 'ardente_wheel_01a' and {} or nil end}")
+    gm = spawn("{bearing = {FL = 0.2}}")
+    assert gm["ardente_wheel_01a"]["off"] == "slrr_ardente_wheel_01a_rusty" and gm["ardente_wheel_01a"]["on"] == gm["ardente_wheel_01a"]["off"] and gm["ardente_wheel_01a"]["simpleFunction"] == "slrr_never", "a failing bearing: rusty rims"
+    assert gm["cherrier_wheel_01a"] is None, "a rim material the game does not know yet gets no entry"
+    assert spawn("{bearing = {RR = 0.5}}")["ardente_wheel_01a"]["off"] == "slrr_ardente_wheel_01a_worn", "a tired bearing: worn rims"
+    assert spawn("{padR = {R = 0.4}}")["ardente_wheel_01a"]["off"] == "slrr_ardente_wheel_01a_worn", "the pads count too"
+    assert spawn("{bearing = {FL = 0.9}, padF = {F = 0.8}}")["ardente_wheel_01a"] is None, "good parts: the car's own rims"
+    assert spawn("{bearing = {FL = 0.1}}", "{glowMap = {ardente_wheel_01a = {off = 'theirs', on = 'x'}}}")["ardente_wheel_01a"]["off"] == "theirs", "an entry the car already has is left alone"
+    # the cabin: one stage for the whole cabin from the seat condition, else the worse of the bodywork; a known material only; the car's own entry is left alone
+    lua.execute("scenetree = {findObject = function(n) return n == 'covet_interior' and {} or nil end}")
+    gm = spawn("{seat = {all = 0.2}}")
+    assert gm["covet_interior"]["off"] == "slrr_covet_interior_rusty" and gm["covet_interior"]["on"] == gm["covet_interior"]["off"] and gm["vivace_interior"] is None, "a worn-out seat: the heavily worn cabin; a material the game does not know gets nothing"
+    assert spawn("{seat = {all = 0.5}}")["covet_interior"]["off"] == "slrr_covet_interior_worn", "a tired seat: faded cabin"
+    assert spawn("{body = {all = 0.5}}")["covet_interior"]["off"] == "slrr_covet_interior_worn", "no seat record: the bodywork decides"
+    assert spawn("{seat = {all = 0.95}}")["covet_interior"] is None, "a good seat: the car's own cabin"
+    assert spawn("{seat = {all = 0.1}}", "{glowMap = {covet_interior = {off = 'theirs', on = 'x'}}}")["covet_interior"]["off"] == "theirs", "an entry the car already has is left alone"
+    # each kind has its own strength (times Worn look): 0 switches that kind off
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic', lookCabin = 0, lookRims = 0}")
+    assert spawn("{seat = {all = 0.1}}")["covet_interior"] is None, "cabin look off: nothing"
+    lua.execute("scenetree = {findObject = function(n) return n == 'ardente_wheel_01a' and {} or nil end}")
+    assert spawn("{bearing = {FL = 0.2}}")["ardente_wheel_01a"] is None, "rims look off: nothing"
+    lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = true, preset = 'Realistic'}")
+    # a model of the look list that the three hard-coded ones do not have
+    lua.execute("car.JBeam = 'bolide'")
+    lua.globals().KEY = G.carKey(7)
+    gm = spawn("{engine = {all = 0.1}, spring = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}, damper = {FL = 0.1, FR = 0.1, RL = 0.1, RR = 0.1}}")
+    assert gm["bolide_engine"]["off"] == "slrr_bolide_engine_rusty" and gm["bolide_mechanical"]["off"] == "slrr_bolide_mechanical_rusty", "a listed model: its own materials"
+    lua.execute("car.JBeam = 'covet'")
+    lua.globals().KEY = key
+    lua.execute("scenetree = nil")
+    assert spawn("{bearing = {FL = 0.1}}")["ardente_wheel_01a"] is None, "no scene tree: nothing added, no error"
     lua.execute("car.JBeam = 'pickup'")
     lua.globals().KEY = G.carKey(7)          # (the record key carries the model: a pickup's record is its own)
     assert spawn("{engine = {all = 0.1}}")["gavril_v8"]["off"] == "slrr_gavril_v8_rusty", "the pickup's bay material"
