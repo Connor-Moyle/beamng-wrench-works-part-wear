@@ -476,7 +476,8 @@ function M.repair(id, kind, corner)
 end
 
 -- For testers and the showcase (store pictures): set a car's stored conditions by hand, { kind = { corner = c } }, e.g. { bearing = { FL = 0.2 }, seat = { all = 0.3 } }. The car is told at once; the looks
--- that are decided at spawn (rims, cabin, metal, engine bay) show after the car is spawned again with the same config. Returns the number of conditions set. Not for other mods' gameplay.
+-- that are decided at spawn (rims, cabin, metal, engine bay) show after the car is spawned again with the same config. A corner 'all' sets every corner of a kind that has corners (bearing, padF ...).
+-- Returns the number of conditions set. Not for other mods' gameplay.
 local function validCorner(kind, corner)
   for _, k in ipairs(rules.CORNERS_OF[kind] or {}) do if k == corner then return true end end
   return false
@@ -488,7 +489,13 @@ function M.setConditions(vehId, tbl)
   for kind, cs in pairs(tbl) do
     if rules.KINDS[kind] and type(cs) == 'table' then
       for corner, c in pairs(cs) do
-        if validCorner(kind, corner) and tonumber(c) and tonumber(c) == tonumber(c) then setPair(vehId, key, kind, corner, math.max(0, math.min(1, tonumber(c)))) n = n + 1 end
+        local v = tonumber(c)
+        if v and v == v then
+          v = math.max(0, math.min(1, v))
+          -- 'all' on a kind with corners is every corner of it (a tester's shorthand); a corner the kind does not have is refused
+          local list = (corner == 'all' and not validCorner(kind, 'all')) and rules.CORNERS_OF[kind] or (validCorner(kind, corner) and { corner }) or {}
+          for _, k in ipairs(list) do setPair(vehId, key, kind, k, v) n = n + 1 end
+        end
       end
     end
   end
