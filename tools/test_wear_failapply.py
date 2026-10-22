@@ -69,6 +69,17 @@ def main():
     # hard landings are counted over the last minute and handed to the rules (the car's vertical speed falls, then stops hard)
     lua.execute("vz = 0 obj.getVelocity = function() return {x = 0, y = 0, z = vz} end")
     lua.execute("vz = -6 W_.updateGFX(0.016) vz = 1 W_.updateGFX(0.016) vz = 0 run(1)")
+    # the 0.1.2 breakdown stays the fallback while a kind's group is off: "Parts can break" alone still breaks a worn clutch; with the driveline group on, the random failures own it
+    lua.execute("msgs = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20 playerInfo = nil")
+    W.setSettings(lua.table(**dict(S, failDrive=False, failEngine=False, failElectrics=False)))
+    W.setCondition("clutch", "all", 0.12)
+    lua.execute("run(5)")
+    assert W.getCondition("clutch", "all") < 0.12 and any("clutch" in m.lower() for m in lua.eval("msgs").values()), ("old breakdown with the group off", W.getCondition("clutch", "all"), list(lua.eval("msgs").values()))
+    lua.execute("msgs = {}")
+    W.setSettings(lua.table(**S))
+    W.setCondition("clutch", "all", 0.12)
+    lua.execute("run(5)")
+    assert W.getCondition("clutch", "all") >= 0.12 - 0.01 and lua.eval("#msgs") == 0, "group on: no old breakdown in 5 s (the random failure needs a minute of driving)"
     # a car nobody sits in never rolls (the player left it with the engine running)
     lua.execute("msgs = {} flags = {} electrics.values.rpm = 4000 electrics.values.wheelspeed = 20 playerInfo = {anyPlayerSeated = false}")
     W.setCondition("alternator", "all", 0.05)

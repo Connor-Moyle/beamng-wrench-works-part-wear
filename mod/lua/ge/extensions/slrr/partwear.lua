@@ -277,13 +277,15 @@ function M.look(id, wi, stage, list)       -- called by the car (slrrWearLook): 
   say(string.format('disc look: car %s wheel %s stage %s, %d mesh(es), %d switched', tostring(id), tostring(wi), tostring(stage), n, done))      -- (a switch id below 0 is a mesh the engine made no switch for)
 end
 
+local racingSent = {}        -- player car id -> the last busy flag sent to it (slrrWear.setRacing)
 function M.attach(id)
+  racingSent[id] = nil      -- (a car that is attached again has a fresh slrrWear: it is told again)
   if not settings.wearEnabled then return end
   watched[id] = true
   chosen[id], settleAt[id] = nil, clock + SETTLE      -- (the parts are taken a moment later, see onUpdate)
   give(id)
 end
-function M.forget(id) watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id], pendingNew[id], settleAt[id] = nil, nil, nil, nil, nil, nil, nil, nil end
+function M.forget(id) racingSent[id] = nil watched[id], keyOf[id], givenKey[id], lookMsc[id], pinned[id], chosen[id], pendingNew[id], settleAt[id] = nil, nil, nil, nil, nil, nil, nil, nil end
 -- The parts the car carries, by slot, to tell which slot a swap changed: slot id -> chosen part name, from the parts tree (nodes keyed by slot id under `children`).
 local function flatten(tree, out)
   out = out or {}
@@ -591,6 +593,16 @@ end
 
 function M.getSettings() return settings end
 local checkAt = 0
+-- Street Legal's "busy": a race, a job, a chase, a phase switch, a scene or an open lot (freeToStart answers the reason). The player's car is told, so that "No failures during a race" works;
+-- outside a running career (free roam) nothing is ever busy.
+local function careerBusy()
+  local c = rawget(_G, 'sl_career')
+  if not (c and c.isActive and c.freeToStart) then return false end
+  local ok, active = pcall(c.isActive)
+  if not (ok and active) then return false end
+  local ok2, reason = pcall(c.freeToStart)
+  return ok2 and reason ~= nil
+end
 function M.onUpdate(dtReal)
   clock = clock + (dtReal or 0)
   if settings.wearEnabled and clock >= checkAt then      -- a career car gets its id a moment after it spawns, or a car changes hands: give it its record when its key is known or has changed
@@ -598,6 +610,14 @@ function M.onUpdate(dtReal)
     for id in pairs(watched) do
       local k = carKey(id) or false
       if k ~= givenKey[id] then give(id) end
+    end
+    local pid = be and be:getPlayerVehicleID(0)
+    if pid and watched[pid] then
+      local busy = careerBusy()
+      if racingSent[pid] ~= busy then
+        racingSent[pid] = busy
+        send(pid, string.format('if slrrWear and slrrWear.setRacing then slrrWear.setRacing(%s) end', tostring(busy)))
+      end
     end
   end
   if settings.wearEnabled and clock >= refreshAt then      -- the player's parts as the game reports them, once they have settled (a swap is judged against these)

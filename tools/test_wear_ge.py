@@ -67,6 +67,20 @@ def main():
     assert not any("setExtensionUnloadMode" in x for x in c), "the car's Lua has no setExtensionUnloadMode (game side only): the whole command would stop there (found in the game)"
     assert any("extensions.load('slrrWear')" in x for x in c) and any("setSettings" in x and "[\"wearEnabled\"]=true" in x for x in c), c
     assert any("restoreSnapshot" in x and '"damper"' in x and "0.4" in x for x in c), "the saved condition goes to the car"
+    # the career's busy state (a race, a job, a chase) is told to the player's car, once per change; free roam and an idle career are not busy
+    lua.execute("cmds = {} sl_career = {isActive = function() return false end, freeToStart = function() return 'no career' end}")
+    G.onUpdate(2)
+    assert not any("setRacing" in x for x in cmds(lua)) or any("setRacing(false)" in x for x in cmds(lua)), "no career: not busy"
+    lua.execute("cmds = {} sl_career.isActive = function() return true end sl_career.freeToStart = function() return 'a race is on' end")
+    G.onUpdate(2)
+    assert any("setRacing(true)" in x for x in cmds(lua)), cmds(lua)
+    lua.execute("cmds = {}")
+    G.onUpdate(2)
+    assert not any("setRacing" in x for x in cmds(lua)), "told once per change"
+    lua.execute("cmds = {} sl_career.freeToStart = function() return nil end")
+    G.onUpdate(2)
+    assert any("setRacing(false)" in x for x in cmds(lua)), "free again"
+    lua.execute("sl_career = nil")
     # a report is stored and saved after a while
     G.onReport(7, lua.eval("{spring = {RR = 0.7}}"))
     G.onUpdate(11)

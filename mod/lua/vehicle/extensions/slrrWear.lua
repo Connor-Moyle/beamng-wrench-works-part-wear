@@ -32,8 +32,20 @@ local okF, F = pcall(require, 'slrrFailRules')
 local failSt = okF and F.newState() or nil
 local racing = false                 -- set by Street Legal while a race, job or chase is on (settings.failureNeverRacing)
 function M.setRacing(b) racing = b == true end
-local COVERED = {}                   -- the kinds whose failures the rules own (the old roll skips them)
+local COVERED = {}                   -- the kinds the failure rules know
 if okF then for _, r in pairs(F.RULES) do for _, k in ipairs(r.kinds) do COVERED[k] = true end end end
+local GROUP_SETTING = { engine = 'failEngine', drive = 'failDrive', electrics = 'failElectrics' }
+-- A kind's breakdowns belong to the random failures only while one of its rules' groups is switched on; with the group off (the default) the 0.1.2 threshold breakdown ("Parts can break")
+-- stays as it was, so an upgrade loses nothing.
+local function ownedByRules(kind)
+  if not (failSt and COVERED[kind]) then return false end
+  for _, r in pairs(F.RULES) do
+    if settings[GROUP_SETTING[r.group] or ''] == true then
+      for _, k in ipairs(r.kinds) do if k == kind then return true end end
+    end
+  end
+  return false
+end
 
 local function say(m) log('I', 'slrrWear', m) end
 local function layer() return rawget(_G, 'slrrWearProbe') end
@@ -141,7 +153,7 @@ local function wear(km, ev, dt)
       local n = rules.wearStep(kind, c, {km = km, events = rules.eventsFor(kind, corner, ev)}, settings)
       if n < c then cond[kind] = cond[kind] or {} cond[kind][corner] = n dirty = true c = n end
       local lvl, text
-      if not (failSt and COVERED[kind]) then lvl, text = rules.failureStep(kind, c, dt / 3600, settings, rand) end      -- a badly worn part can fail (only with the breakdowns setting on)
+      if not ownedByRules(kind) then lvl, text = rules.failureStep(kind, c, dt / 3600, settings, rand) end      -- a badly worn part can fail (only with the breakdowns setting on)
       if lvl then cond[kind] = cond[kind] or {} cond[kind][corner] = lvl dirty = true announce(text) end
     end
   end
