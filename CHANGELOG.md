@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 (unreleased, test build)
+
+Nothing in this list has been seen in the game yet; all of it is off by default like the rest of part wear.
+
+- **More parts wear.** The fuel system (injectors and pump: a little less power at the worst), the intercooler (turbo cars), the catalytic converter (less power), the battery and starter (slower cranking), the steering (a little slack), the flywheel (inertia), the bulbs (dimmer), the alternator and the exhaust sound. Each has a condition, a price and a repair in the Wrench Works garage.
+- **The body and its glass.** The body (lower break and deform limits, down to 60 %, so it crumples a little more), the glass (breaks at a lighter hit; pitting and haze on the windows through Car Surface FX, on the player's car, with its window-drops setting on), the wiper blades (they clear fewer drops), the doors (hinges and latches) and the seat. These change how a car crashes: a crash comparison in the game is still to do.
+- **Shelf calls for Wrench Works.** A part taken off keeps its wear on the shelf, comes back with it when fitted, and can be reconditioned in the garage (`recordOf`, `restore`, `recondition` and a hook when a swap takes a part off). Wrench Works 1.8.8 uses them.
+- Everything from 0.1.2 is included.
+
 ## 0.1.2 (2026-10-22)
 
 Seen in the game (a Vivace, a pickup and a Covet, part wear on, Realistic):
