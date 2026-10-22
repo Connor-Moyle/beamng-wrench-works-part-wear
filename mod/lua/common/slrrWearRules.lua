@@ -89,6 +89,14 @@ M.lookStage = M.discStage              -- (the suspension, frame and exhaust met
 -- the condition the suspension, frame and exhaust metal look follows: the mean of the car's springs and dampers over its four corners (a corner not in the record is new: the store
 -- keeps only parts below new)
 M.CORNERS = { 'FL', 'FR', 'RL', 'RR' }
+-- the parts of the store and the corners each has ('F' / 'R' = an axle, 'all' = one for the car)
+M.CORNERS_OF = {
+  damper = {'FL', 'FR', 'RL', 'RR'}, spring = {'FL', 'FR', 'RL', 'RR'}, rotor = {'FL', 'FR', 'RL', 'RR'},
+  padF = {'F'}, padR = {'R'}, engine = {'all'}, filter = {'all'}, clutch = {'all'}, paint = {'all'},
+  gearbox = {'all'}, diff = {'F', 'R', 'all'}, cv = {'F', 'R'}, turbo = {'all'}, radiator = {'all'}, ignition = {'all'}, oil = {'all'},
+  fuel = {'all'}, cat = {'all'}, intercooler = {'all'}, battery = {'all'}, steering = {'all'}, body = {'all'}, glass = {'all'}, wipers = {'all'}, door = {'FL', 'FR', 'RL', 'RR', 'T'}, seat = {'all'}, flywheel = {'all'}, lights = {'all'}, alternator = {'all'}, exhaust = {'all'},
+  swaybar = {'F', 'R'}, bushing = {'FL', 'FR', 'RL', 'RR'}, bearing = {'FL', 'FR', 'RL', 'RR'}, fluid = {'F', 'R'}, master = {'all'},   -- paint: no apply here, the game side draws it
+}
 function M.mechCondition(rec)
   local sum = 0
   for _, kind in ipairs({ 'spring', 'damper' }) do

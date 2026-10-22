@@ -7,14 +7,8 @@
 local M = {}
 local rules = require('slrrWearRules')
 
--- the parts of the store and the corners each has ('F' / 'R' = an axle, 'all' = one for the car)
-local CORNERS = {
-  damper = {'FL', 'FR', 'RL', 'RR'}, spring = {'FL', 'FR', 'RL', 'RR'}, rotor = {'FL', 'FR', 'RL', 'RR'},
-  padF = {'F'}, padR = {'R'}, engine = {'all'}, filter = {'all'}, clutch = {'all'}, paint = {'all'},
-  gearbox = {'all'}, diff = {'F', 'R', 'all'}, cv = {'F', 'R'}, turbo = {'all'}, radiator = {'all'}, ignition = {'all'}, oil = {'all'},
-  fuel = {'all'}, cat = {'all'}, intercooler = {'all'}, battery = {'all'}, steering = {'all'}, body = {'all'}, glass = {'all'}, wipers = {'all'}, door = {'FL', 'FR', 'RL', 'RR', 'T'}, seat = {'all'}, flywheel = {'all'}, lights = {'all'}, alternator = {'all'}, exhaust = {'all'},
-  swaybar = {'F', 'R'}, bushing = {'FL', 'FR', 'RL', 'RR'}, bearing = {'FL', 'FR', 'RL', 'RR'}, fluid = {'F', 'R'}, master = {'all'},   -- paint: no apply here, the game side draws it
-}
+-- the parts of the store and the corners each has ('F' / 'R' = an axle, 'all' = one for the car): the rules' table, shared with the game side
+local CORNERS = rules.CORNERS_OF
 local TICK, REPORT, CHANGE, HARD_STOP, HARD_FROM = 0.5, 5, 0.01, 7, 15   -- s, s, smallest change handed on, m/s^2, m/s
 
 local settings = rules.settings('Off')

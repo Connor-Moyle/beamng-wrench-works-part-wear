@@ -120,8 +120,8 @@ def main():
     assert G.useItem(7, "jerry", None)[0] is False and G.useItem(99, "oil", None)[0] is False
     # the tester's call: stored conditions by hand, the car told, bad input refused
     lua.execute("cmds = {}")
-    n = G.setConditions(7, lua.eval("{bearing = {FL = 0.2}, seat = {all = 0.3}, nonsense = {all = 0.1}, spring = {RR = 7}}"))
-    assert n == 3, n
+    n = G.setConditions(7, lua.eval("{bearing = {FL = 0.2, FLL = 0.1}, seat = {all = 0.3}, nonsense = {all = 0.1}, spring = {RR = 7, all = 0.5}}"))
+    assert n == 3, n      # (a corner the kind does not have is refused: FLL, and 'all' for a spring)
     assert lua.eval("files['/settings/slrrPartWear_state.json'] == nil or true")
     sent = " ".join(cmds(lua))
     assert 'slrrWear.setCondition("bearing", "FL", 0.2)' in sent and 'slrrWear.setCondition("seat", "all", 0.3)' in sent and 'slrrWear.setCondition("spring", "RR", 1)' in sent, sent

@@ -477,6 +477,10 @@ end
 
 -- For testers and the showcase (store pictures): set a car's stored conditions by hand, { kind = { corner = c } }, e.g. { bearing = { FL = 0.2 }, seat = { all = 0.3 } }. The car is told at once; the looks
 -- that are decided at spawn (rims, cabin, metal, engine bay) show after the car is spawned again with the same config. Returns the number of conditions set. Not for other mods' gameplay.
+local function validCorner(kind, corner)
+  for _, k in ipairs(rules.CORNERS_OF[kind] or {}) do if k == corner then return true end end
+  return false
+end
 function M.setConditions(vehId, tbl)
   local key = settings.wearEnabled and veh(vehId) and carKey(vehId)
   if not key or type(tbl) ~= 'table' then return 0 end
@@ -484,7 +488,7 @@ function M.setConditions(vehId, tbl)
   for kind, cs in pairs(tbl) do
     if rules.KINDS[kind] and type(cs) == 'table' then
       for corner, c in pairs(cs) do
-        if type(corner) == 'string' and tonumber(c) and tonumber(c) == tonumber(c) then setPair(vehId, key, kind, corner, math.max(0, math.min(1, tonumber(c)))) n = n + 1 end
+        if validCorner(kind, corner) and tonumber(c) and tonumber(c) == tonumber(c) then setPair(vehId, key, kind, corner, math.max(0, math.min(1, tonumber(c)))) n = n + 1 end
       end
     end
   end
