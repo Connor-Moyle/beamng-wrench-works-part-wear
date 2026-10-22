@@ -11,7 +11,7 @@ Seen in the game (a Vivace, a pickup and a Covet, part wear on, Realistic):
 
 Found, but with no measurable effect yet:
 
-- **Leaf springs of the pickup's rear axle** are found (left and right), but with them at 10 % the ride height and pitch did not change at rest: the game's call that changes a spring's rate seems to do nothing on these beams. The pickup's dampers are worn as usual.
+- **Leaf spring wear has no effect yet.** The pickup's rear leaf springs are found (left and right), but with them at 10 % the ride height and pitch did not change at rest: the game's call that changes a spring's rate does nothing on these beams, so this is not a working feature. The pickup's dampers are worn as usual.
 - **Master cylinder and brake fluid:** accepted without errors, but one stop from 100 km/h was not measurably longer.
 - **Gearbox drag:** not measurable in a 5 s full-throttle run.
 
