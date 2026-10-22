@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.2 (unreleased)
+## 0.1.2 (2026-10-22)
 
 Seen in the game (a Vivace, a pickup and a Covet, part wear on, Realistic):
 
