@@ -77,6 +77,10 @@ def main():
     lua.execute("cmds = {}")
     G.onUpdate(2)
     assert not any("setRacing" in x for x in cmds(lua)), "told once per change"
+    lua.execute("cmds = {}")
+    G.onVehicleSpawned(7)                      # the car's Lua restarted (a reload, a swap's respawn): its fresh module is not racing, so the busy flag is sent again
+    G.onUpdate(2)
+    assert any("setRacing(true)" in x for x in cmds(lua)), ("busy, then respawn: told again", cmds(lua))
     lua.execute("cmds = {} sl_career.freeToStart = function() return nil end")
     G.onUpdate(2)
     assert any("setRacing(false)" in x for x in cmds(lua)), "free again"

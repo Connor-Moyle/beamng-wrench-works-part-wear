@@ -436,6 +436,7 @@ function M.onVehicleReplaced(id) pinned[id], chosen[id] = nil, nil end
 M.onVehicleDestroyed = M.forget
 function M.onVehicleSpawned(id)
   lookMsc[id] = nil
+  racingSent[id] = nil      -- (the car's Lua restarted: its fresh slrrWear is not racing, so the next check says again)
   newAgain(id)
   if settings.wearEnabled and watched[id] then give(id) end
   settleAt[id] = clock + SETTLE      -- (what was remembered stays: after a swap's respawn it is the new parts)
