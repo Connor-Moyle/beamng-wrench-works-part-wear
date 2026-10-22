@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.1.2 (unreleased)
+
+Seen in the game (a Vivace, a pickup and a Covet, part wear on, Realistic):
+
+- **Front springs on strut cars.** The Vivace's front springs are found (4 springs and 4 dampers on the car, the front pair in the strut part). With the front springs at 10 % the nose sat 1.3 cm lower after settling: a small change, as the model intends.
+- **Clutch wear on a dual-clutch car.** The Vivace's gearbox is a dual-clutch box and now takes the clutch wear: its lock torque factor fell to 0.45 with the clutch at 0 %, and a hard 0-60 km/h launch took about 0.4 s longer (4.2 s on average new, 4.6 s worn, noisy). With the gearbox also at 0 % the factor is the product of both (0.315).
+- **Anti-roll bars are found** through the torsionbars: 2 on the Vivace, 1 on the pickup and on the Covet.
+- **For other mods:** `conditionsOf` gives the stored wear as rows ("front brake pads", section "brakes", 0.92 and so on), and `setWearRate` / `getWearRate` set and read a multiplier on how fast every part wears.
+
+Found, but with no measurable effect yet:
+
+- **Leaf springs of the pickup's rear axle** are found (left and right), but with them at 10 % the ride height and pitch did not change at rest: the game's call that changes a spring's rate seems to do nothing on these beams. The pickup's dampers are worn as usual.
+- **Master cylinder and brake fluid:** accepted without errors, but one stop from 100 km/h was not measurably longer.
+- **Gearbox drag:** not measurable in a 5 s full-throttle run.
+
+Built and tested offline only (not seen in the game; all off by default like the rest):
+
+- The powertrain parts wear and change the car through the game's own wear fields of each device (not seen in the game yet): the gearbox (friction, shift rate of an automatic, lock torque of a dual clutch), the differential per axle, the driveshafts and halfshafts per axle, the turbocharger (boost power and friction, through the turbo module's own call), the radiator (the game's radiator integrity, kept above its leak threshold: at worst 87 % of the coolant, never a leak; switching part wear off or a reset puts the coolant back to full, whatever it was, and clears any real radiator damage), the ignition (misfire chance, split out of the engine's) and the engine oil (a little more engine friction, 15 000 km). A turbo or radiator is set when its condition changes and again after a reset; the turbo's own mileage wear of the game is set to new while ours applies and is not put back. The slot names of the stock cars tell the garage which of them a swapped part resets.
+- The chassis parts (not seen in the game yet): the anti-roll bars (the stock bars are torsionbars: their rate through the game's own torsionbar call, at worst a fifth of it for a broken link), control arm and link beams (their rate, at worst 85 %, never their length), wheel bearings (a drag next to the pads', up to 65 Nm on a failing one), brake fluid (the pads fade earlier when hot) and the master cylinder (up to a fifth less torque at the pedal). Which beams count as arms is told by the part's own name, so the Vivace's toe links (in a part that says only "suspension") are not touched; the torsionbar tag the bars are found by is not yet seen in the game.
+- A garage repair of the engine now gives its power back (before, the lowered power stayed after a repair), and a repaired ignition gives the game's own misfire chance back. Found by reading the code.
+- Records of freeroam cars that are not used for 30 days are dropped; a record in use is kept.
+- A reset reapplied only some of the effects: the list of effects being reapplied was changed while it was walked, so one entry in turn was skipped. Fixed, with the whole list copied first.
+
+Known limits:
+
+- The leaf springs, the master cylinder, the brake fluid and the gearbox drag above need another look in the game; none of the powertrain and chassis effects has been measured.
+- A newly fitted part of a slot no table row covers keeps the old part's wear; repair it in the Wrench Works garage.
+
 ## 0.1.1 (2026-10-22)
 
 Proven in the game since 0.1.0:
@@ -16,9 +44,6 @@ Seen with no effect yet:
 Built and tested offline only (0.1.1):
 
 - The part finder now reads whole words and only for the beams that can be links, so the 4-link front axles of the stock Pickup variants, the van, the Nine and the traffic cars ("4link" was read as an alignment link) are no longer skipped. The pickup of the test build has independent front coilovers, so this was not seen in the game.
-- The powertrain parts wear and change the car through the game's own wear fields of each device (not seen in the game yet): the gearbox (friction, shift rate of an automatic, lock torque of a dual clutch), the differential per axle, the driveshafts and halfshafts per axle, the turbocharger (boost power and friction, through the turbo module's own call), the radiator (the game's radiator integrity, kept above its leak threshold: at worst 87 % of the coolant, never a leak; switching part wear off or a reset puts the coolant back to full, whatever it was, and clears any real radiator damage), the ignition (misfire chance, split out of the engine's) and the engine oil (a little more engine friction, 15 000 km). A turbo or radiator is set when its condition changes and again after a reset; the turbo's own mileage wear of the game is set to new while ours applies and is not put back. The slot names of the stock cars tell the garage which of them a swapped part resets.
-- The chassis parts (not seen in the game yet): the anti-roll bars (the stock bars are torsionbars: their rate through the game's own torsionbar call, at worst a fifth of it for a broken link), control arm and link beams (their rate, at worst 85 %, never their length), wheel bearings (a drag next to the pads', up to 65 Nm on a failing one), brake fluid (the pads fade earlier when hot) and the master cylinder (up to a fifth less torque at the pedal). Which beams count as arms is told by the part's own name, so the Vivace's toe links (in a part that says only "suspension") are not touched; the torsionbar tag the bars are found by is not yet seen in the game.
-- A reset reapplied only some of the effects: the list of effects being reapplied was changed while it was walked, so one entry in turn was skipped. Fixed, with the whole list copied first (offline test).
 
 Known limits:
 
