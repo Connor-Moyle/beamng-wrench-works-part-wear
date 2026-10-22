@@ -36,7 +36,7 @@ def main():
     lua.globals().W_ = W
     W.setRandom(lua.eval("function() return 0 end"))       # every roll succeeds
     S = dict(wearEnabled=True, lifeScale=0.0001, abuseScale=0, ageScale=0, effectStrength=1, springSagMax=25, springRateLoss=0.05, damperLossMax=0.8,
-             brakeTorqueLoss=0.08, enginePowerLoss=0.15, failures=True, failureRate=3, judder=1, visualWear=1)
+             brakeTorqueLoss=0.08, enginePowerLoss=0.15, failures=True, failureRate=3, judder=1, visualWear=1, failEngine=True, failDrive=True, failElectrics=True)
     W.setSettings(lua.table(**S))
     W.setCondition("engine", "all", 0.05)
     W.setCondition("oil", "all", 0.05)

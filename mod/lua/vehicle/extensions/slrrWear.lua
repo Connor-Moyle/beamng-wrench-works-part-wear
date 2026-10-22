@@ -183,7 +183,7 @@ local function breakOne(match)
     if type(d.type) == 'string' and d.type:find(match) and d.onBreak and not d.isBroken then list[#list + 1] = d end
   end
   local d = list[#list > 0 and math.max(1, math.floor(rand() * #list) + 1) or 1]
-  if d then pcall(d.onBreak, d) end
+  if d then pcall(d.onBreak, d) else say('failure: no device of type ' .. match .. ' on this car to break') end
 end
 local function applyFailure(r)
   if r.game == 'thermals' then flag(mainEngine(), r.flag)

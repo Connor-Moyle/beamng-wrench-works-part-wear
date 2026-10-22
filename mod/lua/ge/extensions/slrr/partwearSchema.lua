@@ -63,13 +63,13 @@ function M.build(S, opts)
     tooltip = 'A part that is nearly gone can break: a snapped spring, a seized brake. Off: parts only get worse.' }
   -- random mechanical failures (docs/FAILURES.md): which groups can fail, whether there is a warning first, and whether a race is exempt
   for _, b in ipairs({
-    { 'failEngine', 'Engine failures', true, 'Head gasket, piston rings and the bottom end can fail on a badly worn engine. Needs "Parts can break".' },
-    { 'failDrive', 'Driveline failures', true, 'A driveshaft, the differential and the gearbox can fail on badly worn parts. Needs "Parts can break".' },
-    { 'failElectrics', 'Electrical failures', true, 'The alternator can stop charging on a badly worn one. Needs "Parts can break".' },
+    { 'failEngine', 'Engine failures', false, 'Head gasket, piston rings and the bottom end can fail on a badly worn engine. Needs "Parts can break". Off by default. A failure lasts until the car is reset in the game or repaired after a reload.' },
+    { 'failDrive', 'Driveline failures', false, 'A driveshaft, the differential and the gearbox can fail on badly worn parts. Needs "Parts can break". Off by default. A broken part stays broken until the car is reset in the game or repaired after a reload.' },
+    { 'failElectrics', 'Electrical failures', false, 'The alternator can stop charging on a badly worn one. Needs "Parts can break". Off by default.' },
     { 'failureWarnings', 'Warning before a failure', true, 'A noise or a message comes first, and stopping the engine for ten seconds can save the part. Off: failures come without warning.' },
     { 'failureNeverRacing', 'No failures during a race', false, 'A race, a job or a chase is never ended by a random failure.' },
   }) do
-    fields[#fields + 1] = { id = b[1], tab = 'effects', group = 'Breakdowns', type = 'bool', label = b[2], default = b[3], store = json(b[1]), apply = 'live', onChange = changed, tooltip = b[4], advanced = true }
+    fields[#fields + 1] = { id = b[1], tab = 'effects', group = 'Breakdowns', type = 'bool', label = b[2], default = real[b[1]] == nil and b[3] or real[b[1]], store = json(b[1]), apply = 'live', onChange = changed, tooltip = b[4], advanced = true }
   end
   for _, r in ipairs(ROWS) do
     local key = r[2]

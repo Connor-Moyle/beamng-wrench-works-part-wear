@@ -42,11 +42,11 @@ M.ABUSE_KM = {
 
 M.PRESETS = {
   Realistic = {wearEnabled = true, lifeScale = 0.1, abuseScale = 1.5, ageScale = 1, effectStrength = 1, springSagMax = 25, springRateLoss = 0.05,
-               damperLossMax = 0.8, brakeTorqueLoss = 0.08, enginePowerLoss = 0.15, failures = true, failureRate = 1, judder = 1, visualWear = 1, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1},
+               damperLossMax = 0.8, brakeTorqueLoss = 0.08, enginePowerLoss = 0.15, failures = true, failureRate = 1, judder = 1, visualWear = 1, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1, failEngine = false, failDrive = false, failElectrics = false, failureWarnings = true, failureNeverRacing = false},
   Light = {wearEnabled = true, lifeScale = 0.03, abuseScale = 0.5, ageScale = 0.3, effectStrength = 0.5, springSagMax = 12, springRateLoss = 0.02,
-           damperLossMax = 0.5, brakeTorqueLoss = 0.04, enginePowerLoss = 0.08, failures = false, failureRate = 0, judder = 1, visualWear = 0.6, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1},
+           damperLossMax = 0.5, brakeTorqueLoss = 0.04, enginePowerLoss = 0.08, failures = false, failureRate = 0, judder = 1, visualWear = 0.6, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1, failEngine = false, failDrive = false, failElectrics = false, failureWarnings = true, failureNeverRacing = false},
   Off = {wearEnabled = false, lifeScale = 0.1, abuseScale = 0, ageScale = 0, effectStrength = 0, springSagMax = 0, springRateLoss = 0,
-         damperLossMax = 0, brakeTorqueLoss = 0, enginePowerLoss = 0, failures = false, failureRate = 0, judder = 0, visualWear = 0, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1},
+         damperLossMax = 0, brakeTorqueLoss = 0, enginePowerLoss = 0, failures = false, failureRate = 0, judder = 0, visualWear = 0, lookDiscs = 1, lookMetal = 1, lookEngine = 1, lookRims = 1, lookCabin = 1, failEngine = false, failDrive = false, failElectrics = false, failureWarnings = true, failureNeverRacing = false},
 }
 M.RANGES = {lifeScale = {0.01, 1}, abuseScale = {0, 3}, ageScale = {0, 3}, effectStrength = {0, 2}, springSagMax = {0, 40}, springRateLoss = {0, 0.2}, wearRate = {0.05, 20},
             damperLossMax = {0, 0.9}, brakeTorqueLoss = {0, 0.3}, enginePowerLoss = {0, 0.3}, failureRate = {0, 3}, judder = {0, 2}, visualWear = {0, 1}, lookDiscs = {0, 1}, lookMetal = {0, 1}, lookEngine = {0, 1}, lookRims = {0, 1}, lookCabin = {0, 1}}
