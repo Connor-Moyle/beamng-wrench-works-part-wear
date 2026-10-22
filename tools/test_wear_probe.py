@@ -46,10 +46,18 @@ def main():
       -- a camber link beam of its own part, and an anti-roll bar and two other torsionbars
       v.data.beams[214] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, beamPrecompression = 1.004, partPath = '/vivace_body/ardente_suspension_R/vivace_toe_link'}
       v.data.beams[215] = {beamType = 0, id1 = 3, beamSpring = 14000000, beamDamp = 100, partPath = '/vivace_body/rear_arm_suspension/vivace_subframe_R'}   -- an ancestor says arm, the part itself does not
+      -- the body: a rail with no strength limit (the unbreakable body rails), a body panel, glass, a door hinge spring and a seat mount, and a door panel beam that must stay as it is
+      v.data.beams[300] = {beamType = 0, id1 = 1, beamSpring = 5000000, beamDamp = 120, beamDeform = 25000, beamStrength = 3.4e38, partPath = '/vivace_body/vivace_framerails_F'}
+      v.data.beams[301] = {beamType = 0, id1 = 1, beamSpring = 900000, beamDamp = 80, beamDeform = 9000, beamStrength = 30000, partPath = '/vivace_body/vivace_body'}
+      v.data.beams[302] = {beamType = 0, id1 = 3, beamSpring = 500000, beamDamp = 50, beamDeform = 6000, beamStrength = 8000, partPath = '/vivace_body/ardente_glass_F'}
+      v.data.beams[303] = {beamType = 2, id1 = 1, beamSpring = 800, beamDamp = 200, beamDeform = 4000, beamStrength = 12000, partPath = '/vivace_body/ardente_door_L/ardente_door_L'}
+      v.data.beams[304] = {beamType = 0, id1 = 1, beamSpring = 700000, beamDamp = 60, beamDeform = 5000, beamStrength = 9000, partPath = '/vivace_body/ardente_door_L/ardente_door_L'}
+      v.data.beams[305] = {beamType = 0, id1 = 1, beamSpring = 1000000, beamDamp = 40, beamDeform = 7000, beamStrength = 20000, partPath = '/vivace_body/ardente_seat_FL'}
       v.data.beams[200] = {beamType = 2, id1 = 1, beamSpring = 0, beamDamp = 20000, beamDampRebound = 0, beamDampVelocitySplit = 2, partPath = '/bumpstop/'}
       rest = {}
       tors = {}
-      obj = {setTorsionbarSpringDamp = function(_, cid, k, d) tors[#tors + 1] = {cid, k, d} end, getBeamRestLength = function(_, c) return 0.4 end,
+      bs = {}
+      obj = {setBeamStrength = function(_, c, x) bs[#bs + 1] = {'str', c, x} end, setBeamDeform = function(_, c, x) bs[#bs + 1] = {'def', c, x} end, setTorsionbarSpringDamp = function(_, cid, k, d) tors[#tors + 1] = {cid, k, d} end, getBeamRestLength = function(_, c) return 0.4 end,
              setBoundedBeamDamp = function(_, c, ...) calls[#calls + 1] = {'damp', c, ...} end,
              setBeamSpringDamp = function(_, c, k, d) calls[#calls + 1] = {'spring', c, k, d} end,
              setBeamLength = function(_, c, l) calls[#calls + 1] = {'len', c, l} end}
@@ -370,6 +378,27 @@ def main():
     assert abs(lua.eval("tors[#tors][2]") - 900) < 1e-9, "the anti-roll bar is back"
     assert lua.eval("wheels.wheels[1].frictionTorque") == 0 and lua.eval("wheels.wheels[1].brakeTorque") == 1000, "bearing drag and brake torque are back"
     P.clutch(0.0)
+    # the body: deform and strength limits only where a limit exists, the door hinges are the bounded beams of a door part, a seat mount is softer; clear puts the limits back
+    P.clear()
+    lua.execute("bs, calls = {}, {}")
+    counts = P.dumpStructure()
+    assert counts["body FL"] == 2 and counts["glass RL"] >= 1 and counts["door FL"] == 1 and counts["seat FL"] == 1, ("the finder sees each kind", dict(counts))
+    P.body(0.0)
+    P.glass(0.0)
+    P.door("FL", 0.0)
+    P.seat(0.0)
+    got = [lua.eval("bs")[i + 1] for i in range(len(lua.eval("bs")))]
+    assert ("def", 300, 25000 * 0.6) in [(g[1], g[2], g[3]) for g in got] and not [g for g in got if g[1] == "str" and g[2] == 300], "a rail with no strength limit gets a lower deform limit and stays unbreakable"
+    assert ("str", 301, 30000 * 0.6) in [(g[1], g[2], g[3]) for g in got] and ("def", 301, 9000 * 0.6) in [(g[1], g[2], g[3]) for g in got], "the body panel x0.6"
+    assert any(g[2] == 302 and g[1] == "str" and abs(g[3] - 8000 * 0.7) < 1e-6 for g in got), "glass x0.7"
+    assert any(g[2] == 303 and g[1] == "str" and abs(g[3] - 12000 * 0.7) < 1e-6 for g in got) and not [g for g in got if g[2] == 304], "the door hinge spring, not the door panel beam"
+    sp = [c for c in [lua.eval("calls")[i + 1] for i in range(len(lua.eval("calls")))] if c[1] == "spring" and c[2] == 305]
+    assert sp and abs(sp[-1][3] - 1000000 * 0.85) < 1e-6 and not [g for g in got if g[2] == 305 and g[1] == "str" and g[3] > 20000 * 0.8 + 1], "a seat mount: softer and weaker"
+    lua.execute("bs, calls = {}, {}")
+    P.clear()
+    back = [lua.eval("bs")[i + 1] for i in range(len(lua.eval("bs")))]
+    assert ("def", 300, 25000) in [(g[1], g[2], g[3]) for g in back] and ("str", 301, 30000) in [(g[1], g[2], g[3]) for g in back] and ("str", 302, 8000) in [(g[1], g[2], g[3]) for g in back], "the limits are back"
+    P.onReset()
     # clear: every value back
     lua.execute("calls = {}")
     P.clear()

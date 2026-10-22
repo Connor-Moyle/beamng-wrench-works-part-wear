@@ -101,12 +101,25 @@ M.carKey = carKey
 -- the paint wear look of a car: the layers of the stored paint condition go to Car Surface FX (nothing happens without it, or without its setPaintWear)
 local function paint(id, off)
   local C = rawget(_G, 'carSurfaceFx')
-  if not (C and C.setPaintWear) then return end
+  if not C then return end
   local key = carKey(id)
   local blob = key and loadStore()[key]
-  local c = blob and blob.paint and blob.paint.all or 1
-  local e = (not off) and rules.effects('paint', c, settings) or nil
-  pcall(C.setPaintWear, id, e or { fade = 0, rust = 0, scuffs = 0, grime = 0 })
+  if C.setPaintWear then
+    local c = blob and blob.paint and blob.paint.all or 1
+    local e = (not off) and rules.effects('paint', c, settings) or nil
+    pcall(C.setPaintWear, id, e or { fade = 0, rust = 0, scuffs = 0, grime = 0 })
+  end
+  -- the windows (pits and haze) and the wiper blades (the share of drops a sweep clears), from the glass and wiper conditions; both hooks are Car Surface FX's, off or a clear = nothing
+  if C.setGlassWear then
+    local c = blob and blob.glass and blob.glass.all or 1
+    local e = (not off) and rules.effects('glass', c, settings) or nil
+    pcall(C.setGlassWear, id, e and { pits = e.pits, haze = e.haze } or { pits = 0, haze = 0 })
+  end
+  if C.setWiperWear then
+    local c = blob and blob.wipers and blob.wipers.all or 1
+    local e = (not off) and rules.effects('wipers', c, settings) or nil
+    pcall(C.setWiperWear, id, e and e.factor or nil)
+  end
 end
 local function send(id, code) local o = veh(id) if o then o:queueLuaCommand(code) end end
 

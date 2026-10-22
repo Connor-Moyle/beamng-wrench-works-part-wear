@@ -23,8 +23,10 @@ def main():
       jsonWriteFile = function(f, t) files[f] = t end
       car = {JBeam = 'covet', partConfig = 'vehicles/covet/base.pc', queueLuaCommand = function(_, c) cmds[#cmds + 1] = c end}
       be = {getObjectByID = function(_, id) return id == 7 and car or nil end, getPlayerVehicleID = function() return 7 end}
-      paintCalls = {}
-      carSurfaceFx = {setPaintWear = function(id, t) paintCalls[#paintCalls + 1] = {id = id, fade = t.fade, rust = t.rust} end}
+      paintCalls, glassCalls, wiperCalls = {}, {}, {}
+      carSurfaceFx = {setPaintWear = function(id, t) paintCalls[#paintCalls + 1] = {id = id, fade = t.fade, rust = t.rust} end,
+                      setGlassWear = function(id, t) glassCalls[#glassCalls + 1] = {id = id, pits = t.pits, haze = t.haze} end,
+                      setWiperWear = function(id, f) wiperCalls[#wiperCalls + 1] = {id = id, factor = f or -1} end}
       slrr_settings = {register = function(s) registered = s end}
       package.preload['slrrWearRules'] = function() return assert(loadfile('@ROOT@/common/slrrWearRules.lua'))() end
       package.preload['slrr/partwearSchema'] = function() return assert(loadfile('@ROOT@/ge/extensions/slrr/partwearSchema.lua'))() end
@@ -109,6 +111,13 @@ def main():
     G.onPartsTreeConfigChanged(lua.eval("swapNew"))
     assert not cmds(lua), "the same parts again change nothing"
     G.onVehicleReplaced(7)      # (the pin of the swap ends)
+    # the windows and the wiper blades follow the stored glass and wiper conditions (Car Surface FX's hooks), and a new car clears them
+    G.onReport(7, lua.eval("{glass = {all = 0.2}, wipers = {all = 0.3}}"))
+    gc, wc = lua.eval("glassCalls[#glassCalls]"), lua.eval("wiperCalls[#wiperCalls]")
+    assert gc["pits"] > 0.3 and gc["haze"] > 0.2 and 0.5 <= wc["factor"] < 1, ("worn glass pits and hazes, worn blades clear less", dict(gc), dict(wc))
+    G.onReport(7, lua.eval("{glass = {all = 1}}"))
+    gc, wc = lua.eval("glassCalls[#glassCalls]"), lua.eval("wiperCalls[#wiperCalls]")
+    assert gc["pits"] == 0 and gc["haze"] == 0 and wc["factor"] == 1, "new glass and new blades: cleared"
     lua.execute("files['/settings/slrrPartWear.json'] = {wearEnabled = false} cmds = {}")
     G.reload()
     assert "wearEnabled=false" in cmds(lua)[0] and "off" in G.status()
